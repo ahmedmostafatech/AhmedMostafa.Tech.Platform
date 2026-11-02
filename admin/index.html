@@ -1,0 +1,6 @@
+<script type="module">
+  import { supabase } from './assets/js/core/supabase-client.js';
+  import { getSession } from './assets/js/core/auth.js';
+  console.log('Client ready:', !!supabase);
+  console.log('Session:', await getSession());
+</script>

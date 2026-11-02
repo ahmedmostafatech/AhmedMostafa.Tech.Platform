@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="guard-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>تسجيل الدخول | Ahmed Mostafa Tech</title>
+  <link rel="icon" href="data:,">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <!-- لو JavaScript مقفول: نظهر الصفحة مع رسالة -->
+  <noscript>
+    <style>html.guard-pending body { visibility: visible; }</style>
+  </noscript>
+</head>
+<body class="auth-page">
+  <main class="auth-shell">
+    <a class="brand" href="index.html" aria-label="الصفحة الرئيسية">
+      <span class="ltr">Ahmed Mostafa <span>Tech</span></span>
+    </a>
+
+    <section class="card auth-card" aria-labelledby="login-title">
+      <h1 id="login-title" class="auth-card__title">تسجيل الدخول</h1>
+      <p class="auth-card__text">
+        سجّل الدخول بحساب جوجل لتشترك في المراجعات وتتابع اشتراكاتك.
+      </p>
+
+      <noscript>
+        <div class="alert alert--error" role="alert">
+          الموقع يحتاج تفعيل JavaScript حتى يعمل تسجيل الدخول.
+        </div>
+      </noscript>
+
+      <!-- تحذير المتصفحات المدمجة داخل التطبيقات -->
+      <div id="embedded-warning" class="alert alert--warning" role="alert" hidden>
+        <p>
+          يبدو أنك فتحت الصفحة من داخل تطبيق (فيسبوك أو إنستجرام أو غيره).
+          جوجل يمنع تسجيل الدخول من هذه المتصفحات. افتح الرابط في Chrome أو Safari.
+        </p>
+        <button type="button" id="copy-link-btn" class="btn btn--secondary btn--block">
+          نسخ رابط الصفحة
+        </button>
+      </div>
+
+      <div id="login-error" class="alert alert--error" role="alert" hidden></div>
+
+      <button type="button" id="google-btn" class="btn btn--primary btn--block">
+        المتابعة بحساب جوجل
+      </button>
