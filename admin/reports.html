@@ -23,151 +23,9 @@
   <link rel="stylesheet" href="../assets/css/layout.css">
   <link rel="stylesheet" href="../assets/css/components.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
-
-  <style>
-    body {
-      background: #040914;
-      color: #ffffff;
-      font-family: var(--font-primary);
-    }
-
-    .admin-app {
-      display: flex;
-      min-height: 100vh;
-      background: #040914;
-    }
-
-    .admin-sidebar {
-      width: 260px;
-      background: rgba(10, 18, 36, 0.95);
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      backdrop-filter: blur(12px);
-    }
-
-    @media (max-width: 900px) {
-      .admin-sidebar {
-        display: none;
-      }
-    }
-
-    .admin-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      background: radial-gradient(circle at 50% 0%, #0d1a36 0%, #040914 80%);
-    }
-
-    .admin-topbar {
-      height: 70px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      background: rgba(10, 18, 36, 0.7);
-      backdrop-filter: blur(12px);
-    }
-
-    .admin-brand {
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .admin-brand-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffd154;
-      font-size: 1.2rem;
-    }
-
-    .admin-nav {
-      padding: 16px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .admin-nav-link {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-radius: 12px;
-      color: rgba(255, 255, 255, 0.65);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      transition: all 0.2s ease;
-    }
-
-    .admin-nav-link:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #ffffff;
-      transform: translateX(-3px);
-    }
-
-    .admin-nav-link.active {
-      background: rgba(54, 90, 162, 0.35);
-      border: 1px solid rgba(54, 90, 162, 0.5);
-      color: #ffffff;
-    }
-
-    .admin-nav-item-inner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .report-card {
-      background: rgba(14, 25, 48, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 22px;
-      padding: 28px;
-      backdrop-filter: blur(14px);
-      margin-bottom: 24px;
-    }
-
-    .report-select {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px;
-      color: #ffffff;
-      font-family: inherit;
-      width: 100%;
-      outline: none;
-      box-sizing: border-box;
-      transition: all 0.2s ease;
-    }
-
-    .report-select:focus {
-      border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.08);
-    }
-
-    .report-select option {
-      background: #0d1a36;
-      color: #ffffff;
-    }
-  </style>
 </head>
 
-<body>
+<body class="admin-body">
 
   <div class="admin-app">
 
@@ -240,11 +98,11 @@
       <header class="admin-topbar">
         <div>
           <h1
-            style="margin:0; font-size:18px; font-weight:900; color:#ffffff; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-file-csv" style="color:#38bdf8;"></i>
+            style="margin:0; font-size:18px; font-weight:900; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-file-csv" style="color:#2563eb;"></i>
             التقارير وتصدير كشوفات الطلاب
           </h1>
-          <span style="font-size:12px; color:rgba(255,255,255,0.5);">تصدير بيانات التسجيلات بصيغة CSV تدعم برامج Excel
+          <span style="font-size:12px; color:var(--admin-text-muted);">تصدير بيانات التسجيلات بصيغة CSV تدعم برامج Excel
             باللغة العربية بدون أخطاء التشفير</span>
         </div>
       </header>
@@ -253,10 +111,10 @@
       <div style="padding:28px 32px; overflow-y:auto; flex:1; max-width:960px;">
 
         <!-- بطاقة التصدير -->
-        <div class="report-card spotlight-card">
+        <div class="report-card">
           <h2
-            style="font-size:17px; font-weight:800; color:#ffffff; margin:0 0 18px 0; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-file-excel" style="color:#22c55e;"></i>
+            style="font-size:17px; font-weight:800; color:var(--admin-text-main); margin:0 0 18px 0; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-file-excel" style="color:#16a34a;"></i>
             تصدير كشف تسجيلات الطلاب (Excel CSV)
           </h2>
 
@@ -264,7 +122,7 @@
             style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-bottom:24px;">
             <div>
               <label
-                style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px;">
+                style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-muted); margin-bottom:6px;">
                 فلترة بالمادة / المراجعة
               </label>
               <select id="export-course" class="report-select">
@@ -274,7 +132,7 @@
 
             <div>
               <label
-                style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px;">
+                style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-muted); margin-bottom:6px;">
                 حالة الدفع
               </label>
               <select id="export-status" class="report-select">
@@ -288,7 +146,7 @@
 
             <div>
               <label
-                style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.7); margin-bottom:6px;">
+                style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-muted); margin-bottom:6px;">
                 الفرع الجامعي
               </label>
               <select id="export-branch" class="report-select">
@@ -299,14 +157,15 @@
 
           <!-- ملخص سريع للملف قبل التصدير -->
           <div
-            style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
+            style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:18px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
             <div>
-              <span style="font-size:13px; color:rgba(255,255,255,0.6);">إجمالي السجلات المطابقة:</span>
-              <strong id="export-match-count" style="font-size:16px; color:#ffffff; margin-right:6px;">-</strong>
+              <span style="font-size:13px; color:var(--admin-text-muted);">إجمالي السجلات المطابقة:</span>
+              <strong id="export-match-count"
+                style="font-size:16px; color:var(--admin-text-main); margin-right:6px;">-</strong>
             </div>
             <div>
-              <span style="font-size:13px; color:rgba(255,255,255,0.6);">إجمالي المبالغ المحصلة:</span>
-              <strong id="export-match-revenue" style="font-size:18px; color:#4ade80; margin-right:6px;">-</strong>
+              <span style="font-size:13px; color:var(--admin-text-muted);">إجمالي المبالغ المحصلة:</span>
+              <strong id="export-match-revenue" style="font-size:18px; color:#16a34a; margin-right:6px;">-</strong>
             </div>
           </div>
 
@@ -318,22 +177,24 @@
         </div>
 
         <!-- بطاقة مزامنة Google Sheets -->
-        <div class="report-card spotlight-card">
+        <div class="report-card">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-            <i class="fa-solid fa-table" style="color:#22c55e; font-size:1.4rem;"></i>
-            <h3 style="font-size:16px; font-weight:800; color:#ffffff; margin:0;">
+            <i class="fa-solid fa-table" style="color:#16a34a; font-size:1.4rem;"></i>
+            <h3 style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0;">
               المزامنة السحابية مع جداول بيانات Google Sheets
             </h3>
           </div>
-          <p style="font-size:13px; color:rgba(255,255,255,0.65); line-height:1.75; margin-bottom:18px;">
+          <p style="font-size:13px; color:var(--admin-text-muted); line-height:1.75; margin-bottom:18px;">
             تدعم المنصة المزامنة التلقائية اللحظية مع جداول Google Sheets عبر كود Google Apps Script. يتم حفظ كل طلب
-            جديد تلقائياً في الشيت مع إمكانية تحديث الحالة فور تأكيد الدفع.
+            جديد
+            تلقائياً في الشيت مع إمكانية تحديث الحالة فور تأكيد الدفع.
           </p>
           <div
-            style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); padding:14px; border-radius:12px; font-size:12px; color:#9cbdfc; line-height:1.6;">
-            <i class="fa-solid fa-circle-info" style="color:#60a5fa;"></i>
+            style="background:#eff6ff; border:1px solid #bfdbfe; padding:14px; border-radius:12px; font-size:12px; color:#1e40af; line-height:1.6;">
+            <i class="fa-solid fa-circle-info" style="color:#2563eb;"></i>
             قاعدة البيانات (Supabase) هي المصدر الرئيسي والمؤمّن للبيانات. في حال حدوث أي بطء أو انقطاع في Google
-            Sheets، يمكنك دوماً استخراج كشف كامل ودقيق عبر زر التحميل بالأعلى.
+            Sheets،
+            يمكنك دوماً استخراج كشف كامل ودقيق عبر زر التحميل بالأعلى.
           </div>
         </div>
 

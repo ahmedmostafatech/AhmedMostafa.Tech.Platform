@@ -23,210 +23,9 @@
   <link rel="stylesheet" href="../assets/css/layout.css">
   <link rel="stylesheet" href="../assets/css/components.css">
   <link rel="stylesheet" href="../assets/css/admin.css">
-
-  <style>
-    body {
-      background: #040914;
-      color: #ffffff;
-      font-family: var(--font-primary);
-    }
-
-    .admin-app {
-      display: flex;
-      min-height: 100vh;
-      background: #040914;
-    }
-
-    .admin-sidebar {
-      width: 260px;
-      background: rgba(10, 18, 36, 0.95);
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      backdrop-filter: blur(12px);
-    }
-
-    @media (max-width: 900px) {
-      .admin-sidebar {
-        display: none;
-      }
-    }
-
-    .admin-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      background: radial-gradient(circle at 50% 0%, #0d1a36 0%, #040914 80%);
-    }
-
-    .admin-topbar {
-      height: 70px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 32px;
-      background: rgba(10, 18, 36, 0.7);
-      backdrop-filter: blur(12px);
-    }
-
-    .admin-brand {
-      padding: 24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .admin-brand-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffd154;
-      font-size: 1.2rem;
-    }
-
-    .admin-nav {
-      padding: 16px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-    }
-
-    .admin-nav-link {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-radius: 12px;
-      color: rgba(255, 255, 255, 0.65);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      transition: all 0.2s ease;
-    }
-
-    .admin-nav-link:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #ffffff;
-      transform: translateX(-3px);
-    }
-
-    .admin-nav-link.active {
-      background: rgba(54, 90, 162, 0.35);
-      border: 1px solid rgba(54, 90, 162, 0.5);
-      color: #ffffff;
-    }
-
-    .admin-nav-item-inner {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* Dark Table */
-    .table-container-card {
-      background: rgba(14, 25, 48, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 22px;
-      padding: 24px;
-      backdrop-filter: blur(14px);
-      overflow: hidden;
-    }
-
-    .admin-dark-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      text-align: right;
-    }
-
-    .admin-dark-table th {
-      padding: 14px 12px;
-      color: rgba(255, 255, 255, 0.6);
-      font-weight: 700;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .admin-dark-table td {
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      color: rgba(255, 255, 255, 0.85);
-    }
-
-    .admin-dark-table tr:hover td {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    /* Form Fields */
-    .dark-form-input {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 11px 14px;
-      font-size: 13px;
-      color: #ffffff;
-      font-family: inherit;
-      width: 100%;
-      box-sizing: border-box;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .dark-form-input:focus {
-      border-color: #3b82f6;
-      background: rgba(255, 255, 255, 0.09);
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
-
-    /* Modal Backdrop */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 100;
-      backdrop-filter: blur(8px);
-    }
-
-    .modal-card {
-      background: #0d1a36;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 24px;
-      padding: 28px;
-      width: 100%;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
-      color: #ffffff;
-    }
-
-    .modal-close-btn {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 22px;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .modal-close-btn:hover {
-      color: #ffffff;
-    }
-  </style>
 </head>
 
-<body>
+<body class="admin-body">
 
   <div class="admin-app">
 
@@ -299,18 +98,17 @@
       <header class="admin-topbar">
         <div>
           <h1
-            style="margin:0; font-size:18px; font-weight:900; color:#ffffff; display:flex; align-items:center; gap:8px;">
-            <i class="fa-solid fa-book-bookmark" style="color:#ffd154;"></i>
+            style="margin:0; font-size:18px; font-weight:900; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-book-bookmark" style="color:#2563eb;"></i>
             إدارة المراجعات والمناهج التعليمية
           </h1>
-          <span style="font-size:12px; color:rgba(255,255,255,0.5);">إضافة وتعديل المراجعات، الأسعار، وتعيين روابط
+          <span style="font-size:12px; color:var(--admin-text-muted);">إضافة وتعديل المراجعات، الأسعار، وتعيين روابط
             الوصول السريعة (Google Drive)</span>
         </div>
 
         <div style="display:flex; align-items:center; gap:12px;">
-          <button type="button" id="btn-open-create-modal" class="btn-interactive"
-            style="min-height:38px; padding:0 18px; font-size:13px; border-radius:10px;">
-            <span class="btn-dot"></span>
+          <button type="button" id="btn-open-create-modal" class="btn btn--accent btn--sm"
+            style="min-height:38px; padding:0 18px; font-size:13px; border-radius:10px; font-weight:700;">
             <i class="fa-solid fa-plus"></i>
             <span>إضافة مراجعة جديدة</span>
           </button>
@@ -322,7 +120,7 @@
 
         <div id="revisions-alert" class="alert alert--error" hidden role="alert" style="margin-bottom:20px;"></div>
 
-        <div class="table-container-card spotlight-card">
+        <div class="table-container-card">
           <div style="overflow-x:auto;">
             <table class="admin-dark-table">
               <thead>
@@ -337,7 +135,7 @@
               </thead>
               <tbody id="revisions-tbody">
                 <tr>
-                  <td colspan="6" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">
+                  <td colspan="6" class="text-center" style="padding:32px; color:var(--admin-text-muted);">
                     <i class="fa-solid fa-spinner fa-spin"></i> جاري تحميل المراجعات...
                   </td>
                 </tr>
@@ -354,12 +152,12 @@
 
   <!-- مودال إضافة أو تعديل مراجعة -->
   <div id="revision-modal" class="modal-backdrop" hidden>
-    <div class="modal-card spotlight-card" style="max-width:600px;">
+    <div class="modal-card" style="max-width:600px;">
       <div
-        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:14px; margin-bottom:18px;">
+        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:14px; margin-bottom:18px;">
         <h3 id="modal-rev-heading"
-          style="margin:0; font-size:17px; font-weight:800; color:#ffffff; display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-pen-to-square" style="color:#72a2ff;"></i>
+          style="margin:0; font-size:17px; font-weight:800; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-pen-to-square" style="color:#2563eb;"></i>
           إضافة مراجعة جديدة
         </h3>
         <button type="button" id="modal-rev-close" class="modal-close-btn">&times;</button>
@@ -370,7 +168,7 @@
 
         <div style="margin-bottom:14px;">
           <label
-            style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">
+            style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-main); margin-bottom:6px;">
             عنوان المراجعة <span style="color:#ef4444;">*</span>
           </label>
           <input type="text" id="rev-form-title" class="dark-form-input"
@@ -379,7 +177,7 @@
 
         <div style="margin-bottom:14px;">
           <label
-            style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">
+            style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-main); margin-bottom:6px;">
             وصف مختصر (يظهر في كروت القائمة)
           </label>
           <input type="text" id="rev-form-short" class="dark-form-input"
@@ -388,7 +186,7 @@
 
         <div style="margin-bottom:14px;">
           <label
-            style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">
+            style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-main); margin-bottom:6px;">
             الوصف الكامل وتفاصيل المراجعة
           </label>
           <textarea id="rev-form-desc" class="dark-form-input" style="min-height:90px;"
@@ -398,7 +196,7 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
           <div>
             <label
-              style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">
+              style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-main); margin-bottom:6px;">
               السعر (بالجنيه المصري) <span style="color:#ef4444;">*</span>
             </label>
             <input type="number" id="rev-form-price" class="dark-form-input" placeholder="120" required min="0"
@@ -407,7 +205,7 @@
 
           <div>
             <label
-              style="display:block; font-size:12px; font-weight:700; color:rgba(255,255,255,0.8); margin-bottom:6px;">
+              style="display:block; font-size:12px; font-weight:700; color:var(--admin-text-main); margin-bottom:6px;">
               تاريخ نهاية الصلاحية
             </label>
             <input type="date" id="rev-form-expiry" class="dark-form-input">
@@ -415,9 +213,10 @@
         </div>
 
         <div style="margin-bottom:16px;">
-          <label style="display:block; font-size:12px; font-weight:700; color:#ffd154; margin-bottom:6px;">
+          <label style="display:block; font-size:12px; font-weight:700; color:#1e3a8a; margin-bottom:6px;">
             رابط الوصول لمحتوى المراجعة (Google Drive Link)
-            <span style="font-size:11px; color:rgba(255,255,255,0.5); font-weight:400;">(رابط محمي يرسل للطالب فور تأكيد
+            <span style="font-size:11px; color:var(--admin-text-muted); font-weight:400;">(رابط محمي يرسل للطالب فور
+              تأكيد
               الدفع)</span>
           </label>
           <input type="url" id="rev-form-link" class="dark-form-input"
@@ -425,9 +224,10 @@
         </div>
 
         <div
-          style="margin-bottom:24px; display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.03); padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
-          <input type="checkbox" id="rev-form-published" checked style="width:18px; height:18px; accent-color:#3b82f6;">
-          <label for="rev-form-published" style="font-size:13px; font-weight:700; cursor:pointer; color:#ffffff;">
+          style="margin-bottom:24px; display:flex; align-items:center; gap:10px; background:#f8fafc; padding:12px 14px; border-radius:12px; border:1px solid #e2e8f0;">
+          <input type="checkbox" id="rev-form-published" checked style="width:18px; height:18px; accent-color:#2563eb;">
+          <label for="rev-form-published"
+            style="font-size:13px; font-weight:700; cursor:pointer; color:var(--admin-text-main);">
             نشر المراجعة وإتاحتها للطلاب في الموقع فوراً
           </label>
         </div>

@@ -39,8 +39,13 @@
   transition: background var(--transition-fast);
 }
 
-.btn:hover::after { background: rgba(255, 255, 255, 0.08); }
-.btn:active::after { background: rgba(255, 255, 255, 0.15); }
+.btn:hover::after {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn:active::after {
+  background: rgba(255, 255, 255, 0.15);
+}
 
 /* --- زر أساسي (كحلي) --- */
 .btn--primary {
@@ -154,11 +159,15 @@
 }
 
 @keyframes btn-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn[aria-busy='true']::before { animation-duration: 1.6s; }
+  .btn[aria-busy='true']::before {
+    animation-duration: 1.6s;
+  }
 }
 
 /* ============================================================
@@ -293,7 +302,8 @@
   font-size: var(--text-sm);
 }
 
-.divider::before, .divider::after {
+.divider::before,
+.divider::after {
   content: '';
   flex: 1;
   height: 1px;
@@ -323,21 +333,28 @@
 
 .skeleton {
   background: linear-gradient(90deg,
-    var(--color-surface) 25%,
-    var(--color-surface-alt) 50%,
-    var(--color-surface) 75%);
+      var(--color-surface) 25%,
+      var(--color-surface-alt) 50%,
+      var(--color-surface) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
   border-radius: var(--radius-sm);
 }
 
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton { animation: none; }
+  .skeleton {
+    animation: none;
+  }
 }
 
 /* ============================================================
@@ -498,14 +515,20 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  opacity: 0;
-  pointer-events: none;
   transition: opacity 0.25s ease;
 }
 
+.modal-backdrop[hidden] {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.modal-backdrop:not([hidden]),
 .modal-backdrop.show {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  display: flex !important;
 }
 
 .modal-card {
@@ -523,8 +546,10 @@
   position: relative;
 }
 
+.modal-backdrop:not([hidden]) .modal-card,
 .modal-backdrop.show .modal-card {
-  transform: translateY(0) scale(1);
+  transform: translateY(0) scale(1) !important;
+  opacity: 1 !important;
 }
 
 .modal-header {
