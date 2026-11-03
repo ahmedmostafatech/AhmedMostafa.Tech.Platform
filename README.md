@@ -238,8 +238,11 @@ AhmedMostaf.Tech.Platform/
 | `admin/reports.html`, `admin-reports-page.js` | مكتمل لتصدير كشف الطلاب بـ CSV يدعم العربي في Excel ودليل Sheets |
 | `revisions-service.js`, `admin-service.js` | مكتملان ومطابقان لدوال RPC والسياسات الأمنية في الداتابيز |
 | `12_new_direction_registrations_v1.sql` | سكريبت قاعدة البيانات للنموذج الجديد جاهز ومنفذ |
-| `utils.js`, `auth.js` | اتكتبوا من جديد وراجعتهم (الإصدار الأخير في الشات) |
-| `login.html`, `login-page.js` | اتكتبوا من جديد (إيميل + جوجل، من غير نسيت كلمة المرور) |
+
+### ملفات النظام القديم (LMS - تم حفظها وتجنب حذفها للحفاظ على التوافقية):
+
+| الملف | الحالة |
+|---|---|
 | `checkout.html`, `checkout-page.js` | اتكتبوا من جديد (بيانات الطالب، اختيار الوسيلة قبل الطلب، رفع الإيصال) |
 | `courses-service.js`, `subscriptions-service.js`, `orders-service.js` | اتكتبوا من جديد ومطابقين للداتابيز |
 | `course.html`, `dashboard.html`, `watch.html`, `index.html` وملفات الـ JS | اتراجعوا واتحدثوا بالكامل (مطابقين للداتابيز، وإصلاح مسارات التوجيه، ومشغل المشاهدة الآمن) |

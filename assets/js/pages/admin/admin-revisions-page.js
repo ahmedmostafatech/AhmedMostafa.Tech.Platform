@@ -220,3 +220,4 @@ async function initAdminRevisionsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminRevisionsPage);
+

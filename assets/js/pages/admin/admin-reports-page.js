@@ -169,3 +169,4 @@ async function initAdminReportsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminReportsPage);
+

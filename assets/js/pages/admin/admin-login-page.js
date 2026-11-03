@@ -72,3 +72,4 @@ async function initAdminLoginPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminLoginPage);
+

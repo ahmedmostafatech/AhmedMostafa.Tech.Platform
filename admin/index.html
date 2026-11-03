@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +11,8 @@
   <!-- الخطوط الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="../assets/css/base.css">
@@ -26,7 +28,8 @@
     <!-- القائمة الجانبية الموحدة -->
     <aside class="admin-sidebar">
       <div class="admin-brand">
-        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+        <div
+          style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
           A
         </div>
         <div>
@@ -41,7 +44,8 @@
         </a>
         <a href="registrations.html" class="admin-nav-link">
           <span>📝 إدارة التسجيلات</span>
-          <span id="nav-pending-badge" class="badge badge--warning" style="display:none; font-size:10px; padding:2px 6px;">0</span>
+          <span id="nav-pending-badge" class="badge badge--warning"
+            style="display:none; font-size:10px; padding:2px 6px;">0</span>
         </a>
         <a href="revisions.html" class="admin-nav-link">
           <span>📚 إدارة المراجعات</span>
@@ -56,7 +60,8 @@
       </nav>
 
       <div style="padding:var(--space-4); border-top:1px solid rgba(255,255,255,0.08);">
-        <button type="button" id="admin-signout-btn" class="btn btn--secondary btn--block btn--sm" style="color:var(--color-danger); border-color:rgba(220,38,38,0.3); font-size:var(--text-xs);">
+        <button type="button" id="admin-signout-btn" class="btn btn--secondary btn--block btn--sm"
+          style="color:var(--color-danger); border-color:rgba(220,38,38,0.3); font-size:var(--text-xs);">
           🚪 خروج من الإدارة
         </button>
       </div>
@@ -71,7 +76,8 @@
           <h1 style="margin:0; font-size:var(--text-lg); font-weight:800; color:var(--color-primary);">
             لوحة الإحصائيات العامة
           </h1>
-          <span style="font-size:var(--text-xs); color:var(--color-text-muted);">متابعة حركة تسجيلات الطلاب والمدفوعات</span>
+          <span style="font-size:var(--text-xs); color:var(--color-text-muted);">متابعة حركة تسجيلات الطلاب
+            والمدفوعات</span>
         </div>
         <div class="admin-topbar-actions">
           <button type="button" id="refresh-stats-btn" class="btn btn--secondary btn--sm">
@@ -84,46 +90,61 @@
       <div class="admin-content" style="padding:var(--space-6);">
 
         <!-- رسالة الخطأ -->
-        <div id="stats-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-5);"></div>
+        <div id="stats-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-5);">
+        </div>
 
         <!-- كروت الإحصائيات -->
-        <div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--space-4); margin-bottom:var(--space-6);">
+        <div class="stats-grid"
+          style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--space-4); margin-bottom:var(--space-6);">
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0;">
-            <div style="font-size:var(--text-xs); font-weight:700; color:#64748b; margin-bottom:6px;">إجمالي التسجيلات</div>
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0;">
+            <div style="font-size:var(--text-xs); font-weight:700; color:#64748b; margin-bottom:6px;">إجمالي التسجيلات
+            </div>
             <div id="stat-total" style="font-size:var(--text-3xl); font-weight:900; color:var(--color-primary);">-</div>
           </div>
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #f59e0b;">
-            <div style="font-size:var(--text-xs); font-weight:700; color:#d97706; margin-bottom:6px;">بانتظار التحويل</div>
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #f59e0b;">
+            <div style="font-size:var(--text-xs); font-weight:700; color:#d97706; margin-bottom:6px;">بانتظار التحويل
+            </div>
             <div id="stat-pending" style="font-size:var(--text-3xl); font-weight:900; color:#d97706;">-</div>
           </div>
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #0284c7;">
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #0284c7;">
             <div style="font-size:var(--text-xs); font-weight:700; color:#0284c7; margin-bottom:6px;">قيد المراجعة</div>
             <div id="stat-review" style="font-size:var(--text-3xl); font-weight:900; color:#0284c7;">-</div>
           </div>
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #16a34a;">
-            <div style="font-size:var(--text-xs); font-weight:700; color:#16a34a; margin-bottom:6px;">الاشتراكات المؤكدة (Paid)</div>
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #16a34a;">
+            <div style="font-size:var(--text-xs); font-weight:700; color:#16a34a; margin-bottom:6px;">الاشتراكات المؤكدة
+              (Paid)</div>
             <div id="stat-paid" style="font-size:var(--text-3xl); font-weight:900; color:#16a34a;">-</div>
           </div>
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #dc2626;">
-            <div style="font-size:var(--text-xs); font-weight:700; color:#dc2626; margin-bottom:6px;">الطلبات المرفوضة</div>
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid #dc2626;">
+            <div style="font-size:var(--text-xs); font-weight:700; color:#dc2626; margin-bottom:6px;">الطلبات المرفوضة
+            </div>
             <div id="stat-rejected" style="font-size:var(--text-3xl); font-weight:900; color:#dc2626;">-</div>
           </div>
 
-          <div class="stat-card" style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid var(--color-accent);">
-            <div style="font-size:var(--text-xs); font-weight:700; color:var(--color-accent); margin-bottom:6px;">إجمالي الأرباح المحصلة</div>
-            <div id="stat-revenue" style="font-size:var(--text-3xl); font-weight:900; color:var(--color-primary);">-</div>
+          <div class="stat-card"
+            style="background:#fff; border-radius:var(--radius-lg); padding:var(--space-5); border:1px solid #e2e8f0; border-top:3px solid var(--color-accent);">
+            <div style="font-size:var(--text-xs); font-weight:700; color:var(--color-accent); margin-bottom:6px;">إجمالي
+              الأرباح المحصلة</div>
+            <div id="stat-revenue" style="font-size:var(--text-3xl); font-weight:900; color:var(--color-primary);">-
+            </div>
           </div>
 
         </div>
 
         <!-- جدول أحدث التسجيلات -->
         <div style="background:#fff; border:1px solid #e2e8f0; border-radius:var(--radius-xl); padding:var(--space-5);">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:8px;">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:8px;">
             <h2 style="font-size:var(--text-md); font-weight:800; color:var(--color-primary); margin:0;">
               أحدث طلبات التسجيل
             </h2>
@@ -166,4 +187,5 @@
   <script type="module" src="../assets/js/pages/admin/admin-home-page.js"></script>
 
 </body>
+
 </html>
