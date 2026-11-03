@@ -110,7 +110,7 @@ export async function approveRegistration(regId, adminNote = null) {
 
 // 5. رفض تسجيل وتدوين السبب عبر RPC
 export async function rejectRegistration(regId, reason = null, adminNote = null) {
-  let { data, error } = await supabase.rpc('admin_reject_registration', {
+  let { error } = await supabase.rpc('admin_reject_registration', {
     p_reg_id: regId,
     p_reason: reason,
     p_admin_note: adminNote
@@ -201,15 +201,44 @@ export async function updateRevision(courseId, fields) {
   return data;
 }
 
-// 10. تسجيل نجاح أو فشل إرسال الإيميل
-export async function logEmailAttempt(regId, status, errorMsg = null) {
-  let { error } = await supabase.rpc('admin_log_email', {
-    p_reg_id: regId,
-    p_status: status,
-    p_error: errorMsg
+// 10. إرسال إيميل التفعيل عبر Edge Function (بتاخد registration_id بس)
+// force = true لإعادة إرسال متعمدة حتى لو اتبعت قبل كده
+// بيرجع { ok: true } أو { ok: true, skipped: true }، وبيرمي خطأ بالسبب الحقيقي لو فشل
+export async function sendActivationEmail(regId, force) {
+  let { data, error } = await supabase.functions.invoke('send-activation-email', {
+    body: { registration_id: regId, force: force === true }
   });
 
   if (error) {
-    console.warn('admin_log_email failed:', error.message);
+    // الرد الحقيقي للفنكشن جوه error.context
+    let realMessage = error.message;
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        let body = await error.context.json();
+        realMessage = body.details
+          ? (body.error + ': ' + body.details)
+          : (body.error || body.message || realMessage);
+      }
+    } catch (parseErr) {
+      console.warn('Could not read function error body:', parseErr);
+    }
+    console.error('send-activation-email failed:', realMessage);
+    throw new Error(realMessage);
   }
+
+  // النجاح الوحيد المقبول: ok === true (أي شكل رد تاني يعتبر فشل)
+  if (!data || data.ok !== true) {
+    let failMessage = 'unexpected function response';
+    if (data) {
+      if (data.details) {
+        failMessage = (data.error || 'email delivery failed') + ': ' + data.details;
+      } else if (data.error || data.message) {
+        failMessage = String(data.error || data.message);
+      }
+    }
+    console.error('send-activation-email returned failure:', data);
+    throw new Error(failMessage);
+  }
+
+  return data;
 }

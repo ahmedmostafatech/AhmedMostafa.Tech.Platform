@@ -11,15 +11,21 @@ import {
   approveRegistration,
   rejectRegistration,
   updateRegistrationStatus,
-  logEmailAttempt
+  sendActivationEmail
 } from '../../services/admin-service.js';
-import { supabase } from '../../core/supabase-client.js';
-import { formatPrice, formatDateTime, escapeHtml, setButtonLoading, getErrorMessage, initSpotlightCards } from '../../core/utils.js';
+import {
+  formatPrice,
+  formatDateTime,
+  escapeHtml,
+  setButtonLoading,
+  getErrorMessage,
+  initSpotlightCards
+} from '../../core/utils.js';
 
 // -------------------------------------------------------
-// قائمة الفروع الجامعية الثابتة (تظهر دائماً في الفلتر)
+// قائمة الفروع الجامعية (تظهر دائماً في الفلتر)
 // -------------------------------------------------------
-const UNIVERSITY_BRANCHES = [
+let UNIVERSITY_BRANCHES = [
   'فرع القاهرة',
   'فرع الإسكندرية',
   'فرع المنوفية (شبين الكوم)',
@@ -47,8 +53,51 @@ const UNIVERSITY_BRANCHES = [
   'فرع آخر'
 ];
 
+// رسائل أخطاء دوال الأدمن والإيميل (بتيجي بالإنجليزي)
+// الترتيب مهم: الأخص الأول، لأن أول تطابق هو اللي بيتعرض
+let ADMIN_ERROR_MESSAGES = [
+  ['forbidden', 'ليس لديك صلاحية الأدمن. سجّل الدخول بحساب الأدمن.'],
+  ['not authenticated', 'انتهت الجلسة، سجّل الدخول تاني.'],
+  ['registration not found', 'التسجيل غير موجود. حدّث الصفحة وحاول مرة أخرى.'],
+  ['registration already approved', 'هذا التسجيل مؤكد بالفعل.'],
+  ['registration not approvable', 'حالة الطلب الحالية لا تسمح بالقبول. ضعه قيد الفحص أولًا.'],
+  ['registration not rejectable', 'حالة الطلب الحالية لا تسمح بالرفض.'],
+  ['registration not paid', 'الدفع لسه ما اتأكدش، فمينفعش يتبعت اللينك.'],
+  ['rejection reason required', 'سبب الرفض مطلوب.'],
+  ['access link not set', 'لازم تضيف لينك الدخول للمادة من صفحة إدارة المراجعات قبل القبول.'],
+  ['invalid registration id', 'رقم التسجيل غير صالح، حدّث الصفحة.'],
+  ['email gateway not configured', 'إعدادات الإيميل ناقصة في Supabase (APPS_SCRIPT_URL و APPS_SCRIPT_SECRET).'],
+  ['daily quota exhausted', 'خلص حد الإرسال اليومي في Gmail، جرّب بكرة.'],
+  ['unauthorized', 'سر بوابة الإيميل غير مطابق بين Supabase وGoogle Apps Script.'],
+  ['unexpected gateway response', 'رابط بوابة الإيميل مش شغال (لازم رابط /exec ومنشور لـ Anyone، وبعد أي تعديل لازم Deployment جديد).'],
+  ['unexpected function response', 'رد الفنكشن غير متوقع. اتأكد إن المنشورة هي نسخة send-activation-email الجديدة.'],
+  ['email delivery failed', 'فشل إرسال الإيميل من البوابة.']
+];
+
 let currentRegistrations = [];
 let selectedReg = null;
+let loadCounter = 0;
+
+function byId(id) {
+  return document.getElementById(id);
+}
+
+// ترجمة رسالة الخطأ (الأولوية لرسائل الأدمن ثم الرسائل العامة)
+function adminErrorMessage(err) {
+  let raw = err && err.message ? String(err.message).toLowerCase() : '';
+  for (let i = 0; i < ADMIN_ERROR_MESSAGES.length; i++) {
+    if (raw.includes(ADMIN_ERROR_MESSAGES[i][0])) {
+      return ADMIN_ERROR_MESSAGES[i][1];
+    }
+  }
+  return getErrorMessage(err);
+}
+
+// رسالة خطأ الإيميل: الترجمة + السبب الأصلي بين قوسين (للتشخيص)
+function emailErrorText(err) {
+  let raw = err && err.message ? String(err.message) : 'Unknown';
+  return adminErrorMessage(err) + '\n(' + raw + ')';
+}
 
 function getStatusBadge(status) {
   switch (status) {
@@ -63,188 +112,335 @@ function getStatusBadge(status) {
     case 'cancelled':
       return '<span class="badge badge--muted" style="font-size:11px;">ملغي</span>';
     default:
-      return `<span class="badge badge--muted" style="font-size:11px;">${escapeHtml(status)}</span>`;
+      return '<span class="badge badge--muted" style="font-size:11px;">' + escapeHtml(status) + '</span>';
   }
 }
 
+// رابط واتساب بالصيغة الدولية (من غير صفر)
+function buildWhatsAppLink(phone) {
+  let digits = String(phone || '').replace(/\D/g, '').replace(/^0/, '20');
+  return 'https://wa.me/' + digits;
+}
+
+function renderRegistrationRow(r) {
+  let courseTitle = r.courses ? r.courses.title : 'مراجعة غير محددة';
+  let isInsta = r.payment_method === 'instapay';
+  let methodBadge = isInsta
+    ? '<span style="color:#c084fc; font-weight:700;"><i class="fa-solid fa-bolt"></i> إنستاباي</span>'
+    : '<span style="color:#f87171; font-weight:700;"><i class="fa-solid fa-wallet"></i> فودافون كاش</span>';
+  let waLink = buildWhatsAppLink(r.phone);
+
+  return '' +
+    '<tr>' +
+      '<td style="font-weight:800; font-family:monospace; color:#ffd154;">' + escapeHtml(r.registration_code) + '</td>' +
+      '<td style="font-weight:700;">' + escapeHtml(r.full_name) + '</td>' +
+      '<td style="color:rgba(255,255,255,0.6);">' + escapeHtml(r.branch) + '</td>' +
+      '<td>' +
+        '<a href="' + waLink + '" target="_blank" rel="noopener" style="color:#22c55e; text-decoration:none; font-family:monospace; font-weight:700; display:inline-flex; align-items:center; gap:4px;">' +
+          '<i class="fa-brands fa-whatsapp"></i>' +
+          '<span>' + escapeHtml(r.phone) + '</span>' +
+        '</a>' +
+      '</td>' +
+      '<td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(courseTitle) + '</td>' +
+      '<td style="font-weight:800; color:#4ade80;">' + formatPrice(r.amount) + '</td>' +
+      '<td>' + methodBadge + '</td>' +
+      '<td>' + getStatusBadge(r.payment_status) + '</td>' +
+      '<td style="font-size:11px; color:rgba(255,255,255,0.5);" dir="ltr">' + escapeHtml(r.email) + '</td>' +
+      '<td style="text-align:center;">' +
+        '<button type="button" class="btn btn--secondary btn--sm btn-inspect-reg" data-id="' + escapeHtml(r.id) + '" style="font-size:11px; padding:4px 10px; border-radius:8px;">' +
+          '<i class="fa-solid fa-magnifying-glass"></i> فحص / إجراء' +
+        '</button>' +
+      '</td>' +
+    '</tr>';
+}
+
 async function loadRegistrations() {
-  const searchVal = document.getElementById('filter-search').value;
-  const statusVal = document.getElementById('filter-status').value;
-  const courseVal = document.getElementById('filter-course').value;
-  const branchVal = document.getElementById('filter-branch').value;
+  loadCounter = loadCounter + 1;
+  let requestId = loadCounter;
 
-  const tbody = document.getElementById('registrations-tbody');
-  const countLabel = document.getElementById('regs-count-label');
-  const alertEl = document.getElementById('regs-alert');
+  let tbody = byId('registrations-tbody');
+  let countLabel = byId('regs-count-label');
+  let alertEl = byId('regs-alert');
 
-  if (alertEl) alertEl.hidden = true;
+  if (alertEl) {
+    alertEl.hidden = true;
+  }
 
   try {
-    currentRegistrations = await getAllRegistrations({
-      search: searchVal,
-      status: statusVal,
-      course_id: courseVal,
-      branch: branchVal
+    let results = await getAllRegistrations({
+      search: byId('filter-search').value,
+      status: byId('filter-status').value,
+      course_id: byId('filter-course').value,
+      branch: byId('filter-branch').value
     });
 
+    // تجاهل أي رد قديم وصل بعد طلب أحدث
+    if (requestId !== loadCounter) {
+      return;
+    }
+
+    currentRegistrations = results;
+
     if (countLabel) {
-      countLabel.textContent = `عرض ${currentRegistrations.length} تسجيل`;
+      countLabel.textContent = 'عرض ' + currentRegistrations.length + ' تسجيل';
     }
 
-    if (tbody) {
-      if (currentRegistrations.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="10" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">
-              لا توجد نتائج مطابقة لشروط البحث والفلترة.
-            </td>
-          </tr>
-        `;
-        return;
-      }
-
-      tbody.innerHTML = currentRegistrations.map(r => {
-        const courseTitle = r.courses ? r.courses.title : 'مراجعة غير محددة';
-        const isInsta = r.payment_method === 'instapay';
-        const methodBadge = isInsta
-          ? '<span style="color:#c084fc; font-weight:700;"><i class="fa-solid fa-bolt"></i> إنستاباي</span>'
-          : '<span style="color:#f87171; font-weight:700;"><i class="fa-solid fa-wallet"></i> فودافون كاش</span>';
-
-        const cleanPhone = (r.phone || '').trim().replace(/^0/, '20');
-        const waLink = `https://wa.me/${cleanPhone}`;
-
-        return `
-          <tr>
-            <td style="font-weight:800; font-family:monospace; color:#ffd154;">${escapeHtml(r.registration_code)}</td>
-            <td style="font-weight:700;">${escapeHtml(r.full_name)}</td>
-            <td style="color:rgba(255,255,255,0.6);">${escapeHtml(r.branch)}</td>
-            <td>
-              <a href="${waLink}" target="_blank" rel="noopener" style="color:#22c55e; text-decoration:none; font-family:monospace; font-weight:700; display:inline-flex; align-items:center; gap:4px;">
-                <i class="fa-brands fa-whatsapp"></i>
-                <span>${escapeHtml(r.phone)}</span>
-              </a>
-            </td>
-            <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(courseTitle)}</td>
-            <td style="font-weight:800; color:#4ade80;">${formatPrice(r.amount)}</td>
-            <td>${methodBadge}</td>
-            <td>${getStatusBadge(r.payment_status)}</td>
-            <td style="font-size:11px; color:rgba(255,255,255,0.5);" dir="ltr">${escapeHtml(r.email)}</td>
-            <td style="text-align:center;">
-              <button type="button" class="btn btn--secondary btn--sm btn-inspect-reg" data-id="${escapeHtml(r.id)}" style="font-size:11px; padding:4px 10px; border-radius:8px;">
-                <i class="fa-solid fa-magnifying-glass"></i> فحص / إجراء
-              </button>
-            </td>
-          </tr>
-        `;
-      }).join('');
-
-      // ربط أزرار الفحص
-      tbody.querySelectorAll('.btn-inspect-reg').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const regId = btn.getAttribute('data-id');
-          openReviewModal(regId);
-        });
-      });
+    if (!tbody) {
+      return;
     }
 
+    if (currentRegistrations.length === 0) {
+      tbody.innerHTML =
+        '<tr><td colspan="10" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">' +
+        'لا توجد نتائج مطابقة لشروط البحث والفلترة.' +
+        '</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = currentRegistrations.map(renderRegistrationRow).join('');
     initSpotlightCards();
-
   } catch (err) {
     console.error('Failed to load registrations:', err);
     if (alertEl) {
-      alertEl.textContent = 'حدث خطأ أثناء جلب التسجيلات: ' + getErrorMessage(err);
+      alertEl.textContent = 'حدث خطأ أثناء جلب التسجيلات: ' + adminErrorMessage(err);
       alertEl.hidden = false;
     }
   }
 }
 
+// ربط أزرار الفحص مرة واحدة على الجدول (بدل إعادة الربط مع كل تحميل)
+function handleTableClick(event) {
+  let btn = event.target.closest('.btn-inspect-reg');
+  if (!btn) {
+    return;
+  }
+  openReviewModal(btn.getAttribute('data-id'));
+}
+
+// إظهار الأزرار المناسبة لحالة الطلب فقط
+function updateModalButtons(reg) {
+  let status = reg.payment_status;
+  let canApprove = status === 'pending_payment' || status === 'under_review';
+  let canReject = canApprove;
+  let canReview = status !== 'under_review' && status !== 'paid';
+  let canSendEmail = status === 'paid';
+
+  byId('btn-modal-approve').hidden = !canApprove;
+  byId('btn-modal-reject').hidden = !canReject;
+  byId('btn-modal-review').hidden = !canReview;
+
+  let resendBtn = byId('btn-modal-resend');
+  if (resendBtn) {
+    resendBtn.hidden = !canSendEmail;
+    resendBtn.textContent = reg.email_sent ? 'إعادة إرسال الإيميل' : 'إرسال إيميل التفعيل';
+  }
+}
+
 function openReviewModal(regId) {
-  selectedReg = currentRegistrations.find(r => r.id === regId);
-  if (!selectedReg) return;
+  let reg = currentRegistrations.find(function (r) {
+    return r.id === regId;
+  });
+  if (!reg) {
+    return;
+  }
+  selectedReg = reg;
 
-  const modal = document.getElementById('review-modal');
-  const codeEl = document.getElementById('modal-reg-code');
-  const detailsEl = document.getElementById('modal-reg-details');
-  const noteInput = document.getElementById('modal-admin-note');
-  const rejectBox = document.getElementById('reject-reason-box');
-  const rejectInput = document.getElementById('modal-reject-reason');
+  let modal = byId('review-modal');
+  let codeEl = byId('modal-reg-code');
+  let detailsEl = byId('modal-reg-details');
+  let noteInput = byId('modal-admin-note');
+  let rejectBox = byId('reject-reason-box');
+  let rejectInput = byId('modal-reject-reason');
 
-  if (codeEl) codeEl.textContent = selectedReg.registration_code;
-  if (noteInput) noteInput.value = selectedReg.admin_note || '';
-  if (rejectBox) rejectBox.hidden = true;
-  if (rejectInput) rejectInput.value = selectedReg.rejection_reason || '';
-
-  const courseTitle = selectedReg.courses ? selectedReg.courses.title : 'غير محدد';
-  const methodText = selectedReg.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
-  const cleanPhone = (selectedReg.phone || '').trim().replace(/^0/, '20');
-  const waLink = `https://wa.me/${cleanPhone}`;
-
-  if (detailsEl) {
-    detailsEl.innerHTML = `
-      <div><strong>اسم الطالب:</strong> ${escapeHtml(selectedReg.full_name)}</div>
-      <div><strong>الفرع الجامعي:</strong> ${escapeHtml(selectedReg.branch)}</div>
-      <div><strong>رقم الموبايل:</strong> <a href="${waLink}" target="_blank" style="color:#22c55e; font-weight:700; text-decoration:none;"><i class="fa-brands fa-whatsapp"></i> ${escapeHtml(selectedReg.phone)} (فتح واتساب)</a></div>
-      <div><strong>البريد الإلكتروني:</strong> <span dir="ltr">${escapeHtml(selectedReg.email)}</span></div>
-      <div><strong>المادة / المراجعة:</strong> ${escapeHtml(courseTitle)}</div>
-      <div><strong>المبلغ المطلوب:</strong> <span style="font-weight:800; color:#4ade80;">${formatPrice(selectedReg.amount)}</span></div>
-      <div><strong>وسيلة الدفع المحددة:</strong> ${escapeHtml(methodText)}</div>
-      <div><strong>الحالة الحالية:</strong> ${getStatusBadge(selectedReg.payment_status)}</div>
-      <div><strong>تاريخ ووقت التسجيل:</strong> ${formatDateTime(selectedReg.created_at)}</div>
-      ${selectedReg.rejection_reason ? `<div style="color:#ef4444;"><strong>سبب الرفض السابق:</strong> ${escapeHtml(selectedReg.rejection_reason)}</div>` : ''}
-    `;
+  if (codeEl) {
+    codeEl.textContent = reg.registration_code;
+  }
+  if (noteInput) {
+    noteInput.value = reg.admin_note || '';
+  }
+  if (rejectBox) {
+    rejectBox.hidden = true;
+  }
+  if (rejectInput) {
+    rejectInput.value = reg.rejection_reason || '';
   }
 
-  if (modal) modal.hidden = false;
+  let courseTitle = reg.courses ? reg.courses.title : 'غير محدد';
+  let methodText = reg.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
+  let waLink = buildWhatsAppLink(reg.phone);
+
+  // حالة إيميل التفعيل للطلبات المؤكدة
+  let emailLine = '';
+  if (reg.payment_status === 'paid') {
+    emailLine = reg.email_sent
+      ? '<div><strong>إيميل التفعيل:</strong> <span style="color:#22c55e;">تم إرساله</span></div>'
+      : '<div><strong>إيميل التفعيل:</strong> <span style="color:#f59e0b;">لم يُرسل بعد، استخدم زر إرسال إيميل التفعيل</span></div>';
+  }
+
+  if (detailsEl) {
+    detailsEl.innerHTML =
+      '<div><strong>اسم الطالب:</strong> ' + escapeHtml(reg.full_name) + '</div>' +
+      '<div><strong>الفرع الجامعي:</strong> ' + escapeHtml(reg.branch) + '</div>' +
+      '<div><strong>رقم الموبايل:</strong> <a href="' + waLink + '" target="_blank" rel="noopener" style="color:#22c55e; font-weight:700; text-decoration:none;"><i class="fa-brands fa-whatsapp"></i> ' + escapeHtml(reg.phone) + ' (فتح واتساب)</a></div>' +
+      '<div><strong>البريد الإلكتروني:</strong> <span dir="ltr">' + escapeHtml(reg.email) + '</span></div>' +
+      '<div><strong>المادة / المراجعة:</strong> ' + escapeHtml(courseTitle) + '</div>' +
+      '<div><strong>المبلغ المطلوب:</strong> <span style="font-weight:800; color:#4ade80;">' + formatPrice(reg.amount) + '</span></div>' +
+      '<div><strong>وسيلة الدفع المحددة:</strong> ' + escapeHtml(methodText) + '</div>' +
+      '<div><strong>الحالة الحالية:</strong> ' + getStatusBadge(reg.payment_status) + '</div>' +
+      '<div><strong>تاريخ ووقت التسجيل:</strong> ' + formatDateTime(reg.created_at) + '</div>' +
+      emailLine +
+      (reg.rejection_reason
+        ? '<div style="color:#ef4444;"><strong>سبب الرفض السابق:</strong> ' + escapeHtml(reg.rejection_reason) + '</div>'
+        : '');
+  }
+
+  updateModalButtons(reg);
+
+  if (modal) {
+    modal.hidden = false;
+  }
   initSpotlightCards();
 }
 
 function closeReviewModal() {
-  const modal = document.getElementById('review-modal');
-  if (modal) modal.hidden = true;
+  let modal = byId('review-modal');
+  if (modal) {
+    modal.hidden = true;
+  }
   selectedReg = null;
 }
 
-async function setupModalActions() {
-  const closeBtn = document.getElementById('modal-close-btn');
-  if (closeBtn) closeBtn.addEventListener('click', closeReviewModal);
+// إنشاء زر إرسال/إعادة إرسال الإيميل جوه نفس صف أزرار المودال
+function ensureResendButton() {
+  let existing = byId('btn-modal-resend');
+  if (existing) {
+    return existing;
+  }
 
-  const approveBtn = document.getElementById('btn-modal-approve');
-  const rejectBtn = document.getElementById('btn-modal-reject');
-  const reviewBtn = document.getElementById('btn-modal-review');
+  let approveBtn = byId('btn-modal-approve');
+  if (!approveBtn || !approveBtn.parentElement) {
+    return null;
+  }
+
+  let resendBtn = document.createElement('button');
+  resendBtn.type = 'button';
+  resendBtn.id = 'btn-modal-resend';
+  resendBtn.className = 'btn btn--secondary';
+  resendBtn.hidden = true;
+  resendBtn.textContent = 'إرسال إيميل التفعيل';
+  approveBtn.parentElement.appendChild(resendBtn);
+  return resendBtn;
+}
+
+function setupModalActions() {
+  let modal = byId('review-modal');
+  let closeBtn = byId('modal-close-btn');
+  let approveBtn = byId('btn-modal-approve');
+  let rejectBtn = byId('btn-modal-reject');
+  let reviewBtn = byId('btn-modal-review');
+  let resendBtn = ensureResendButton();
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeReviewModal);
+  }
+
+  // إغلاق بالضغط على الخلفية أو زر Esc
+  if (modal) {
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        closeReviewModal();
+      }
+    });
+  }
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      closeReviewModal();
+    }
+  });
 
   // زر القبول
   if (approveBtn) {
     approveBtn.addEventListener('click', async function () {
-      if (!selectedReg) return;
-      const note = document.getElementById('modal-admin-note').value.trim();
+      if (!selectedReg) {
+        return;
+      }
+      let reg = selectedReg;
+      let note = byId('modal-admin-note').value.trim();
 
-      if (!confirm(`هل أنت متأكد من استلام تحويل مبلغ ${selectedReg.amount} EGP وتأكيد اشتراك الطالب (${selectedReg.full_name})؟`)) {
+      if (!confirm('هل أنت متأكد من استلام تحويل مبلغ ' + reg.amount + ' EGP وتأكيد اشتراك الطالب (' + reg.full_name + ')؟')) {
         return;
       }
 
       setButtonLoading(approveBtn, true, 'جاري التأكيد...');
 
+      // 1) تأكيد الدفع في الداتابيز
+      let payload = null;
       try {
-        const res = await approveRegistration(selectedReg.id, note || null);
+        payload = await approveRegistration(reg.id, note || null);
+      } catch (err) {
+        alert('حدث خطأ أثناء القبول: ' + adminErrorMessage(err));
+        setButtonLoading(approveBtn, false);
+        return;
+      }
 
-        // محاولة إرسال إيميل التفعيل التلقائي وتسجيل الحالة
-        try {
-          await supabase.functions.invoke('send-activation-email', {
-            body: res
-          });
-          await logEmailAttempt(res.registration_id, 'sent');
-        } catch (eMailErr) {
-          console.warn('Activation email invocation error:', eMailErr);
-          await logEmailAttempt(res.registration_id, 'failed', eMailErr ? eMailErr.message : 'Unknown');
-        }
+      // 2) إرسال إيميل التفعيل (السيرفر بيتحقق ويسجل النتيجة بنفسه)
+      let emailOk = false;
+      let emailSkipped = false;
+      let emailError = '';
+      try {
+        let result = await sendActivationEmail(payload.registration_id, false);
+        emailOk = true;
+        emailSkipped = !!(result && result.skipped);
+      } catch (mailErr) {
+        emailError = emailErrorText(mailErr);
+        console.warn('Activation email failed:', mailErr);
+      }
 
-        alert(`تم تأكيد اشتراك الطالب (${res.student_name}) بنجاح!`);
+      setButtonLoading(approveBtn, false);
+      closeReviewModal();
+      await loadRegistrations();
+
+      if (emailOk && !emailSkipped) {
+        alert('تم تأكيد اشتراك الطالب (' + payload.student_name + ') وإرسال إيميل التفعيل.');
+      } else if (emailOk && emailSkipped) {
+        alert('تم تأكيد اشتراك الطالب (' + payload.student_name + '). الإيميل كان اتبعت قبل كده.');
+      } else {
+        alert(
+          'تم تأكيد الدفع في النظام، لكن فشل إرسال إيميل التفعيل:\n' + emailError +
+          '\n\nافتح التسجيل واضغط "إرسال إيميل التفعيل" بعد حل المشكلة، أو ابعت اللينك على واتساب.'
+        );
+      }
+    });
+  }
+
+  // زر إرسال / إعادة إرسال إيميل التفعيل (للتسجيلات المؤكدة فقط)
+  if (resendBtn) {
+    resendBtn.addEventListener('click', async function () {
+      if (!selectedReg || selectedReg.payment_status !== 'paid') {
+        return;
+      }
+      let reg = selectedReg;
+
+      // لو الإيميل اتبعت قبل كده نطلب تأكيد قبل الإرسال المتعمد
+      let force = reg.email_sent === true;
+      if (force && !confirm('الإيميل اتبعت قبل كده. تبعته تاني إلى ' + reg.email + '؟')) {
+        return;
+      }
+
+      setButtonLoading(resendBtn, true, 'جاري الإرسال...');
+      try {
+        let result = await sendActivationEmail(reg.id, force);
         closeReviewModal();
         await loadRegistrations();
+        if (result && result.skipped) {
+          alert('الإيميل كان اتبعت قبل كده، ولم يُرسل مرة تانية.');
+        } else {
+          alert('تم إرسال إيميل التفعيل إلى ' + reg.email + '.');
+        }
       } catch (err) {
-        alert('حدث خطأ أثناء القبول: ' + getErrorMessage(err));
+        alert('فشل إرسال الإيميل:\n' + emailErrorText(err));
       } finally {
-        setButtonLoading(approveBtn, false);
+        setButtonLoading(resendBtn, false);
       }
     });
   }
@@ -252,16 +448,19 @@ async function setupModalActions() {
   // زر قيد الفحص
   if (reviewBtn) {
     reviewBtn.addEventListener('click', async function () {
-      if (!selectedReg) return;
-      const note = document.getElementById('modal-admin-note').value.trim();
+      if (!selectedReg) {
+        return;
+      }
+      let reg = selectedReg;
+      let note = byId('modal-admin-note').value.trim();
 
       setButtonLoading(reviewBtn, true, 'جاري الحفظ...');
       try {
-        await updateRegistrationStatus(selectedReg.id, 'under_review', note || null);
+        await updateRegistrationStatus(reg.id, 'under_review', note || null);
         closeReviewModal();
         await loadRegistrations();
       } catch (err) {
-        alert('حدث خطأ: ' + getErrorMessage(err));
+        alert('حدث خطأ: ' + adminErrorMessage(err));
       } finally {
         setButtonLoading(reviewBtn, false);
       }
@@ -271,18 +470,24 @@ async function setupModalActions() {
   // زر الرفض
   if (rejectBtn) {
     rejectBtn.addEventListener('click', async function () {
-      if (!selectedReg) return;
-      const rejectBox = document.getElementById('reject-reason-box');
-      const reasonInput = document.getElementById('modal-reject-reason');
-      const note = document.getElementById('modal-admin-note').value.trim();
+      if (!selectedReg) {
+        return;
+      }
+      let reg = selectedReg;
+      let rejectBox = byId('reject-reason-box');
+      let reasonInput = byId('modal-reject-reason');
+      let note = byId('modal-admin-note').value.trim();
 
+      // الضغطة الأولى بتظهر خانة السبب فقط
       if (rejectBox && rejectBox.hidden) {
         rejectBox.hidden = false;
-        if (reasonInput) reasonInput.focus();
+        if (reasonInput) {
+          reasonInput.focus();
+        }
         return;
       }
 
-      const reason = reasonInput ? reasonInput.value.trim() : '';
+      let reason = reasonInput ? reasonInput.value.trim() : '';
       if (!reason) {
         alert('من فضلك اكتب سبب الرفض لتوضيحه في السجل.');
         return;
@@ -294,11 +499,11 @@ async function setupModalActions() {
 
       setButtonLoading(rejectBtn, true, 'جاري الرفض...');
       try {
-        await rejectRegistration(selectedReg.id, reason, note || null);
+        await rejectRegistration(reg.id, reason, note || null);
         closeReviewModal();
         await loadRegistrations();
       } catch (err) {
-        alert('حدث خطأ أثناء الرفض: ' + getErrorMessage(err));
+        alert('حدث خطأ أثناء الرفض: ' + adminErrorMessage(err));
       } finally {
         setButtonLoading(rejectBtn, false);
       }
@@ -307,11 +512,13 @@ async function setupModalActions() {
 }
 
 async function initAdminRegistrationsPage() {
-  const authContext = await requireAdmin('login.html');
-  if (!authContext) return;
+  let authContext = await requireAdmin('login.html');
+  if (!authContext) {
+    return;
+  }
 
   // خروج
-  const signOutBtn = document.getElementById('admin-signout-btn');
+  let signOutBtn = byId('admin-signout-btn');
   if (signOutBtn) {
     signOutBtn.addEventListener('click', async function () {
       await signOut('login.html');
@@ -320,38 +527,41 @@ async function initAdminRegistrationsPage() {
 
   // تعبئة فلتر المراجعات
   try {
-    const revisions = await getAllRevisions();
-    const courseSelect = document.getElementById('filter-course');
+    let revisions = await getAllRevisions();
+    let courseSelect = byId('filter-course');
     if (courseSelect) {
-      revisions.forEach(rev => {
-        const opt = document.createElement('option');
-        opt.value = rev.id;
-        opt.textContent = rev.title;
+      for (let i = 0; i < revisions.length; i++) {
+        let opt = document.createElement('option');
+        opt.value = revisions[i].id;
+        opt.textContent = revisions[i].title;
         courseSelect.appendChild(opt);
-      });
+      }
     }
   } catch (e) {
-    console.warn('Failed to populate course filter', e);
+    console.warn('Failed to populate course filter:', e);
   }
 
   // تعبئة فلتر الفروع بالقائمة الثابتة الكاملة
-  const branchSelect = document.getElementById('filter-branch');
+  let branchSelect = byId('filter-branch');
   if (branchSelect) {
-    UNIVERSITY_BRANCHES.forEach(branch => {
-      const opt = document.createElement('option');
-      opt.value = branch;
-      opt.textContent = branch;
-      branchSelect.appendChild(opt);
-    });
+    for (let j = 0; j < UNIVERSITY_BRANCHES.length; j++) {
+      let branchOpt = document.createElement('option');
+      branchOpt.value = UNIVERSITY_BRANCHES[j];
+      branchOpt.textContent = UNIVERSITY_BRANCHES[j];
+      branchSelect.appendChild(branchOpt);
+    }
   }
 
   // ربط أحداث الفلاتر
-  ['filter-status', 'filter-course', 'filter-branch'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', loadRegistrations);
-  });
+  let filterIds = ['filter-status', 'filter-course', 'filter-branch'];
+  for (let k = 0; k < filterIds.length; k++) {
+    let el = byId(filterIds[k]);
+    if (el) {
+      el.addEventListener('change', loadRegistrations);
+    }
+  }
 
-  const searchInput = document.getElementById('filter-search');
+  let searchInput = byId('filter-search');
   if (searchInput) {
     let debounceTimer = null;
     searchInput.addEventListener('input', function () {
@@ -360,21 +570,28 @@ async function initAdminRegistrationsPage() {
     });
   }
 
-  const resetBtn = document.getElementById('reset-filters-btn');
+  let resetBtn = byId('reset-filters-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', function () {
-      document.getElementById('filter-search').value = '';
-      document.getElementById('filter-status').value = 'all';
-      document.getElementById('filter-course').value = 'all';
-      document.getElementById('filter-branch').value = 'all';
+      byId('filter-search').value = '';
+      byId('filter-status').value = 'all';
+      byId('filter-course').value = 'all';
+      byId('filter-branch').value = 'all';
       loadRegistrations();
     });
   }
 
-  const refreshBtn = document.getElementById('refresh-regs-btn');
-  if (refreshBtn) refreshBtn.addEventListener('click', loadRegistrations);
+  let refreshBtn = byId('refresh-regs-btn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', loadRegistrations);
+  }
 
-  await setupModalActions();
+  let tbody = byId('registrations-tbody');
+  if (tbody) {
+    tbody.addEventListener('click', handleTableClick);
+  }
+
+  setupModalActions();
   await loadRegistrations();
 }
 
