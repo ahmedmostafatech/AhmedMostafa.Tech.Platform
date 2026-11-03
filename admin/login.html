@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>دخول لوحة الإدارة | Ahmed Mostafa Tech</title>
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ملفات الـ CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+
+  <style>
+    body {
+      background: #071022;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      color: #fff;
+    }
+
+    .admin-login-card {
+      background: #0f1c38;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-xl);
+      padding: var(--space-7) var(--space-6);
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .admin-login-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: var(--space-5);
+    }
+
+    .admin-login-input {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      width: 100%;
+      font-family: inherit;
+      font-size: var(--text-sm);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .admin-login-input:focus {
+      border-color: var(--color-accent);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-login-label {
+      display: block;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="admin-login-card">
+    <div class="admin-login-brand">
+      <div style="width:42px; height:42px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900; font-size:1.4rem;">
+        A
+      </div>
+      <div>
+        <div style="font-weight:900; font-size:var(--text-lg); color:#fff;">أحمد مصطفى تك</div>
+        <div style="font-size:var(--text-xs); color:var(--color-accent);">لوحة إدارة المنصة</div>
+      </div>
+    </div>
+
+    <div id="login-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-4); font-size:var(--text-xs);"></div>
+
+    <form id="admin-login-form">
+      <div style="margin-bottom:var(--space-4);">
+        <label class="admin-login-label" for="admin-email">البريد الإلكتروني للأدمن</label>
+        <input type="email" id="admin-email" class="admin-login-input" placeholder="admin@example.com" required dir="ltr">
+      </div>
+
+      <div style="margin-bottom:var(--space-6);">
+        <label class="admin-login-label" for="admin-pass">كلمة المرور</label>
+        <input type="password" id="admin-pass" class="admin-login-input" placeholder="••••••••" required dir="ltr">
+      </div>
+
+      <button type="submit" id="admin-submit-btn" class="btn btn--accent btn--block" style="min-height:46px; font-weight:800; font-size:var(--text-sm);">
+        تسجيل الدخول للوحة التحكم 🔒
+      </button>
+    </form>
+
+    <div style="text-align:center; margin-top:var(--space-5);">
+      <a href="../index.html" style="font-size:var(--text-xs); color:#64748b; text-decoration:none;">
+        ← العودة للموقع العام
+      </a>
+    </div>
+  </div>
+
+  <script type="module" src="../assets/js/pages/admin/admin-login-page.js"></script>
+
+</body>
+</html>

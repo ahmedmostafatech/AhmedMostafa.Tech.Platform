@@ -25,29 +25,29 @@ export function createPlayer(container, options = {}) {
     return;
   }
 
-  // العلامة المائية: إيميل الطالب واسمه للحد من تسريب الفيديوهات
+  // نص العلامة المائية: إيميل الطالب الموثق ورقم الحساب لمنع تسريب الشاشة
   let watermarkText = userEmail || userName || 'Ahmed Mostaf Tech';
 
   container.innerHTML = `
-    <div class="player-wrapper" style="position:relative; width:100%; height:100%; background:#000; overflow:hidden;">
+    <div class="player-wrapper" id="amt-player-wrapper" style="position:relative; width:100%; height:100%; background:#000; overflow:hidden;">
       <iframe
         id="amt-main-video-iframe"
-        src="https://www.youtube-nocookie.com/embed/${escapeHtml(youtubeId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1"
+        src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(youtubeId)}?autoplay=1&rel=0&modestbranding=1&playsinline=1"
         title="${escapeHtml(title || 'محاضرة المراجعة')}"
         style="width:100%; height:100%; border:none; position:absolute; inset:0;"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen
       ></iframe>
 
-      <!-- علامة مائية خفيفة لحماية المحتوى -->
-      <div class="player-watermark" aria-hidden="true" style="
+      <!-- علامة مائية ثابتة في الزاوية العلوية -->
+      <div class="player-watermark player-watermark--corner" aria-hidden="true" style="
         position: absolute;
         top: 14px;
         left: 14px;
         z-index: 10;
         pointer-events: none;
-        background: rgba(7, 16, 34, 0.45);
-        color: rgba(255, 255, 255, 0.35);
+        background: rgba(7, 16, 34, 0.55);
+        color: rgba(255, 255, 255, 0.45);
         padding: 4px 10px;
         border-radius: 6px;
         font-family: monospace;
@@ -57,6 +57,43 @@ export function createPlayer(container, options = {}) {
       ">
         ${escapeHtml(watermarkText)}
       </div>
+
+      <!-- علامة مائية عائمة متغيرة الموضع لمنع قص وتغطية الشاشة -->
+      <div id="amt-floating-watermark" aria-hidden="true" style="
+        position: absolute;
+        top: 60%;
+        left: 40%;
+        z-index: 10;
+        pointer-events: none;
+        background: rgba(0, 0, 0, 0.35);
+        color: rgba(255, 255, 255, 0.28);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 11px;
+        user-select: none;
+        transition: top 1s ease, left 1s ease;
+      ">
+        ${escapeHtml(watermarkText)}
+      </div>
     </div>
   `;
+
+  // تحريك العلامة المائية العائمة كل 20 ثانية لموضع عشوائي خفيف
+  let wrapperEl = container.querySelector('#amt-player-wrapper');
+  let floatingEl = container.querySelector('#amt-floating-watermark');
+
+  if (floatingEl && wrapperEl) {
+    let timer = setInterval(function () {
+      if (!document.body.contains(floatingEl)) {
+        clearInterval(timer);
+        return;
+      }
+      // مواضع عشوائية آمنة بعيداً عن أطراف الفيديو المزدحمة
+      let randomTop = Math.floor(Math.random() * 60) + 20; // 20% to 80%
+      let randomLeft = Math.floor(Math.random() * 60) + 20; // 20% to 80%
+      floatingEl.style.top = `${randomTop}%`;
+      floatingEl.style.left = `${randomLeft}%`;
+    }, 20000);
+  }
 }

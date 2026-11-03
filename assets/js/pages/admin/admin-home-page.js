@@ -1,270 +1,126 @@
 // ============================================================
 // admin-home-page.js
-// منطق لوحة تحكم الأدمن الرئيسية
+// منطق شاشة الإحصائيات العامة للأدمن (admin/index.html)
 // ============================================================
 
 import { requireAdmin } from '../../core/guard.js';
-import {
-  getAdminOverview,
-  approveOrder,
-  rejectOrder,
-  getReceiptSignedUrl
-} from '../../services/admin-service.js';
-import {
-  escapeHtml,
-  formatExactAmount,
-  formatDateTime,
-  setButtonLoading,
-  getErrorMessage,
-  qs,
-  qsa
-} from '../../core/utils.js';
+import { signOut } from '../../core/auth.js';
+import { getAdminStats, getAllRegistrations } from '../../services/admin-service.js';
+import { formatPrice, formatDateTime, escapeHtml } from '../../core/utils.js';
 
-let pendingOrdersTbody = qs('#pending-orders-tbody');
-let statPending = qs('#stat-pending-orders');
-let statActiveSubs = qs('#stat-active-subs');
-let statStudents = qs('#stat-total-students');
-let navPendingBadge = qs('#nav-pending-badge');
-let refreshBtn = qs('#admin-refresh-btn');
-let alertBox = qs('#admin-alert');
-
-let receiptModal = qs('#receipt-modal');
-let receiptModalBody = qs('#receipt-modal-body');
-let receiptModalClose = qs('#receipt-modal-close');
-
-function showAlert(message, type = 'info') {
-  if (!alertBox) return;
-  alertBox.className = `alert alert--${type}`;
-  alertBox.textContent = message;
-  alertBox.hidden = false;
-  setTimeout(function () {
-    alertBox.hidden = true;
-  }, 4500);
+function getStatusBadge(status) {
+  switch (status) {
+    case 'paid':
+      return '<span class="badge badge--success">مؤكد (Paid)</span>';
+    case 'under_review':
+      return '<span class="badge badge--accent">قيد المراجعة</span>';
+    case 'pending_payment':
+      return '<span class="badge badge--warning">بانتظار التحويل</span>';
+    case 'rejected':
+      return '<span class="badge badge--danger">مرفوض</span>';
+    case 'cancelled':
+      return '<span class="badge badge--muted">ملغي</span>';
+    default:
+      return `<span class="badge badge--muted">${escapeHtml(status)}</span>`;
+  }
 }
 
-// فتح نافذة الإيصال
-async function openReceiptModal(proofPath) {
-  if (!receiptModal) return;
-
-  receiptModalBody.innerHTML = `
-    <div style="padding:var(--space-6); color:#64748b;">
-      <div class="skeleton" style="height:250px; border-radius:var(--radius-md);"></div>
-      <p style="margin-top:12px;">جاري تحميل صورة الإيصال بأمان...</p>
-    </div>
-  `;
-  receiptModal.classList.add('show');
+async function loadDashboard() {
+  let errorEl = document.getElementById('stats-error');
+  if (errorEl) errorEl.hidden = true;
 
   try {
-    let signedUrl = await getReceiptSignedUrl(proofPath);
-    if (signedUrl) {
-      receiptModalBody.innerHTML = `
-        <img src="${escapeHtml(signedUrl)}" alt="إيصال التحويل" class="receipt-modal-img">
-        <div style="margin-top:var(--space-4);">
-          <a href="${escapeHtml(signedUrl)}" target="_blank" rel="noopener" class="btn btn--secondary btn--sm">
-            فتح الصورة بالحجم الكامل ↗
-          </a>
-        </div>
-      `;
-    } else {
-      receiptModalBody.innerHTML = `
-        <div style="padding:var(--space-6); color:var(--color-danger);">
-          ⚠️ تعذر تحميل صورة الإيصال (الملف غير متاح أو منتهي الصلاحية).
-        </div>
-      `;
-    }
-  } catch (err) {
-    receiptModalBody.innerHTML = `
-      <div style="padding:var(--space-6); color:var(--color-danger);">
-        ⚠️ حدث خطأ أثناء جلب الإيصال: ${escapeHtml(err.message)}
-      </div>
-    `;
-  }
-}
+    // 1. جلب الإحصائيات الحية
+    let stats = await getAdminStats();
 
-// عرض جدول الطلبات المعلقة
-function renderPendingTable(orders) {
-  if (!pendingOrdersTbody) return;
+    let totalEl = document.getElementById('stat-total');
+    let pendingEl = document.getElementById('stat-pending');
+    let reviewEl = document.getElementById('stat-review');
+    let paidEl = document.getElementById('stat-paid');
+    let rejectedEl = document.getElementById('stat-rejected');
+    let revenueEl = document.getElementById('stat-revenue');
+    let badgeEl = document.getElementById('nav-pending-badge');
 
-  if (!orders || orders.length === 0) {
-    pendingOrdersTbody.innerHTML = `
-      <tr>
-        <td colspan="9" style="text-align:center; padding:var(--space-8); color:#64748b;">
-          🎉 لا توجد طلبات معلقة حالياً، كل الطلبات تمت معالجتها!
-        </td>
-      </tr>
-    `;
-    return;
-  }
+    if (totalEl) totalEl.textContent = stats.total_registrations || 0;
+    if (pendingEl) pendingEl.textContent = stats.pending_payment || 0;
+    if (reviewEl) reviewEl.textContent = stats.under_review || 0;
+    if (paidEl) paidEl.textContent = stats.paid || 0;
+    if (rejectedEl) rejectedEl.textContent = stats.rejected || 0;
+    if (revenueEl) revenueEl.textContent = formatPrice(stats.total_revenue || 0);
 
-  pendingOrdersTbody.innerHTML = orders.map(function (order) {
-    let student = order.profiles || {};
-    let course = order.courses || {};
-    let phone = student.phone || '';
-
-    let cleanPhone = phone.replace(/^0/, '20');
-    let waLink = phone ? `https://wa.me/${cleanPhone}` : null;
-
-    let methodLabel = order.payment_method === 'vodafone_cash' ? '🔴 فودافون كاش' : '🟣 إنستاباي';
-
-    return `
-      <tr data-order-id="${escapeHtml(order.id)}">
-        <td>
-          <div style="font-weight:700; color:var(--color-primary);">${escapeHtml(student.full_name || 'بدون اسم')}</div>
-          <div style="font-size:var(--text-xs); color:#64748b; direction:ltr; text-align:right;">${escapeHtml(student.email || '—')}</div>
-        </td>
-        <td>
-          ${phone ? `
-            <a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="badge badge--success" style="text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-              <span>📱</span> <span style="direction:ltr;">${escapeHtml(phone)}</span>
-            </a>
-          ` : '<span style="color:#94a3b8; font-size:11px;">غير مسجل</span>'}
-        </td>
-        <td>
-          <strong style="color:var(--color-primary); font-size:var(--text-xs);">${escapeHtml(course.title || 'المادة')}</strong>
-        </td>
-        <td>
-          <span style="font-size:var(--text-xs); font-weight:600;">${escapeHtml(methodLabel)}</span>
-        </td>
-        <td>
-          <span style="font-weight:800; color:#0f172a; direction:ltr; display:inline-block;">
-            ${formatExactAmount(order.amount)} ج.م
-          </span>
-        </td>
-        <td>
-          <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700; color:#334155; font-size:var(--text-xs); direction:ltr; display:inline-block;">
-            ${escapeHtml(order.tx_reference || '—')}
-          </code>
-        </td>
-        <td>
-          ${order.proof_path ? `
-            <button type="button" class="btn btn--secondary btn--sm btn-view-receipt" data-path="${escapeHtml(order.proof_path)}" style="font-size:var(--text-xs); padding:2px 8px;">
-              🖼️ عرض الإيصال
-            </button>
-          ` : '<span style="color:#94a3b8; font-size:11px;">بدون إيصال</span>'}
-        </td>
-        <td>
-          <span style="font-size:11px; color:#64748b;">${formatDateTime(order.created_at)}</span>
-        </td>
-        <td>
-          <div style="display:flex; gap:6px;">
-            <button type="button" class="btn-action-approve" data-id="${escapeHtml(order.id)}" title="قبول الطلب وتفعيل الكورس فوراً">
-              قبول ✅
-            </button>
-            <button type="button" class="btn-action-reject" data-id="${escapeHtml(order.id)}" title="رفض الطلب">
-              رفض ❌
-            </button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-
-  // ربط أزرار عرض الإيصال
-  qsa('.btn-view-receipt').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      openReceiptModal(btn.dataset.path);
-    });
-  });
-
-  // ربط أزرار القبول
-  qsa('.btn-action-approve').forEach(function (btn) {
-    btn.addEventListener('click', async function () {
-      let orderId = btn.dataset.id;
-      if (!confirm('هل أنت متأكد من قبول هذا الطلب وتفعيل الاشتراك للطالب؟')) return;
-
-      btn.disabled = true;
-      btn.textContent = '...';
-
-      try {
-        await approveOrder(orderId);
-        showAlert('✅ تم قبول الطلب وتفعيل اشتراك الطالب بنجاح!', 'success');
-        await loadDashboardData();
-      } catch (err) {
-        alert('حدث خطأ أثناء قبول الطلب: ' + getErrorMessage(err));
-        btn.disabled = false;
-        btn.textContent = 'قبول ✅';
+    let activeReviewCount = (stats.pending_payment || 0) + (stats.under_review || 0);
+    if (badgeEl) {
+      if (activeReviewCount > 0) {
+        badgeEl.textContent = activeReviewCount;
+        badgeEl.style.display = 'inline-flex';
+      } else {
+        badgeEl.style.display = 'none';
       }
-    });
-  });
-
-  // ربط أزرار الرفض
-  qsa('.btn-action-reject').forEach(function (btn) {
-    btn.addEventListener('click', async function () {
-      let orderId = btn.dataset.id;
-      if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
-
-      btn.disabled = true;
-      btn.textContent = '...';
-
-      try {
-        await rejectOrder(orderId);
-        showAlert('تم رفض الطلب بنجاح.', 'warning');
-        await loadDashboardData();
-      } catch (err) {
-        alert('حدث خطأ أثناء رفض الطلب: ' + getErrorMessage(err));
-        btn.disabled = false;
-        btn.textContent = 'رفض ❌';
-      }
-    });
-  });
-}
-
-// تحميل وتحديث بيانات لوحة التحكم
-async function loadDashboardData() {
-  try {
-    let data = await getAdminOverview();
-
-    statPending.textContent = data.pendingCount;
-    statActiveSubs.textContent = data.activeSubsCount;
-    statStudents.textContent = data.studentsCount;
-
-    if (navPendingBadge) {
-      navPendingBadge.textContent = data.pendingCount;
-      navPendingBadge.style.display = data.pendingCount > 0 ? 'inline-flex' : 'none';
     }
 
-    renderPendingTable(data.recentPendingOrders);
+    // 2. جلب أحدث 5 تسجيلات
+    let regs = await getAllRegistrations();
+    let recent = regs.slice(0, 7);
+    let tbody = document.getElementById('recent-reg-body');
+
+    if (tbody) {
+      if (recent.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center" style="padding:24px; color:#94a3b8;">
+              لا توجد أي تسجيلات حتى الآن.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = recent.map(function (r) {
+          let courseTitle = r.courses ? r.courses.title : 'مراجعة غير محددة';
+          let methodText = r.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
+          return `
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:10px; font-weight:800; font-family:monospace; color:var(--color-primary);">${escapeHtml(r.registration_code)}</td>
+              <td style="padding:10px; font-weight:700;">${escapeHtml(r.full_name)}</td>
+              <td style="padding:10px; color:#64748b;">${escapeHtml(r.branch)}</td>
+              <td style="padding:10px;">${escapeHtml(courseTitle)}</td>
+              <td style="padding:10px; font-weight:800; color:var(--color-accent);">${formatPrice(r.amount)}</td>
+              <td style="padding:10px;">${escapeHtml(methodText)}</td>
+              <td style="padding:10px;">${getStatusBadge(r.payment_status)}</td>
+              <td style="padding:10px; color:#64748b; font-size:11px;">${formatDateTime(r.created_at)}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
   } catch (err) {
-    console.error('Failed to load admin overview:', err);
-    showAlert('تعذر جلب بيانات الأدمن: ' + getErrorMessage(err), 'error');
+    console.error('Failed to load dashboard:', err);
+    if (errorEl) {
+      errorEl.textContent = 'حدث خطأ أثناء تحميل الإحصائيات، تأكد من الاتصال.';
+      errorEl.hidden = false;
+    }
   }
 }
 
-// تهيئة الصفحة
-async function init() {
-  let ctx = await requireAdmin();
-  if (!ctx) return;
+async function initAdminHomePage() {
+  // فحص صلاحية الأدمن والتوجيه لصفحة تسجيل الدخول إن لم يكن مسجلاً
+  let authContext = await requireAdmin('login.html');
+  if (!authContext) return;
 
-  let profile = ctx.profile;
-  let adminNameEl = qs('#admin-user-name');
-  if (adminNameEl && profile) {
-    adminNameEl.textContent = `👑 ${profile.full_name || profile.email.split('@')[0]}`;
+  // زر الخروج
+  let signOutBtn = document.getElementById('admin-signout-btn');
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async function () {
+      await signOut('login.html');
+    });
   }
 
+  // زر التحديث
+  let refreshBtn = document.getElementById('refresh-stats-btn');
   if (refreshBtn) {
-    refreshBtn.addEventListener('click', function () {
-      setButtonLoading(refreshBtn, true, 'جاري التحديث...');
-      loadDashboardData().finally(function () {
-        setButtonLoading(refreshBtn, false);
-      });
-    });
+    refreshBtn.addEventListener('click', loadDashboard);
   }
 
-  if (receiptModalClose) {
-    receiptModalClose.addEventListener('click', function () {
-      receiptModal.classList.remove('show');
-    });
-  }
-
-  if (receiptModal) {
-    receiptModal.addEventListener('click', function (e) {
-      if (e.target === receiptModal) {
-        receiptModal.classList.remove('show');
-      }
-    });
-  }
-
-  await loadDashboardData();
+  await loadDashboard();
 }
 
-init();
+document.addEventListener('DOMContentLoaded', initAdminHomePage);

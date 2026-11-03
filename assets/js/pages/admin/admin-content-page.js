@@ -69,7 +69,7 @@ function openAddVideoModal(moduleId) {
   videoIdHidden.value = '';
   videoModuleIdHidden.value = moduleId;
   videoTitleInput.value = '';
-  videoDurationInput.value = '30';
+  if (videoDurationInput) videoDurationInput.value = '';
   videoYoutubeInput.value = '';
   videoIsFreeInput.checked = false;
 
@@ -81,7 +81,7 @@ function openEditVideoModal(moduleId, video) {
   videoIdHidden.value = video.id;
   videoModuleIdHidden.value = moduleId;
   videoTitleInput.value = video.title || '';
-  videoDurationInput.value = Math.round((video.duration_sec || 0) / 60) || '';
+  if (videoDurationInput) videoDurationInput.value = '';
   videoYoutubeInput.value = (video.video_sources && video.video_sources.youtube_id) || '';
   videoIsFreeInput.checked = !!video.is_free;
 
@@ -103,6 +103,7 @@ function renderTree(courses) {
 
   treeContainer.innerHTML = courses.map(function (course) {
     let modules = course.modules || [];
+    let priceVal = course.price_egp !== undefined && course.price_egp !== null ? course.price_egp : 120;
 
     return `
       <div class="content-tree-course" data-course-id="${escapeHtml(course.id)}">
@@ -118,7 +119,7 @@ function renderTree(courses) {
               </h2>
             </div>
             <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:4px 0 0;">
-              السعر: <strong>${formatPrice(course.price)}</strong> • ينتهي الاشتراك: <strong>${formatDate(course.access_until)}</strong>
+              السعر: <strong>${formatPrice(priceVal)}</strong> • ينتهي الاشتراك: <strong>${formatDate(course.access_until)}</strong>
             </p>
           </div>
 
@@ -139,9 +140,9 @@ function renderTree(courses) {
               لا توجد وحدات بعد. اضغط "إضافة وحدة" للبدء.
             </div>
           ` : modules.map(function (m, mIdx) {
-            let videos = m.videos || [];
+      let videos = m.videos || [];
 
-            return `
+      return `
               <div class="content-module-box">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--space-3);">
                   <div style="font-weight:800; color:var(--color-primary); font-size:var(--text-sm);">
@@ -164,8 +165,8 @@ function renderTree(courses) {
                       لا توجد محاضرات في هذا الفصل.
                     </div>
                   ` : videos.map(function (v) {
-                    let ytid = (v.video_sources && v.video_sources.youtube_id) || '';
-                    return `
+        let ytid = (v.video_sources && v.video_sources.youtube_id) || '';
+        return `
                       <div class="content-video-row">
                         <div style="display:flex; align-items:center; gap:8px;">
                           <span style="font-size:1.1rem;">🎬</span>
@@ -175,8 +176,7 @@ function renderTree(courses) {
                               ${v.is_free ? '<span class="badge badge--free" style="margin-right:6px; font-size:10px;">مجاني للتجربة</span>' : ''}
                             </div>
                             <div style="font-size:11px; color:#64748b; margin-top:2px; display:flex; gap:10px;">
-                              <span>⏱️ ${Math.round((v.duration_sec || 0) / 60)} دقيقة</span>
-                              <span style="direction:ltr; font-family:monospace;">YT: ${escapeHtml(ytid || 'غير مربوط')}</span>
+                              <span style="direction:ltr; font-family:monospace;">YT ID: ${escapeHtml(ytid || 'غير مربوط')}</span>
                             </div>
                           </div>
                         </div>
@@ -191,11 +191,11 @@ function renderTree(courses) {
                         </div>
                       </div>
                     `;
-                  }).join('')}
+      }).join('')}
                 </div>
               </div>
             `;
-          }).join('')}
+    }).join('')}
         </div>
       </div>
     `;
@@ -325,7 +325,6 @@ async function init() {
       let videoId = videoIdHidden.value;
       let moduleId = videoModuleIdHidden.value;
       let title = videoTitleInput.value.trim();
-      let mins = Number(videoDurationInput.value) || 0;
       let rawYt = videoYoutubeInput.value.trim();
       let isFree = videoIsFreeInput.checked;
 
@@ -344,19 +343,17 @@ async function init() {
 
       try {
         if (videoId) {
-          // تعديل
+          // تعديل المحاضرة ورابط يوتيوب
           await updateVideoWithSource(videoId, {
             title: title,
-            durationSec: mins * 60,
             isFree: isFree,
             youtubeId: ytid
           });
           showAlert('✅ تم تحديث المحاضرة بنجاح!', 'success');
         } else {
-          // إضافة جديد
+          // إضافة محاضرة جديدة ورابط يوتيوب
           await createVideoWithSource(moduleId, {
             title: title,
-            durationSec: mins * 60,
             isFree: isFree,
             youtubeId: ytid
           });

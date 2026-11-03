@@ -113,14 +113,14 @@ async function ensureOrder() {
     // 2. إذا لم يوجد، ننشئ طلباً جديداً
     let orderRes = await createOrder(currentCourse.id, selectedMethod);
     if (orderRes) {
-      currentOrderId = orderRes.order_id;
+      currentOrderId = orderRes.order_id || orderRes.id;
       currentOrderAmount = orderRes.amount;
       exactAmountEl.textContent = `${formatExactAmount(orderRes.amount)} ج.م`;
     }
   } catch (err) {
     console.error('Failed to create/get order:', err);
     showError(getErrorMessage(err));
-    exactAmountEl.textContent = `${currentCourse.price || 120}.00 ج.م`;
+    exactAmountEl.textContent = `${currentCourse.price_egp || currentCourse.price || 120}.00 ج.م`;
   }
 }
 
@@ -194,6 +194,11 @@ async function init() {
     activeUserEmailEl.textContent = (currentProfile && currentProfile.email) || currentSession.user.email;
   }
 
+  // تنبيه إذا كان رقم الهاتف غير مكتمل
+  if (currentProfile && !currentProfile.phone) {
+    showError('تنبيه: حسابك لا يحتوي على رقم موبايل مسجل. يرجى إكماله من لوحة التحكم لتفادي أي تأخير في مراجعة وتفعيل اشتراكك.');
+  }
+
   // 3. جلب بيانات المادة
   let courseId = getQueryParam('course_id') || getQueryParam('id');
   currentCourse = await getCourseById(courseId);
@@ -224,7 +229,7 @@ async function init() {
   if (currentCourse.access_until) {
     qs('#summary-expiry-date').textContent = formatDate(currentCourse.access_until);
   }
-  qs('#summary-total-price').textContent = formatPrice(currentCourse.price || 120);
+  qs('#summary-total-price').textContent = formatPrice(currentCourse.price_egp || currentCourse.price || 120);
 
   // 6. أحداث اختيار طريقة الدفع
   methodCards.forEach(function (card) {

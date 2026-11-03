@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>إدارة التسجيلات والمدفوعات | لوحة الإدارة</title>
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <style>
+    .filter-bar {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-5);
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    @media (max-width: 992px) {
+      .filter-bar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .filter-select, .filter-input {
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: var(--text-xs);
+      font-family: inherit;
+      width: 100%;
+      outline: none;
+    }
+
+    .filter-select:focus, .filter-input:focus {
+      border-color: var(--color-accent);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="admin-app">
+
+    <!-- القائمة الجانبية -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+          A
+        </div>
+        <div>
+          <div class="admin-brand-title">أحمد مصطفى تك</div>
+          <div class="admin-brand-sub">لوحة إدارة المنصة</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link">
+          <span>📊 نظرة عامة والإحصائيات</span>
+        </a>
+        <a href="registrations.html" class="admin-nav-link active">
+          <span>📝 إدارة التسجيلات</span>
+          <span id="nav-pending-badge" class="badge badge--warning" style="display:none; font-size:10px; padding:2px 6px;">0</span>
+        </a>
+        <a href="revisions.html" class="admin-nav-link">
+          <span>📚 إدارة المراجعات</span>
+        </a>
+        <a href="reports.html" class="admin-nav-link">
+          <span>📥 التقارير وتصدير CSV</span>
+        </a>
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:12px 0;"></div>
+        <a href="../index.html" target="_blank" class="admin-nav-link">
+          <span>🌐 عرض الموقع العام</span>
+        </a>
+      </nav>
+
+      <div style="padding:var(--space-4); border-top:1px solid rgba(255,255,255,0.08);">
+        <button type="button" id="admin-signout-btn" class="btn btn--secondary btn--block btn--sm" style="color:var(--color-danger); border-color:rgba(220,38,38,0.3); font-size:var(--text-xs);">
+          🚪 خروج من الإدارة
+        </button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="admin-main">
+
+      <!-- الشريط العلوي -->
+      <header class="admin-topbar">
+        <div class="admin-topbar-title">
+          <h1 style="margin:0; font-size:var(--text-lg); font-weight:800; color:var(--color-primary);">
+            إدارة طلبات التسجيل والتحويلات
+          </h1>
+          <span style="font-size:var(--text-xs); color:var(--color-text-muted);">فحص الإيصالات، تغيير الحالات، وتأكيد الاشتراكات</span>
+        </div>
+        <div class="admin-topbar-actions">
+          <button type="button" id="refresh-regs-btn" class="btn btn--secondary btn--sm">
+            🔄 تحديث
+          </button>
+        </div>
+      </header>
+
+      <!-- جسم الصفحة -->
+      <div class="admin-content" style="padding:var(--space-6);">
+
+        <!-- شريط الفلاتر والبحث -->
+        <div class="filter-bar">
+          <input type="text" id="filter-search" class="filter-input" placeholder="بحث بالاسم أو الهاتف أو كود التسجيل أو الإيميل...">
+
+          <select id="filter-status" class="filter-select">
+            <option value="all">كل الحالات</option>
+            <option value="pending_payment">بانتظار التحويل</option>
+            <option value="under_review">قيد المراجعة</option>
+            <option value="paid">مؤكد (Paid)</option>
+            <option value="rejected">مرفوض</option>
+          </select>
+
+          <select id="filter-course" class="filter-select">
+            <option value="all">كل المراجعات</option>
+          </select>
+
+          <select id="filter-branch" class="filter-select">
+            <option value="all">كل الفروع</option>
+          </select>
+
+          <button type="button" id="reset-filters-btn" class="btn btn--ghost btn--sm" style="font-size:11px;">
+            إعادة تعيين
+          </button>
+        </div>
+
+        <!-- رسائل الخطأ والتنبيهات -->
+        <div id="regs-alert" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-4);"></div>
+
+        <!-- جدول التسجيلات -->
+        <div style="background:#fff; border:1px solid #e2e8f0; border-radius:var(--radius-xl); overflow:hidden; box-shadow:var(--shadow-sm);">
+          <div style="padding:var(--space-4); border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <span id="regs-count-label" style="font-size:var(--text-xs); font-weight:700; color:#64748b;">
+              جاري جلب البيانات...
+            </span>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="table" style="width:100%; border-collapse:collapse; font-size:var(--text-xs);">
+              <thead>
+                <tr style="border-bottom:2px solid #e2e8f0; text-align:right; background:#f8fafc;">
+                  <th style="padding:12px;">الكود</th>
+                  <th style="padding:12px;">الطالب</th>
+                  <th style="padding:12px;">الفرع</th>
+                  <th style="padding:12px;">الموبايل</th>
+                  <th style="padding:12px;">المادة</th>
+                  <th style="padding:12px;">المبلغ</th>
+                  <th style="padding:12px;">الوسيلة</th>
+                  <th style="padding:12px;">الحالة</th>
+                  <th style="padding:12px;">الإيميل</th>
+                  <th style="padding:12px; text-align:center;">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="registrations-tbody">
+                <tr>
+                  <td colspan="10" class="text-center" style="padding:32px; color:#94a3b8;">
+                    جاري تحميل التسجيلات...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- مودال فحص وإجراء الطلب -->
+  <div id="review-modal" class="modal-backdrop" hidden>
+    <div class="modal-card" style="max-width:540px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:12px; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:var(--text-md); font-weight:800; color:var(--color-primary);">
+          فحص وتأكيد التسجيل <span id="modal-reg-code" style="color:var(--color-accent); font-family:monospace;"></span>
+        </h3>
+        <button type="button" id="modal-close-btn" class="modal-close-btn">&times;</button>
+      </div>
+
+      <div id="modal-reg-details" style="background:#f8fafc; border-radius:var(--radius-md); padding:12px; margin-bottom:16px; font-size:var(--text-xs); line-height:1.9;">
+        <!-- تفاصيل الطالب والحجز ديناميكياً -->
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block; font-size:var(--text-xs); font-weight:700; color:#475569; margin-bottom:4px;">
+          ملاحظة داخلية للأدمن (اختياري)
+        </label>
+        <input type="text" id="modal-admin-note" class="filter-input" placeholder="مثال: تم التأكد من وصول 120 ج على فودافون كاش">
+      </div>
+
+      <div id="reject-reason-box" style="margin-bottom:16px;" hidden>
+        <label style="display:block; font-size:var(--text-xs); font-weight:700; color:var(--color-danger); margin-bottom:4px;">
+          سبب الرفض (إلزامي للرفض)
+        </label>
+        <input type="text" id="modal-reject-reason" class="filter-input" placeholder="مثال: لم يتم استلام التحويل، أو المبلغ غير مكتمل">
+      </div>
+
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button type="button" id="btn-modal-review" class="btn btn--secondary btn--sm">
+          🔍 وضع قيد الفحص
+        </button>
+
+        <button type="button" id="btn-modal-reject" class="btn btn--secondary btn--sm" style="color:var(--color-danger); border-color:rgba(220,38,38,0.3);">
+          ❌ رفض الطلب
+        </button>
+
+        <button type="button" id="btn-modal-approve" class="btn btn--accent btn--sm" style="font-weight:800;">
+          ✅ قبول وتأكيد الدفع (Approve)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../assets/js/pages/admin/admin-registrations-page.js"></script>
+
+</body>
+</html>

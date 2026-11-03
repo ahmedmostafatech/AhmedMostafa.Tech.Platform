@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>المراجعات المتاحة | أحمد مصطفى تك</title>
+  <meta name="description" content="استعرض جميع المراجعات النهائية المتاحة لمناهج تكنولوجيا المعلومات وسجل مباشرة.">
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ملفات الـ CSS -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+
+<body>
+
+  <!-- شريط الملاحة -->
+  <header id="site-header" class="site-header"></header>
+
+  <main style="padding: var(--space-8) 0; min-height: 80vh;">
+    <div class="container">
+
+      <!-- ترويسة الصفحة -->
+      <div class="section__header text-center" style="margin-bottom:var(--space-6);">
+        <span class="badge badge--accent" style="margin-bottom:8px;">المراجعات النشطة</span>
+        <h1 class="section__title">جميع المراجعات المتاحة</h1>
+        <p class="section__desc">اختر المراجعة التي تناسبك واستعرض كافة محاورها ومحتوياتها واحجز مقعدك فوراً</p>
+      </div>
+
+      <!-- حالة التحميل -->
+      <div id="revisions-loading" class="text-center" style="padding:var(--space-8) 0;">
+        <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
+        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري تحميل المراجعات...</p>
+      </div>
+
+      <!-- شبكة المراجعات -->
+      <div id="revisions-grid" class="revisions-grid" hidden></div>
+
+      <!-- حالة فارغة أو خطأ -->
+      <div id="revisions-empty" class="text-center" hidden style="padding:var(--space-8) 0;">
+        <div style="font-size:3rem; margin-bottom:12px;">📚</div>
+        <h3 style="color:var(--color-primary); font-size:var(--text-lg); margin-bottom:8px;">لا توجد مراجعات منشورة حالياً</h3>
+        <p style="color:var(--color-text-muted); font-size:var(--text-sm); max-width:400px; margin:0 auto;">
+          سيتم فتح باب الحجز لمراجعات جديدة قريباً، تابعنا وتواصل معنا للاستفسار.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="site-footer" style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
+      <div>
+        <strong>Ahmed Mostafa Tech</strong> — جميع الحقوق محفوظة &copy; 2026
+      </div>
+      <div style="display:flex; gap:var(--space-4);">
+        <a href="index.html" style="color:var(--color-primary);">الرئيسية</a>
+        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:#25d366; font-weight:700;">دعم واتساب</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/pages/revisions-page.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>تفاصيل المراجعة | أحمد مصطفى تك</title>
+  <meta name="description" content="تعرف على تفاصيل المراجعة والمحاور المشمولة وطريقة التسجيل المباشر.">
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ملفات الـ CSS -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    .revision-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-6);
+      margin-top: var(--space-6);
+    }
+
+    @media (max-width: 860px) {
+      .revision-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border-light);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-card {
+      background: var(--color-surface);
+      border: 2px solid var(--color-accent);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      position: sticky;
+      top: 90px;
+    }
+
+    .includes-list {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-4) 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .includes-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: var(--text-sm);
+      color: var(--color-text);
+    }
+
+    .includes-item span.icon {
+      color: var(--color-success);
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- شريط الملاحة -->
+  <header id="site-header" class="site-header"></header>
+
+  <main style="padding: var(--space-8) 0; min-height: 80vh;">
+    <div class="container">
+
+      <!-- زر العودة -->
+      <a href="revisions.html" style="display:inline-flex; align-items:center; gap:6px; font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:var(--space-4); text-decoration:none;">
+        ← العودة لقائمة المراجعات
+      </a>
+
+      <!-- تنبيه التحميل أو الخطأ -->
+      <div id="revision-loading" class="text-center" style="padding:var(--space-8) 0;">
+        <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
+        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري جلب تفاصيل المراجعة...</p>
+      </div>
+
+      <div id="revision-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-6);"></div>
+
+      <!-- محتوى المراجعة -->
+      <div id="revision-content" class="revision-layout" hidden>
+
+        <!-- العمود الرئيسي -->
+        <div class="detail-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:8px;">
+            <span class="badge badge--accent" style="font-size:var(--text-xs);">متاح للتسجيل الفوري</span>
+            <span id="rev-expiry-badge" style="font-size:var(--text-xs); color:var(--color-text-muted);"></span>
+          </div>
+
+          <h1 id="rev-title" style="font-size:var(--text-2xl); font-weight:900; color:var(--color-primary); margin-bottom:var(--space-4);">...</h1>
+
+          <div id="rev-desc" style="font-size:var(--text-md); color:var(--color-text); line-height:1.8; margin-bottom:var(--space-6); white-space:pre-line;">
+            ...
+          </div>
+
+          <hr style="border:0; border-top:1px solid var(--color-border-light); margin:var(--space-6) 0;">
+
+          <h3 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin-bottom:var(--space-3);">
+            ما الذي تتضمنه هذه المراجعة؟
+          </h3>
+          <ul class="includes-list">
+            <li class="includes-item"><span class="icon">✓</span> شروحات فيديو تفصيلية ومكثفة تغطي كل أجزاء المقرر.</li>
+            <li class="includes-item"><span class="icon">✓</span> مذكرات وملخصات PDF جاهزة للمذاكرة والطباعة.</li>
+            <li class="includes-item"><span class="icon">✓</span> حل نماذج امتحانات سابقة وشرح الأسئلة الأكثر تكراراً.</li>
+            <li class="includes-item"><span class="icon">✓</span> متابعة واستفسارات عبر مجموعة الواتساب المخصصة للمادة.</li>
+            <li class="includes-item"><span class="icon">✓</span> استلام فوري لرابط المراجعة الكامل فور مراجعة وتأكيد الدفع.</li>
+          </ul>
+        </div>
+
+        <!-- العمود الجانبي (كارت الحجز والسعر) -->
+        <div>
+          <div class="sidebar-card text-center">
+            <span style="font-size:var(--text-xs); font-weight:700; color:var(--color-text-muted); display:block; margin-bottom:4px;">سعر الاشتراك بالمراجعة</span>
+            <div id="rev-price" style="font-size:2.4rem; font-weight:900; color:var(--color-primary); margin-bottom:var(--space-4);">...</div>
+
+            <p style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:var(--space-5);">
+              الدفع متاح عن طريق فودافون كاش أو إنستاباي. بعد التسجيل تقوم بالتحويل وترسل الإيصال على واتساب لتأكيد الاشتراك.
+            </p>
+
+            <a id="rev-register-btn" href="#" class="btn btn--accent btn--block" style="font-size:var(--text-md); font-weight:800; min-height:48px;">
+              سجّل في هذه المراجعة الآن 🚀
+            </a>
+
+            <div style="margin-top:var(--space-4); font-size:var(--text-xs); color:var(--color-text-muted); display:flex; align-items:center; justify-content:center; gap:6px;">
+              <span>🔒</span> تسجيل سريع بدون إنشاء حساب
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="site-footer" style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
+      <div>
+        <strong>Ahmed Mostafa Tech</strong> — جميع الحقوق محفوظة &copy; 2026
+      </div>
+      <div style="display:flex; gap:var(--space-4);">
+        <a href="index.html" style="color:var(--color-primary);">الرئيسية</a>
+        <a href="revisions.html" style="color:var(--color-primary);">المراجعات</a>
+        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:#25d366; font-weight:700;">دعم واتساب</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/pages/revision-page.js"></script>
+
+</body>
+</html>
+

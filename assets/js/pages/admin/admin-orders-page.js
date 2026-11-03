@@ -45,7 +45,8 @@ function showAlert(message, type = 'info') {
 
 let STATUS_BADGES = {
   pending: '<span class="badge badge--warning">⏳ في الانتظار</span>',
-  approved: '<span class="badge badge--success">✅ مقبول</span>',
+  paid: '<span class="badge badge--success">✅ مقبول ومفعل</span>',
+  approved: '<span class="badge badge--success">✅ مقبول ومفعل</span>',
   rejected: '<span class="badge badge--danger">❌ مرفوض</span>',
   expired: '<span class="badge" style="background:#e2e8f0; color:#64748b;">⌛ منتهي</span>'
 };
@@ -111,7 +112,28 @@ function renderOrdersTable(orders) {
     let methodLabel = order.payment_method === 'vodafone_cash' ? '🔴 فودافون كاش' : '🟣 إنستاباي';
     let statusBadge = STATUS_BADGES[order.status] || order.status;
 
-    let canAct = order.status === 'pending';
+    let hasRef = !!(order.tx_reference && String(order.tx_reference).trim());
+    let canApprove = order.status === 'pending' && hasRef;
+    let canReject = order.status === 'pending';
+
+    let actionHtml = '';
+    if (canApprove) {
+      actionHtml = `
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-action-approve" data-id="${escapeHtml(order.id)}">قبول ✅</button>
+          <button type="button" class="btn-action-reject" data-id="${escapeHtml(order.id)}">رفض ❌</button>
+        </div>
+      `;
+    } else if (canReject && !hasRef) {
+      actionHtml = `
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="badge" style="background:#f1f5f9; color:#94a3b8; font-size:10px;">لم يُرسل التحويل</span>
+          <button type="button" class="btn-action-reject" data-id="${escapeHtml(order.id)}" style="font-size:11px; padding:2px 6px;">إلغاء ✕</button>
+        </div>
+      `;
+    } else {
+      actionHtml = '<span style="color:#94a3b8; font-size:11px;">مكتمل</span>';
+    }
 
     return `
       <tr data-order-id="${escapeHtml(order.id)}">
@@ -153,14 +175,7 @@ function renderOrdersTable(orders) {
         <td>
           <span style="font-size:11px; color:#64748b;">${formatDateTime(order.created_at)}</span>
         </td>
-        <td>
-          ${canAct ? `
-            <div style="display:flex; gap:6px;">
-              <button type="button" class="btn-action-approve" data-id="${escapeHtml(order.id)}">قبول ✅</button>
-              <button type="button" class="btn-action-reject" data-id="${escapeHtml(order.id)}">رفض ❌</button>
-            </div>
-          ` : '<span style="color:#94a3b8; font-size:11px;">مكتمل</span>'}
-        </td>
+        <td>${actionHtml}</td>
       </tr>
     `;
   }).join('');
@@ -174,9 +189,10 @@ function renderOrdersTable(orders) {
   qsa('.btn-action-approve').forEach(function (btn) {
     btn.addEventListener('click', async function () {
       let orderId = btn.dataset.id;
-      if (!confirm('هل أنت متأكد من قبول هذا الطلب وتفعيل الكورس للطالب؟')) return;
+      if (!confirm('هل تأكدت من وصول المبلغ في محفظتك وتريد قبول هذا الطلب وتفعيل الكورس للطالب؟')) return;
 
       btn.disabled = true;
+      btn.textContent = '...';
       try {
         await approveOrder(orderId);
         showAlert('✅ تم قبول الطلب وتفعيل الكورس بنجاح!', 'success');
@@ -184,6 +200,7 @@ function renderOrdersTable(orders) {
       } catch (err) {
         alert('خطأ: ' + getErrorMessage(err));
         btn.disabled = false;
+        btn.textContent = 'قبول ✅';
       }
     });
   });
@@ -191,16 +208,19 @@ function renderOrdersTable(orders) {
   qsa('.btn-action-reject').forEach(function (btn) {
     btn.addEventListener('click', async function () {
       let orderId = btn.dataset.id;
-      if (!confirm('هل أنت متأكد من رفض هذا الطلب؟')) return;
+      let reason = prompt('هل تريد إضافة سبب للرفض (اختياري)؟', '');
+      if (reason === null) return; // الضغط على إلغاء
 
       btn.disabled = true;
+      btn.textContent = '...';
       try {
-        await rejectOrder(orderId);
+        await rejectOrder(orderId, reason);
         showAlert('تم رفض الطلب.', 'warning');
         await loadOrders();
       } catch (err) {
         alert('خطأ: ' + getErrorMessage(err));
         btn.disabled = false;
+        btn.textContent = 'رفض ❌';
       }
     });
   });
@@ -211,8 +231,11 @@ function applyFilters() {
 
   let filtered = allLoadedOrders.filter(function (order) {
     // 1. فلتر الحالة
-    if (activeFilter !== 'all' && order.status !== activeFilter) {
-      return false;
+    if (activeFilter !== 'all') {
+      let matchStatus = activeFilter === 'approved' ? 'paid' : activeFilter;
+      if (order.status !== matchStatus) {
+        return false;
+      }
     }
 
     // 2. البحث بالنص

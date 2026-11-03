@@ -10,32 +10,46 @@ export let SUPABASE_URL = 'https://wsoazfbpdsmspygrofjf.supabase.co';
 // تحذير: ممنوع نهائيًا وضع service_role أو أي مفتاح secret هنا
 export let SUPABASE_PUBLIC_KEY = 'sb_publishable_Y1tmeibp1DPVfyuBLixPTw_7WLA0mNv';
 
-// إعدادات التطبيق
+// إعدادات التطبيق والعلامة التجارية
 export let APP_CONFIG = Object.freeze({
   APP_NAME: 'Ahmed Mostafa Tech',
-  // لو الموقع هيترفع على مسار فرعي (مثلاً /my-site) حطه هنا، وإلا سيبه فاضي
+  BRAND_TITLE: 'أحمد مصطفى تيك | مراجعات تكنولوجيا المعلومات',
   BASE_PATH: '',
-  // أرقام لاتينية (120.37) عشان الطالب ينسخ المبلغ بسهولة
   LOCALE: 'ar-EG-u-nu-latn',
   TIMEZONE: 'Africa/Cairo',
   CURRENCY: 'EGP',
+  WHATSAPP_PHONE: '01066843568',
+  WHATSAPP_INTL: '201066843568',
   AUTH_STORAGE_KEY: 'amt-auth',
-  NEXT_PATH_STORAGE_KEY: 'amt-next-path'
+  ADMIN_NEXT_PATH_KEY: 'amt-admin-next-path'
 });
 
-// مسارات الصفحات (من الجذر)
+// مسارات صفحات الموقع
 export let ROUTES = Object.freeze({
   HOME: '/index.html',
-  LOGIN: '/login.html',
-  DASHBOARD: '/dashboard.html',
-  COURSE: '/course.html',
-  CHECKOUT: '/checkout.html',
-  WATCH: '/watch.html',
-  ADMIN_HOME: '/admin/index.html'
+  REVISIONS: '/revisions.html',
+  REVISION: '/revision.html',
+  REGISTER: '/register.html',
+  PAYMENT: '/payment.html',
+  // مسارات لوحة الأدمن
+  ADMIN_LOGIN: '/admin/login.html',
+  ADMIN_HOME: '/admin/index.html',
+  ADMIN_REGISTRATIONS: '/admin/registrations.html',
+  ADMIN_REVISIONS: '/admin/revisions.html',
+  ADMIN_REPORTS: '/admin/reports.html'
 });
 
-// حسابات استلام الفلوس (بتظهر للطالب في صفحة الدفع)
+// حسابات استلام التحويلات وبيانات الدفع
 export let PAYMENT_ACCOUNTS = Object.freeze({
-  vodafone_cash: { label: 'فودافون كاش', account: '01066843568' },
-  instapay: { label: 'إنستاباي', account: 'ahmedmo5787@instapay' }
+  vodafone_cash: {
+    label: 'فودافون كاش',
+    account: '01066843568',
+    instructions: 'حول المبلغ المحدد للمحفظة عبر تطبيق أنا فودافون أو كود *9*7*الرقم*المبلغ#'
+  },
+  instapay: {
+    label: 'إنستاباي (InstaPay)',
+    account: 'ahmedmo57@instapay',
+    link: 'https://ipn.eg/S/ahmedmo57/instapay/3Iiwwf',
+    instructions: 'حول من تطبيق إنستاباي على العنوان المبين أو اضغط على رابط الدفع المباشر'
+  }
 });

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>التقارير وتصدير البيانات | لوحة الإدارة</title>
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <style>
+    .report-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-5);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="admin-app">
+
+    <!-- القائمة الجانبية الموحدة -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+          A
+        </div>
+        <div>
+          <div class="admin-brand-title">أحمد مصطفى تك</div>
+          <div class="admin-brand-sub">لوحة إدارة المنصة</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link">
+          <span>📊 نظرة عامة والإحصائيات</span>
+        </a>
+        <a href="registrations.html" class="admin-nav-link">
+          <span>📝 إدارة التسجيلات</span>
+          <span id="nav-pending-badge" class="badge badge--warning" style="display:none; font-size:10px; padding:2px 6px;">0</span>
+        </a>
+        <a href="revisions.html" class="admin-nav-link">
+          <span>📚 إدارة المراجعات</span>
+        </a>
+        <a href="reports.html" class="admin-nav-link active">
+          <span>📥 التقارير وتصدير CSV</span>
+        </a>
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:12px 0;"></div>
+        <a href="../index.html" target="_blank" class="admin-nav-link">
+          <span>🌐 عرض الموقع العام</span>
+        </a>
+      </nav>
+
+      <div style="padding:var(--space-4); border-top:1px solid rgba(255,255,255,0.08);">
+        <button type="button" id="admin-signout-btn" class="btn btn--secondary btn--block btn--sm" style="color:var(--color-danger); border-color:rgba(220,38,38,0.3); font-size:var(--text-xs);">
+          🚪 خروج من الإدارة
+        </button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="admin-main">
+
+      <header class="admin-topbar">
+        <div class="admin-topbar-title">
+          <h1 style="margin:0; font-size:var(--text-lg); font-weight:800; color:var(--color-primary);">
+            التقارير وتصدير البيانات
+          </h1>
+          <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تصدير كشوفات الطلاب والتسجيلات بصيغة CSV تدعم Excel باللغة العربية</span>
+        </div>
+      </header>
+
+      <div class="admin-content" style="padding:var(--space-6); max-width:900px;">
+
+        <!-- بطاقة التصدير -->
+        <div class="report-card">
+          <h2 style="font-size:var(--text-md); font-weight:800; color:var(--color-primary); margin:0 0 var(--space-4) 0;">
+            تصدير كشف تسجيلات الطلاب (Excel CSV)
+          </h2>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--space-4); margin-bottom:var(--space-5);">
+            <div>
+              <label style="display:block; font-size:var(--text-xs); font-weight:700; color:#475569; margin-bottom:4px;">
+                فلترة بالمادة / المراجعة
+              </label>
+              <select id="export-course" class="form-input" style="font-size:var(--text-xs);">
+                <option value="all">كل المراجعات</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:var(--text-xs); font-weight:700; color:#475569; margin-bottom:4px;">
+                حالة الدفع
+              </label>
+              <select id="export-status" class="form-input" style="font-size:var(--text-xs);">
+                <option value="all">كل الحالات</option>
+                <option value="paid" selected>الاشتراكات المؤكدة فقط (Paid)</option>
+                <option value="pending_payment">بانتظار التحويل</option>
+                <option value="under_review">قيد المراجعة</option>
+                <option value="rejected">المرفوضة</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; font-size:var(--text-xs); font-weight:700; color:#475569; margin-bottom:4px;">
+                الفرع الجامعي
+              </label>
+              <select id="export-branch" class="form-input" style="font-size:var(--text-xs);">
+                <option value="all">كل الفروع</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ملخص سريع للملف قبل التصدير -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-5); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+              <span style="font-size:var(--text-xs); color:#64748b;">إجمالي السجلات المطابقة:</span>
+              <strong id="export-match-count" style="font-size:var(--text-md); color:var(--color-primary); margin-right:4px;">-</strong>
+            </div>
+            <div>
+              <span style="font-size:var(--text-xs); color:#64748b;">إجمالي المبالغ:</span>
+              <strong id="export-match-revenue" style="font-size:var(--text-md); color:var(--color-accent); margin-right:4px;">-</strong>
+            </div>
+          </div>
+
+          <button type="button" id="btn-download-csv" class="btn btn--accent btn--block" style="font-weight:800; min-height:46px;">
+            📥 تحميل ملف Excel (CSV متوافق 100% مع العربي)
+          </button>
+        </div>
+
+        <!-- بطاقة مزامنة Google Sheets -->
+        <div class="report-card">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:var(--space-2);">
+            <span style="font-size:1.4rem;">📊</span>
+            <h3 style="font-size:var(--text-md); font-weight:800; color:var(--color-primary); margin:0;">
+              المزامنة السحابية مع Google Sheets (بدون تكلفة)
+            </h3>
+          </div>
+          <p style="font-size:var(--text-xs); color:#64748b; line-height:1.7; margin-bottom:var(--space-4);">
+            المنصة تدعم الربط مع جدول Google Sheets الخاص بك عبر Google Apps Script مجاني. يتم إضافة كل تسجيل جديد سطر بسطر في الشيت وتحديث حالة الدفع عند الموافقة.
+          </p>
+          <div style="background:#f1f5f9; padding:12px; border-radius:var(--radius-md); font-size:11px; color:#334155;">
+            💡 قاعدة البيانات (Supabase) هي المصدر الرئيسي والوحيد للحقيقة. لو حدث أي انقطاع في Google Sheets يتم حفظ كل التسجيلات في الداتابيز ويمكنك تصديرها بضغطة زر أعلاه في أي وقت.
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <script type="module" src="../assets/js/pages/admin/admin-reports-page.js"></script>
+
+</body>
+</html>

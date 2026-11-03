@@ -5,8 +5,8 @@
 
 import { requireAuth } from '../core/guard.js';
 import { getMyProfile, signOut, updateMyProfile } from '../core/auth.js';
-import { getMySubscriptions, getMyOrders }      from '../services/subscriptions-service.js';
-import { initNavbar }                           from '../components/navbar.js';
+import { getMySubscriptions, getMyOrders } from '../services/subscriptions-service.js';
+import { initNavbar } from '../components/navbar.js';
 import {
   escapeHtml,
   formatDate,
@@ -22,15 +22,19 @@ import {
 import { ROUTES } from '../core/config.js';
 
 // ============================================================
-// أيقونات الحالة
+// أيقونات وتسميات الحالة
 // ============================================================
 
 let STATUS_MAP = {
-  pending:  { label: 'في الانتظار',    icon: '⏳', cls: 'badge--warning' },
-  approved: { label: 'تم القبول',      icon: '✅', cls: 'badge--success' },
-  rejected: { label: 'مرفوض',          icon: '❌', cls: 'badge--danger'  },
-  expired:  { label: 'انتهت صلاحيته', icon: '⌛', cls: 'badge--muted'   }
+  pending: { label: 'في الانتظار', icon: '⏳', cls: 'badge--warning' },
+  paid: { label: 'تم القبول والتفعيل', icon: '✅', cls: 'badge--success' },
+  approved: { label: 'تم القبول والتفعيل', icon: '✅', cls: 'badge--success' },
+  rejected: { label: 'مرفوض', icon: '❌', cls: 'badge--danger' },
+  expired: { label: 'انتهت صلاحيته', icon: '⌛', cls: 'badge--muted' }
 };
+
+let currentActiveProfile = null;
+let currentActiveSession = null;
 
 // ============================================================
 // 1. Header الترحيب
@@ -89,18 +93,20 @@ function renderSubscriptions(subs) {
   }
 
   el.innerHTML = subs.map(function (sub) {
-    let course   = sub.courses || {};
+    let course = sub.courses || {};
     let daysLeft_ = daysLeft(sub.ends_at);
-    let isActive  = daysLeft_ > 0;
-    let endDate   = formatDate(sub.ends_at);
+    let isActive = daysLeft_ > 0 && sub.status !== 'suspended';
+    let endDate = formatDate(sub.ends_at);
     let startDate = formatDate(sub.starts_at);
 
     let urgencyClass = '';
-    let urgencyMsg   = '';
+    let urgencyMsg = '';
     if (isActive && daysLeft_ <= 7) {
       urgencyClass = 'dash-sub-card--urgent';
-      urgencyMsg   = `<div class="dash-sub-card__urgent">⚠️ باقي ${daysLeft_} يوم بس!</div>`;
+      urgencyMsg = `<div class="dash-sub-card__urgent">⚠️ باقي ${daysLeft_} يوم بس!</div>`;
     }
+
+    let watchUrl = `${sitePath(ROUTES.WATCH)}?course_id=${encodeURIComponent(course.id || '')}`;
 
     return `
       <div class="dash-sub-card ${urgencyClass}">
@@ -112,7 +118,7 @@ function renderSubscriptions(subs) {
             <h3 class="dash-sub-card__title">${escapeHtml(course.title || 'مادة غير معروفة')}</h3>
           </div>
           ${isActive ? `
-            <a href="${escapeHtml(sitePath(ROUTES.COURSE) + '?id=' + encodeURIComponent(course.id || ''))}"
+            <a href="${escapeHtml(watchUrl)}"
                class="btn btn--accent btn--sm" id="watch-btn-${escapeHtml(sub.id)}">
               ▶ شاهد دلوقتي
             </a>
@@ -156,8 +162,8 @@ function renderOrders(orders) {
   let el = document.getElementById('dash-orders');
   if (!el) return;
 
-  // نعرض الطلبات التي ليست approved فقط (لأن الـ approved متمثّل في الاشتراكات)
-  let pendingOrders = orders.filter(function (o) {
+  // نعرض الطلبات المعلقة أو المرفوضة (المقبولة paid تظهر كاشتراك نشط)
+  let pendingOrders = (orders || []).filter(function (o) {
     return o.status === 'pending' || o.status === 'rejected';
   });
 
@@ -173,41 +179,53 @@ function renderOrders(orders) {
   el.innerHTML = `
     <div class="dash-orders-table">
       ${pendingOrders.map(function (order) {
-        let st     = STATUS_MAP[order.status] || STATUS_MAP.pending;
-        let course = order.courses || {};
-        let isPending = order.status === 'pending';
-        let expired   = isPending && new Date(order.expires_at) < new Date();
+    let st = STATUS_MAP[order.status] || STATUS_MAP.pending;
+    let course = order.courses || {};
+    let isPending = order.status === 'pending';
+    let isExpired = isPending && order.expires_at && new Date(order.expires_at) < new Date();
 
-        return `
+    let checkoutUrl = `${sitePath(ROUTES.CHECKOUT)}?course_id=${encodeURIComponent(course.id || '')}`;
+
+    let actionButtonHtml = '';
+    if (isPending && !isExpired) {
+      if (!order.tx_reference) {
+        actionButtonHtml = `
+              <div class="dash-order-row__action">
+                <a href="${escapeHtml(checkoutUrl)}" class="btn btn--secondary btn--sm">
+                  📤 أكمل الدفع
+                </a>
+              </div>
+            `;
+      } else {
+        actionButtonHtml = `
+              <div class="dash-order-row__action">
+                <a href="${escapeHtml(checkoutUrl)}" class="btn btn--ghost btn--sm">
+                  تفاصيل التحويل 👁️
+                </a>
+              </div>
+            `;
+      }
+    }
+
+    return `
           <div class="dash-order-row">
             <div class="dash-order-row__info">
-              <span class="dash-order-row__course">${escapeHtml(course.title || '—')}</span>
+              <span class="dash-order-row__course">${escapeHtml(course.title || 'طلب مراجعة')}</span>
               <span class="dash-order-row__date">${escapeHtml(formatDateTime(order.created_at))}</span>
             </div>
             <div class="dash-order-row__meta">
               <span class="dash-order-row__amount num">${escapeHtml(formatPrice(order.amount))}</span>
-              <span class="badge ${expired ? 'badge--warning' : st.cls}">
-                ${expired ? '⌛ انتهى الوقت' : st.icon + ' ' + st.label}
+              <span class="badge ${isExpired ? 'badge--warning' : st.cls}">
+                ${isExpired ? '⌛ انتهى الوقت' : st.icon + ' ' + st.label}
               </span>
             </div>
+            ${actionButtonHtml}
           </div>
-          ${isPending && !expired && !order.tx_reference ? `
-            <div class="dash-order-row__action">
-              <a href="${escapeHtml(sitePath(ROUTES.CHECKOUT) + '?order=' + encodeURIComponent(order.id))}"
-                 class="btn btn--secondary btn--sm">
-                📤 أكمل الدفع
-              </a>
-            </div>
-          ` : ''}
         `;
-      }).join('')}
+  }).join('')}
     </div>
   `;
 }
-
-// ============================================================
-// 4. بطاقة معلومات الحساب
-// ============================================================
 
 // ============================================================
 // 4. بطاقة معلومات الحساب
@@ -219,7 +237,7 @@ function renderAccountCard(profile, session) {
 
   let email = (profile && profile.email) || (session && session.user && session.user.email) || '—';
   let phone = profile && profile.phone ? profile.phone : '';
-  let joinDate = profile ? formatDate(profile.created_at) : '—';
+  let joinDate = profile && profile.created_at ? formatDate(profile.created_at) : '—';
 
   el.innerHTML = `
     <div class="dash-account-card">
@@ -280,9 +298,6 @@ function renderAccountCard(profile, session) {
 // ============================================================
 // 5. إدارة نافذة تعديل / إكمال الملف الشخصي
 // ============================================================
-
-let currentActiveProfile = null;
-let currentActiveSession = null;
 
 function openProfileModal(profile, session, isFirstTimePrompt) {
   let modal = document.getElementById('profile-modal');
@@ -430,7 +445,7 @@ function showSkeletons() {
 // ============================================================
 
 async function init() {
-  // تأكد من تسجيل الدخول
+  // تأكد من تسجيل الدخول (requireAuth يزيل class="guard-pending" تلقائياً)
   let session = await requireAuth();
   if (!session) return;
   currentActiveSession = session;
@@ -463,8 +478,14 @@ async function init() {
 
   // جلب البيانات بالتوازي
   let [subs, orders] = await Promise.all([
-    getMySubscriptions().catch(function () { return []; }),
-    getMyOrders().catch(function () { return []; })
+    getMySubscriptions().catch(function (err) {
+      console.error('Failed to get subscriptions:', err);
+      return [];
+    }),
+    getMyOrders().catch(function (err) {
+      console.error('Failed to get orders:', err);
+      return [];
+    })
   ]);
 
   // رسم البيانات
@@ -473,4 +494,3 @@ async function init() {
 }
 
 init();
-

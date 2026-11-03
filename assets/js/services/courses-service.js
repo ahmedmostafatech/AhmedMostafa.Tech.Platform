@@ -13,7 +13,7 @@ export async function getPublishedCourse() {
       id,
       title,
       description,
-      price,
+      price_egp,
       access_until,
       modules (
         id,
@@ -21,8 +21,9 @@ export async function getPublishedCourse() {
         sort_order,
         videos (
           id,
+          course_id,
+          module_id,
           title,
-          duration_sec,
           is_free,
           sort_order,
           video_sources ( youtube_id )
@@ -54,15 +55,24 @@ export async function getPublishedCourse() {
 
 // جلب الفيديو المجاني الأول في المادة
 export async function getFreeVideo(courseId) {
+  if (!courseId) {
+    return null;
+  }
+
   let { data, error } = await supabase
     .from('videos')
     .select(`
-      id, title, duration_sec,
-      modules!inner ( course_id ),
+      id,
+      course_id,
+      module_id,
+      title,
+      is_free,
+      sort_order,
       video_sources ( youtube_id )
     `)
+    .eq('course_id', courseId)
     .eq('is_free', true)
-    .eq('modules.course_id', courseId)
+    .order('sort_order', { ascending: true })
     .limit(1)
     .maybeSingle();
 
@@ -76,18 +86,23 @@ export async function getFreeVideo(courseId) {
 
 // عدد الفيديوهات الإجمالي في المادة
 export async function getVideosCount(courseId) {
+  if (!courseId) {
+    return 0;
+  }
+
   let { count, error } = await supabase
     .from('videos')
     .select('id', { count: 'exact', head: true })
-    .eq('modules.course_id', courseId);
+    .eq('course_id', courseId);
 
   if (error) {
+    console.error('getVideosCount failed:', error.message);
     return 0;
   }
   return count || 0;
 }
 
-// جلب مادة معينة بالـ ID (أو الأولى إذا لم يُحدد ID)
+// جلب مادة معينة بالـ ID (أو الأولى المنشورة إذا لم يُحدد ID)
 export async function getCourseById(courseId) {
   if (!courseId) {
     return await getPublishedCourse();
@@ -99,7 +114,7 @@ export async function getCourseById(courseId) {
       id,
       title,
       description,
-      price,
+      price_egp,
       access_until,
       modules (
         id,
@@ -107,8 +122,9 @@ export async function getCourseById(courseId) {
         sort_order,
         videos (
           id,
+          course_id,
+          module_id,
           title,
-          duration_sec,
           is_free,
           sort_order,
           video_sources ( youtube_id )
@@ -116,6 +132,7 @@ export async function getCourseById(courseId) {
       )
     `)
     .eq('id', courseId)
+    .eq('is_published', true)
     .maybeSingle();
 
   if (error) {
@@ -134,4 +151,3 @@ export async function getCourseById(courseId) {
 
   return data;
 }
-

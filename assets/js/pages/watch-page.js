@@ -40,12 +40,6 @@ let nextBtn = qs('#next-video-btn');
 let playlistContainer = qs('#playlist-container');
 let playlistCountBadge = qs('#playlist-count-badge');
 
-function formatDuration(seconds) {
-  if (!seconds || seconds <= 0) return '—';
-  let mins = Math.round(seconds / 60);
-  return `${mins} دقيقة`;
-}
-
 // عرض الفيديو المختار
 function loadVideo(videoItem) {
   if (!videoItem) return;
@@ -53,16 +47,18 @@ function loadVideo(videoItem) {
   currentVideoId = videoItem.id;
 
   // تحديث بيانات العنوان والتصنيف
-  videoCurrentTitle.textContent = videoItem.title;
-  videoModuleTag.textContent = videoItem.moduleTitle || 'محاضرة';
-  videoDurationTag.textContent = `⏱️ ${formatDuration(videoItem.duration_sec)}`;
+  if (videoCurrentTitle) videoCurrentTitle.textContent = videoItem.title;
+  if (videoModuleTag) videoModuleTag.textContent = videoItem.moduleTitle || 'محاضرة';
+  if (videoDurationTag) videoDurationTag.textContent = '🎓 منصة أحمد مصطفى تك';
 
   let isFree = videoItem.is_free;
   let canWatch = userHasAccess || isFree;
 
   if (canWatch) {
-    videoAccessBadge.className = isFree ? 'badge badge--free' : 'badge badge--success';
-    videoAccessBadge.textContent = isFree ? '🎁 درس مجاني' : '✅ مشمول باشتراكك';
+    if (videoAccessBadge) {
+      videoAccessBadge.className = isFree ? 'badge badge--free' : 'badge badge--success';
+      videoAccessBadge.textContent = isFree ? '🎁 درس مجاني' : '✅ مشمول باشتراكك';
+    }
 
     let ytid = (videoItem.video_sources && videoItem.video_sources.youtube_id) || '';
     createPlayer(playerBox, {
@@ -72,32 +68,36 @@ function loadVideo(videoItem) {
       userName: (currentProfile && currentProfile.full_name) || ''
     });
   } else {
-    videoAccessBadge.className = 'badge badge--warning';
-    videoAccessBadge.textContent = '🔒 للمشتركين فقط';
+    if (videoAccessBadge) {
+      videoAccessBadge.className = 'badge badge--warning';
+      videoAccessBadge.textContent = '🔒 للمشتركين فقط';
+    }
 
     let checkoutUrl = `${sitePath(ROUTES.CHECKOUT)}?course_id=${encodeURIComponent(currentCourse.id)}`;
 
-    playerBox.innerHTML = `
-      <div class="locked-video-card">
-        <div style="font-size:3.5rem; margin-bottom:var(--space-3);">🔒</div>
-        <h2 style="font-size:var(--text-2xl); font-weight:800; color:#fff; margin-bottom:var(--space-2);">
-          هذه المحاضرة مخصصة للمشتركين
-        </h2>
-        <p style="font-size:var(--text-sm); color:#94a3b8; max-width:480px; line-height:1.7; margin-bottom:var(--space-5);">
-          اشترك الآن في مادة "${escapeHtml(currentCourse.title)}" لفتح جميع فيديوهات الشرح وحل امتحانات الفاينال والمتابعة حتى ليلة الامتحان!
-        </p>
-        <a href="${checkoutUrl}" class="btn btn--accent btn--lg" style="padding-inline:var(--space-8);">
-          اشترك الآن وفعل حسابك 🚀
-        </a>
-      </div>
-    `;
+    if (playerBox) {
+      playerBox.innerHTML = `
+        <div class="locked-video-card">
+          <div style="font-size:3.5rem; margin-bottom:var(--space-3);">🔒</div>
+          <h2 style="font-size:var(--text-2xl); font-weight:800; color:#fff; margin-bottom:var(--space-2);">
+            هذه المحاضرة مخصصة للمشتركين
+          </h2>
+          <p style="font-size:var(--text-sm); color:#94a3b8; max-width:480px; line-height:1.7; margin-bottom:var(--space-5);">
+            اشترك الآن في مادة "${escapeHtml(currentCourse.title)}" لفتح جميع فيديوهات الشرح وحل امتحانات الفاينال والمتابعة حتى ليلة الامتحان!
+          </p>
+          <a href="${escapeHtml(checkoutUrl)}" class="btn btn--accent btn--lg" style="padding-inline:var(--space-8);">
+            اشترك الآن وفعل حسابك 🚀
+          </a>
+        </div>
+      `;
+    }
   }
 
   // تحديث حالة الأزرار السابق والتالي
   let currentIndex = flatVideosList.findIndex(function (v) { return v.id === videoItem.id; });
   if (currentIndex >= 0) {
-    prevBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = currentIndex === flatVideosList.length - 1;
+    if (prevBtn) prevBtn.disabled = currentIndex === 0;
+    if (nextBtn) nextBtn.disabled = currentIndex === flatVideosList.length - 1;
   }
 
   // تحديث تمييز العنصر النشط في القائمة الجانبية
@@ -113,6 +113,9 @@ function loadVideo(videoItem) {
   // تحديث الرابط في المتصفح دون إعادة تحميل الصفحة
   let url = new URL(window.location.href);
   url.searchParams.set('video_id', videoItem.id);
+  if (currentCourse && currentCourse.id) {
+    url.searchParams.set('course_id', currentCourse.id);
+  }
   window.history.replaceState({}, document.title, url.toString());
 }
 
@@ -152,7 +155,6 @@ function renderPlaylist(modules) {
           </div>
           <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
             ${badge}
-            <span style="font-size:11px; opacity:0.6;">${formatDuration(v.duration_sec)}</span>
           </div>
         </a>
       `;
@@ -169,8 +171,8 @@ function renderPlaylist(modules) {
     `;
   }).join('');
 
-  playlistContainer.innerHTML = html;
-  playlistCountBadge.textContent = `${flatVideosList.length} محاضرات`;
+  if (playlistContainer) playlistContainer.innerHTML = html;
+  if (playlistCountBadge) playlistCountBadge.textContent = `${flatVideosList.length} محاضرات`;
 
   // ربط أحداث النقر على عناصر القائمة
   qsa('.playlist-item').forEach(function (el) {
@@ -189,30 +191,41 @@ async function init() {
   currentSession = await requireAuth();
   if (!currentSession) return;
 
-  currentProfile = await getMyProfile(false);
+  try {
+    currentProfile = await getMyProfile(false);
+  } catch (err) {
+    console.warn('Failed to load profile:', err);
+  }
 
   // تحديث شارة المستخدم
   let displayName = (currentProfile && currentProfile.full_name) || currentSession.user.email.split('@')[0];
-  userDisplayBadge.textContent = `👤 ${displayName}`;
+  if (userDisplayBadge) userDisplayBadge.textContent = `👤 ${displayName}`;
 
   let targetVideoId = getQueryParam('video_id');
   let targetCourseId = getQueryParam('course_id');
 
   // جلب بيانات المادة
-  currentCourse = await getCourseById(targetCourseId);
+  try {
+    currentCourse = await getCourseById(targetCourseId);
+  } catch (err) {
+    console.error('Failed to load course:', err);
+    currentCourse = null;
+  }
 
   if (!currentCourse) {
-    topbarCourseTitle.textContent = 'المادة غير متاحة';
-    playerBox.innerHTML = `
-      <div class="locked-video-card">
-        <h2>عذراً، المادة المطلوبة غير متوفرة</h2>
-        <a href="dashboard.html" class="btn btn--secondary" style="margin-top:16px;">العودة للداشبورد</a>
-      </div>
-    `;
+    if (topbarCourseTitle) topbarCourseTitle.textContent = 'المادة غير متاحة';
+    if (playerBox) {
+      playerBox.innerHTML = `
+        <div class="locked-video-card">
+          <h2>عذراً، المادة المطلوبة غير متوفرة أو غير منشورة</h2>
+          <a href="dashboard.html" class="btn btn--secondary" style="margin-top:16px;">العودة للداشبورد</a>
+        </div>
+      `;
+    }
     return;
   }
 
-  topbarCourseTitle.textContent = currentCourse.title;
+  if (topbarCourseTitle) topbarCourseTitle.textContent = currentCourse.title;
   if (coursePageLink) {
     coursePageLink.href = `course.html?id=${encodeURIComponent(currentCourse.id)}`;
   }
@@ -221,6 +234,7 @@ async function init() {
   try {
     userHasAccess = await checkCourseAccess(currentCourse.id);
   } catch (e) {
+    console.warn('checkCourseAccess failed:', e);
     userHasAccess = false;
   }
 
@@ -247,27 +261,33 @@ async function init() {
   if (selected) {
     loadVideo(selected);
   } else {
-    playerBox.innerHTML = `
-      <div class="locked-video-card">
-        <h3>لا توجد محاضرات متاحة في هذه المادة بعد.</h3>
-      </div>
-    `;
+    if (playerBox) {
+      playerBox.innerHTML = `
+        <div class="locked-video-card">
+          <h3>لا توجد محاضرات متاحة في هذه المادة بعد.</h3>
+        </div>
+      `;
+    }
   }
 
   // أحداث أزرار السابق والتالي
-  prevBtn.addEventListener('click', function () {
-    let idx = flatVideosList.findIndex(function (v) { return v.id === currentVideoId; });
-    if (idx > 0) {
-      loadVideo(flatVideosList[idx - 1]);
-    }
-  });
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function () {
+      let idx = flatVideosList.findIndex(function (v) { return v.id === currentVideoId; });
+      if (idx > 0) {
+        loadVideo(flatVideosList[idx - 1]);
+      }
+    });
+  }
 
-  nextBtn.addEventListener('click', function () {
-    let idx = flatVideosList.findIndex(function (v) { return v.id === currentVideoId; });
-    if (idx >= 0 && idx < flatVideosList.length - 1) {
-      loadVideo(flatVideosList[idx + 1]);
-    }
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function () {
+      let idx = flatVideosList.findIndex(function (v) { return v.id === currentVideoId; });
+      if (idx >= 0 && idx < flatVideosList.length - 1) {
+        loadVideo(flatVideosList[idx + 1]);
+      }
+    });
+  }
 }
 
 init();

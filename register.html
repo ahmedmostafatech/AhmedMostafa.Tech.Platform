@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>تسجيل في المراجعة | أحمد مصطفى تك</title>
+  <meta name="description" content="سجل بياناتك في ثوانٍ للحصول على رابط المراجعة بعد تأكيد الدفع.">
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ملفات الـ CSS -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    .register-layout {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .register-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+    }
+
+    .course-summary-pill {
+      background: rgba(54,90,162,0.06);
+      border: 1px solid rgba(54,90,162,0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .payment-methods-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-top: var(--space-2);
+    }
+
+    @media (max-width: 500px) {
+      .payment-methods-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .method-radio-card {
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      user-select: none;
+      background: var(--color-bg);
+    }
+
+    .method-radio-card:hover {
+      border-color: var(--color-accent);
+    }
+
+    .method-radio-card.active {
+      border-color: var(--color-accent);
+      background: rgba(54,90,162,0.06);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- شريط الملاحة -->
+  <header id="site-header" class="site-header"></header>
+
+  <main style="padding: var(--space-8) 0; min-height: 85vh;">
+    <div class="container">
+      <div class="register-layout">
+
+        <!-- ترويسة الصفحة -->
+        <div class="text-center" style="margin-bottom:var(--space-6);">
+          <span class="badge badge--accent" style="margin-bottom:8px;">خطوة واحدة فقط</span>
+          <h1 style="font-size:var(--text-2xl); font-weight:900; color:var(--color-primary); margin-bottom:8px;">
+            تسجيل بيانات الاشتراك
+          </h1>
+          <p style="color:var(--color-text-muted); font-size:var(--text-sm); margin:0;">
+            سجل بياناتك وسيتم توجيهك فوراً لتعليمات الدفع ورقم العملية
+          </p>
+        </div>
+
+        <!-- رسالة الخطأ العامة -->
+        <div id="register-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-5);"></div>
+
+        <!-- كارت التسجيل -->
+        <div class="register-card">
+
+          <!-- ملخص المراجعة المختارة -->
+          <div class="course-summary-pill" id="course-summary-box">
+            <div>
+              <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">المراجعة المختارة:</span>
+              <strong id="summary-course-title" style="color:var(--color-primary); font-size:var(--text-md);">جاري التحميل...</strong>
+            </div>
+            <div>
+              <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">المبلغ المطلوب:</span>
+              <strong id="summary-course-price" style="color:var(--color-accent); font-size:var(--text-lg);">-</strong>
+            </div>
+          </div>
+
+          <!-- استمارة التسجيل -->
+          <form id="register-form" novalidate>
+
+            <!-- الاسم الكامل -->
+            <div class="form-group" style="margin-bottom:var(--space-4);">
+              <label class="form-label" for="reg-name">
+                الاسم بالكامل <span style="color:var(--color-danger);">*</span>
+                <span class="form-label-hint">(ثلاثي أو رباعي بالعربية)</span>
+              </label>
+              <input type="text" id="reg-name" name="name" class="form-input" placeholder="مثال: أحمد مصطفى إبراهيم" required minlength="3">
+              <span class="form-field-error" id="name-error">من فضلك اكتب اسمك بالكامل</span>
+            </div>
+
+            <!-- الفرع والجامعة -->
+            <div class="form-group" style="margin-bottom:var(--space-4);">
+              <label class="form-label" for="reg-branch">
+                الفرع الجامعي <span style="color:var(--color-danger);">*</span>
+                <span class="form-label-hint">(اختر فرعك من القائمة أو اكتبه)</span>
+              </label>
+              <input list="branches-list" id="reg-branch" name="branch" class="form-input" placeholder="ابحث أو اختر الفرع (مثال: القاهرة، طنطا...)" required>
+              <datalist id="branches-list">
+                <option value="فرع القاهرة">
+                <option value="فرع الإسكندرية">
+                <option value="فرع المنوفية (شبين الكوم)">
+                <option value="فرع أسيوط">
+                <option value="فرع طنطا">
+                <option value="فرع الغردقة">
+                <option value="فرع قنا">
+                <option value="فرع كفر الشيخ">
+                <option value="فرع بني سويف">
+                <option value="فرع السادات">
+                <option value="فرع آخر">
+              </datalist>
+              <span class="form-field-error" id="branch-error">من فضلك حدد الفرع التابع له</span>
+            </div>
+
+            <!-- رقم الموبايل -->
+            <div class="form-group" style="margin-bottom:var(--space-4);">
+              <label class="form-label" for="reg-phone">
+                رقم الموبايل المصري <span style="color:var(--color-danger);">*</span>
+                <span class="form-label-hint">(يفضل رقم الواتساب الذي سترسل منه الإيصال)</span>
+              </label>
+              <input type="tel" id="reg-phone" name="phone" class="form-input" placeholder="01xxxxxxxxx" required dir="ltr" style="text-align:right;">
+              <span class="form-field-error" id="phone-error">رقم موبايل مصري غير صحيح (11 رقم يبدأ بـ 01)</span>
+            </div>
+
+            <!-- البريد الإلكتروني -->
+            <div class="form-group" style="margin-bottom:var(--space-5);">
+              <label class="form-label" for="reg-email">
+                البريد الإلكتروني (Gmail) <span style="color:var(--color-danger);">*</span>
+                <span class="form-label-hint">(هام جداً: سيصلك رابط المراجعة وتأكيد الاشتراك عليه)</span>
+              </label>
+              <input type="email" id="reg-email" name="email" class="form-input" placeholder="student@gmail.com" required dir="ltr" style="text-align:right;">
+              <span class="form-field-error" id="email-error">من فضلك اكتب بريد إلكتروني صحيح</span>
+            </div>
+
+            <!-- طريقة الدفع المفضلة -->
+            <div class="form-group" style="margin-bottom:var(--space-6);">
+              <label class="form-label">
+                طريقة التحويل المفضلة <span style="color:var(--color-danger);">*</span>
+              </label>
+              <div class="payment-methods-grid">
+                <label class="method-radio-card active" id="card-method-vodafone">
+                  <input type="radio" name="payment_method" value="vodafone_cash" checked style="accent-color:var(--color-accent); width:18px; height:18px;">
+                  <div>
+                    <strong style="color:var(--color-primary); display:block; font-size:var(--text-sm);">فودافون كاش</strong>
+                    <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل كاش على الرقم</span>
+                  </div>
+                </label>
+
+                <label class="method-radio-card" id="card-method-instapay">
+                  <input type="radio" name="payment_method" value="instapay" style="accent-color:var(--color-accent); width:18px; height:18px;">
+                  <div>
+                    <strong style="color:var(--color-primary); display:block; font-size:var(--text-sm);">إنستاباي (InstaPay)</strong>
+                    <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل لحظي أو عبر الرابط</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- زر التأكيد والمتابعة -->
+            <button type="submit" id="submit-reg-btn" class="btn btn--accent btn--block btn--lg" style="font-weight:800; font-size:var(--text-md);">
+              تأكيد التسجيل والانتقال للدفع ←
+            </button>
+
+            <p style="text-align:center; font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-4);">
+              بمجرد الضغط سيتم حجز طلبك وستظهر لك بيانات التحويل ورابط الواتساب لإرسال الإيصال.
+            </p>
+
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="site-footer" style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
+    <div class="container text-center">
+      Ahmed Mostafa Tech &copy; 2026 — حماية تامة لبيانات الطلاب
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/pages/register-page.js"></script>
+
+</body>
+</html>
+

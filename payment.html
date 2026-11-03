@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>بيانات الدفع وتأكيد الاشتراك | أحمد مصطفى تك</title>
+  <meta name="description" content="إرشادات تحويل الرسوم وإرسال إيصال الدفع عبر واتساب لتأكيد الاشتراك.">
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- ملفات الـ CSS -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    .payment-layout {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .payment-card {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--space-5);
+    }
+
+    .reg-code-banner {
+      background: linear-gradient(135deg, rgba(54,90,162,0.08) 0%, rgba(7,16,34,0.04) 100%);
+      border: 2px dashed var(--color-accent);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      text-align: center;
+      margin: var(--space-4) 0;
+    }
+
+    .reg-code-val {
+      font-size: var(--text-3xl);
+      font-weight: 900;
+      color: var(--color-primary);
+      letter-spacing: 1px;
+      font-family: monospace, sans-serif;
+    }
+
+    .account-box {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin: var(--space-4) 0;
+    }
+
+    .account-num-display {
+      font-size: var(--text-xl);
+      font-weight: 900;
+      color: var(--color-primary);
+      font-family: monospace, sans-serif;
+    }
+
+    .whatsapp-box {
+      background: rgba(37, 211, 102, 0.08);
+      border: 1.5px solid rgba(37, 211, 102, 0.35);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      text-align: center;
+      margin-top: var(--space-5);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- شريط الملاحة -->
+  <header id="site-header" class="site-header"></header>
+
+  <main style="padding: var(--space-8) 0; min-height: 85vh;">
+    <div class="container">
+      <div class="payment-layout">
+
+        <!-- مؤشر التحميل والخطأ -->
+        <div id="payment-loading" class="text-center" style="padding:var(--space-8) 0;">
+          <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
+          <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري جلب تفاصيل حجزك...</p>
+        </div>
+
+        <div id="payment-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-5);"></div>
+
+        <div id="payment-content" hidden>
+
+          <!-- شريط التنبيه والتأكيد -->
+          <div class="alert alert--warning" style="margin-bottom:var(--space-4); font-size:var(--text-sm); line-height:1.7;">
+            <div>
+              <strong>تنبيه هام:</strong> تم استلام تسجيلك بنجاح، لكن الاشتراك <strong>لم يتم تأكيده بعد</strong>. برجاء إتمام التحويل وإرسال صورة الإيصال على واتساب، وسيتم فحص الدفع وإرسال رابط الوصول فوراً لإيميلك.
+            </div>
+          </div>
+
+          <!-- بطاقة بيانات الحجز -->
+          <div class="payment-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <span class="badge badge--warning">بانتظار إرسال الإيصال</span>
+              <span id="reg-date" style="font-size:var(--text-xs); color:var(--color-text-muted);"></span>
+            </div>
+
+            <div class="reg-code-banner">
+              <span style="font-size:var(--text-xs); font-weight:700; color:var(--color-text-muted); display:block; margin-bottom:4px;">
+                كود التسجيل الخاص بك (احتفظ به)
+              </span>
+              <div id="reg-code-text" class="reg-code-val">AMT-1000</div>
+              <button type="button" id="copy-code-btn" class="btn btn--secondary btn--sm" style="margin-top:8px; font-size:var(--text-xs);">
+                📋 نسخ كود التسجيل
+              </button>
+            </div>
+
+            <!-- ملخص الحجز للطالب -->
+            <div style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-4); font-size:var(--text-sm); line-height:1.8;">
+              <div>المادة: <strong id="summary-course-title" style="color:var(--color-primary);">-</strong></div>
+              <div>اسم الطالب: <strong id="summary-student-name">-</strong></div>
+              <div>الفرع: <span id="summary-student-branch">-</span></div>
+              <div>المبلغ المطلوب تحويله: <strong id="summary-amount" style="color:var(--color-accent); font-size:var(--text-md);">-</strong></div>
+              <div>الإيميل المسجل لاستلام الرابط: <span id="summary-email" dir="ltr" style="font-weight:600;">-</span></div>
+            </div>
+
+            <!-- تفاصيل وسيلة التحويل -->
+            <div id="method-section-vodafone" class="account-box" style="margin-top:var(--space-4);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2); flex-wrap:wrap; gap:8px;">
+                <span class="badge badge--primary">فودافون كاش (Vodafone Cash)</span>
+                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل عادي للمحفظة</span>
+              </div>
+              <div style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">رقم المحفظة للاستلام:</span>
+                  <span class="account-num-display" id="vodafone-num">01066843568</span>
+                </div>
+                <button type="button" id="copy-vodafone-btn" class="btn btn--secondary btn--sm">
+                  📋 نسخ الرقم
+                </button>
+              </div>
+              <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+                حول المبلغ المحدد من تطبيق أنا فودافون أو كود <code>*9*7*01066843568*المبلغ#</code>
+              </p>
+            </div>
+
+            <div id="method-section-instapay" class="account-box" style="margin-top:var(--space-4);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2); flex-wrap:wrap; gap:8px;">
+                <span class="badge badge--accent">إنستاباي (InstaPay)</span>
+                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل لحظي مباشر</span>
+              </div>
+              <div style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                <div>
+                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">عنوان الدفع أو رقم الموبايل:</span>
+                  <span class="account-num-display" id="instapay-id">ahmedmo57@instapay</span>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" id="copy-instapay-btn" class="btn btn--secondary btn--sm">
+                    📋 نسخ المعرف
+                  </button>
+                  <a href="https://ipn.eg/S/ahmedmo57/instapay/3Iiwwf" target="_blank" rel="noopener" class="btn btn--primary btn--sm">
+                    🚀 فتح رابط الدفع
+                  </a>
+                </div>
+              </div>
+              <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+                يمكنك التحويل إلى العنوان المبين أعلاه أو الضغط على زر فتح رابط الدفع المباشر في تطبيق إنستاباي.
+              </p>
+            </div>
+
+            <!-- صندوق الواتساب لإرسال الإيصال -->
+            <div class="whatsapp-box">
+              <h3 style="font-size:var(--text-md); font-weight:800; color:#128c7e; margin:0 0 var(--space-2) 0;">
+                الخطوة الأخيرة: إرسال صورة إيصال التحويل 💬
+              </h3>
+              <p style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:var(--space-4);">
+                بعد إتمام التحويل، اضغط على الزر بالأسفل لفتح محادثة واتساب مجهزة ببياناتك وكود تسجيلك، ثم قم بإرفاق لقطة شاشة الإيصال داخل المحادثة.
+              </p>
+              <a id="whatsapp-send-btn" href="#" target="_blank" rel="noopener" class="btn btn--whatsapp btn--block btn--lg" style="font-size:var(--text-md); min-height:48px;">
+                إرسال صورة الإيصال عبر واتساب الآن 📲
+              </a>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- الفوتر -->
+  <footer class="site-footer" style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
+    <div class="container text-center">
+      Ahmed Mostafa Tech &copy; 2026 — تأكيد سريع ومتابعة مستمرة
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/pages/payment-page.js"></script>
+
+</body>
+</html>
+

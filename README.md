@@ -210,24 +210,46 @@ AhmedMostaf.Tech.Platform/
 
 **`components/navbar.js`:** `initNavbar({ activePage })`.
 
-**لسه ما اتراجعتش:** `services/admin-service.js`، `components/player.js`، `components/toast.js`.
+**`components/player.js`:** `createSecurePlayer({ containerId, videoId, studentEmail, studentName, onReady, onError })`, `changeVideo(videoId)`.
+
+**`components/toast.js`:** `showToast(message, type, duration)`.
+
+**`services/admin-service.js`:** `getPendingOrders()`, `getAllOrders()`, `approveOrder(orderId)`, `rejectOrder(orderId, reason)`, `getAllSubscriptions()`, `createManualSubscription(userId, courseId, endsAt)`, `updateSubscriptionEnd(subId, endsAt)`, `getAllStudents()`, `getCourseTree()`, `createCourse(...)`, `createModule(...)`, `createVideo(...)`, `updateCourse(...)`, `updateVideo(...)`, `deleteVideo(videoId)`.
+
+**`Edge Functions` (`supabase/functions/`):**
+- `notify-telegram`: إشعار الأدمن في تليجرام عند رفع إيصال دفع جديد بزر تفاعلي وتنسيق آمن ضد أخطاء الـ HTML.
+- `send-activation-email`: إرسال بريد تفعيل احترافي للطالب عند قبول طلبه من الأدمن عبر Resend API.
 
 ---
 
-## 9. حالة الملفات
+## 9. حالة الملفات (النموذج الجديد: البراند وإدارة التسجيلات)
 
 | الملف | الحالة |
 |---|---|
-| `config.js`, `supabase-client.js`, `guard.js`, `navbar.js` | اتراجعوا وسليمين |
+| `index.html`, `home-page.js` | مكتمل كصفحة هبوط رسمية للبراند واستعراض المراجعات |
+| `revisions.html`, `revisions-page.js` | مكتمل لعرض شبكة كل المراجعات المتاحة للزوار ديناميكياً |
+| `revision.html`, `revision-page.js` | مكتمل لعرض تفاصيل مراجعة محددة والسعر وزر التسجيل |
+| `register.html`, `register-page.js` | مكتمل لتسجيل بيانات الطالب بدون حساب والتحقق من الهاتف والفرع |
+| `payment.html`, `payment-page.js` | مكتمل لعرض كود التسجيل (AMT-1001) وإرشادات الدفع وزر واتساب التفاعلي |
+| `admin/login.html`, `admin-login-page.js` | مكتمل كشاشة دخول مخصصة للأدمن فقط ومعزولة عن الموقع العام |
+| `admin/index.html`, `admin-home-page.js` | مكتمل لعرض الإحصائيات الحية وأحدث طلبات التسجيل |
+| `admin/registrations.html`, `admin-registrations-page.js` | مكتمل لإدارة التسجيلات، البحث، الفلاتر، وتأكيد الدفع (Approve) |
+| `admin/revisions.html`, `admin-revisions-page.js` | مكتمل لإضافة وتعديل المراجعات والأسعار وتعيين روابط Drive |
+| `admin/reports.html`, `admin-reports-page.js` | مكتمل لتصدير كشف الطلاب بـ CSV يدعم العربي في Excel ودليل Sheets |
+| `revisions-service.js`, `admin-service.js` | مكتملان ومطابقان لدوال RPC والسياسات الأمنية في الداتابيز |
+| `12_new_direction_registrations_v1.sql` | سكريبت قاعدة البيانات للنموذج الجديد جاهز ومنفذ |
 | `utils.js`, `auth.js` | اتكتبوا من جديد وراجعتهم (الإصدار الأخير في الشات) |
 | `login.html`, `login-page.js` | اتكتبوا من جديد (إيميل + جوجل، من غير نسيت كلمة المرور) |
 | `checkout.html`, `checkout-page.js` | اتكتبوا من جديد (بيانات الطالب، اختيار الوسيلة قبل الطلب، رفع الإيصال) |
 | `courses-service.js`, `subscriptions-service.js`, `orders-service.js` | اتكتبوا من جديد ومطابقين للداتابيز |
-| `course.html`, `dashboard.html`, `watch.html`, `index.html` وملفات الـ JS بتاعتهم | **لسه ما اتراجعتش** (غالبًا فيهم `price` و`duration_sec` و`video_sources[0]` وكلها غلط) |
-| `player.js`, `toast.js` | لسه |
-| `admin-service.js` وكل صفحات `admin/` | لسه |
-| `base.css`, `layout.css`, `admin.css` | لسه (لازم سطر `[hidden]`) |
-| `components.css` | اتراجع، ينقصه `.badge--warning` |
+| `course.html`, `dashboard.html`, `watch.html`, `index.html` وملفات الـ JS | اتراجعوا واتحدثوا بالكامل (مطابقين للداتابيز، وإصلاح مسارات التوجيه، ومشغل المشاهدة الآمن) |
+| `player.js`, `toast.js` | اتراجعوا واتحدثوا (مشغل nocookie مع علامة مائية عائمة وثابتة بإيميل الطالب، وtoast معقم بـ escapeHtml) |
+| `admin-service.js` وكل صفحات `admin/` | اتراجعوا واتحدثوا بالكامل (توحيد القوائم، تصحيح حالة الطلبات `paid`، السعر `price_egp`، منع قبول الطلب بدون مرجع) |
+| `base.css`, `layout.css`, `admin.css` | مضبوطين ومدعومين بقاعدة `[hidden] { display: none !important; }` |
+| `components.css` | اتراجع، وتمت إضافة `.badge--warning` و`.badge--danger` و`.badge--muted` |
+| `_headers`, `.gitignore` | جاهزان للرفع على Cloudflare Pages بحماية ضد التضمين والتجسس وتخزين مؤقت لـ assets |
+| `09b_create_order_require_profile_v1.sql` | جاهز للإلزام الصارم لاكتمال بيانات الطالب في الداتابيز |
+| `11_unpublish_test_course_v1.sql` | جاهز لإخفاء المادة التجريبية الثانية وإبقاء مادة واحدة منشورة |
 
 ---
 
@@ -353,27 +375,27 @@ runTests();
 - [x] صلاحيات `profiles` متأكد منها
 - [x] إعادة كتابة: login وcheckout وauth وutils وservices الثلاثة
 - [x] مسار رفع الإيصال يبدأ بـ `<user_id>/`
-- [ ] تطبيق الملفات الجديدة على المشروع والتأكد إن مفيش أخطاء في الـ Console
-- [ ] إضافات CSS (`[hidden]` و`.badge--warning`)
-- [ ] تعديلات نصوص `checkout.html` (الحجز ساعة، شيل `<header id="site-header">` الفاضي)
-- [ ] قرار المادة الثانية المنشورة (القسم 15)
+- [x] تطبيق الملفات الجديدة على المشروع والتأكد إن مفيش أخطاء في الـ Console
+- [x] إضافات CSS (`[hidden]` و`.badge--warning` و`.badge--danger`)
+- [x] تعديلات نصوص `checkout.html` (الحجز ساعة، التأكد من عدم وجود هيدر مكرر، وتنبيه إكمال الهاتف)
+- [x] قرار المادة الثانية المنشورة (سكريبت `11_unpublish_test_course_v1.sql` جاهز)
 - [ ] قفل Confirm email في لوحة Supabase (لو لسه مقفلتش) وتأكيد إن Google provider شغال
 - [ ] اختبار دمج جوجل/إيميل (11.3) واختبار جوجل من غير موبايل (11.4)
-- [ ] **مراجعة صفحات الطالب:** `course` ثم `dashboard` ثم `watch` + `player.js` ثم `index`
-- [ ] **مراجعة الأدمن:** `admin-service.js` وصفحات `admin/` (زر القبول لازم يمر على `approve_order` فقط)
-- [ ] علامة مائية في المشغل
+- [x] **مراجعة صفحات الطالب:** `course` ثم `dashboard` ثم `watch` + `player.js` ثم `index`
+- [x] **مراجعة الأدمن:** `admin-service.js` وصفحات `admin/` (زر القبول لازم يمر على `approve_order` فقط وبشرط وجود مرجع للطلب)
+- [x] علامة مائية في المشغل (عائمة متغيرة وثابتة بإيميل الطالب)
 - [ ] اختبار الدورة الكاملة (11.2)
 - [ ] اختبار الأمان من المتصفح (11.1)
-- [ ] `09b` (اختياري): إلزام البيانات من الداتابيز
-- [ ] إشعار تليجرام بزر قبول (`notify-telegram`، الواجهة بتنادي عليه ولو مش موجود بتتجاهل الخطأ)، وإيميل التفعيل (Apps Script)
-- [ ] `_headers` و`.gitignore` وأول commit، ثم الرفع
+- [x] `09b`: إلزام البيانات من الداتابيز (سكريبت `09b_create_order_require_profile_v1.sql` جاهز)
+- [x] إشعار تليجرام (`notify-telegram`) وإيميل التفعيل (`send-activation-email`)
+- [x] `_headers` و`.gitignore` جاهزان للرفع على Cloudflare Pages
 - [ ] طبقة (ب): المطابقة التلقائية بـ SMS (بعد ما يشتغل كل ما سبق)
 
 ---
 
 ## 15. نقاط مفتوحة وللمراجعة قبل الإطلاق
 
-- **مادتين منشورتين دلوقتي:** CS101 (من الـ seed) وNetwork Routing & Switching (من `07`، وفيها `FREE_VIDEO_ID` و`PAID_VIDEO_ID` placeholders). القرار الأصلي مادة واحدة. اخفِ واحدة بـ `is_published = false` (مش حذف، لأن الحذف بيمسح الموديولات والفيديوهات بالـ cascade)، وبدّل الـ placeholders بـ IDs يوتيوب حقيقية Unlisted. `getPublishedCourse()` بترجع الأحدث منشور.
+- **مادتين منشورتين دلوقتي:** CS101 (من الـ seed) وNetwork Routing & Switching (من `07`، وفيها `FREE_VIDEO_ID` و`PAID_VIDEO_ID` placeholders). القرار الأصلي مادة واحدة. تم تجهيز سكريبت `11_unpublish_test_course_v1.sql` لإخفائها بـ `is_published = false` وإبقاء CS101 فقط. `getPublishedCourse()` بترجع الأحدث منشور.
 - **حجز الطلب 60 دقيقة** قبل الإرسال و12 ساعة بعده. لو طالب حوّل وقفل الصفحة وجه بعد ساعة هياخد مبلغ جديد والتحويل القديم هيبقى يتيم. نص صفحة الدفع لازم يوضّح ده.
 - **المبلغ الفريد من 1 لـ 99 قرش:** أقصى 99 طلب معلق في نفس الوقت لنفس السعر.
 - **`approve_order` مش بتفحص** إن الطلب فيه رقم عملية ولا إنه مش `rejected`/`expired`. زر القبول في لوحة الأدمن لازم يظهر بس للطلبات اللي فيها `tx_reference` وحالتها `pending`.

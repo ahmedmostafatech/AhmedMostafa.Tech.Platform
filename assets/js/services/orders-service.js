@@ -4,6 +4,7 @@
 // ============================================================
 
 import { supabase } from '../core/supabase-client.js';
+import { getSession } from '../core/auth.js';
 
 // إنشاء طلب جديد برقم فريد من خلال دالة create_order
 export async function createOrder(courseId, paymentMethod) {
@@ -17,7 +18,8 @@ export async function createOrder(courseId, paymentMethod) {
     throw error;
   }
 
-  return data; // { order_id, amount }
+  // دالة create_order ترجع صفا أو كائناً فيه order_id و amount
+  return data;
 }
 
 // رفع صورة إيصال التحويل إلى Storage bucket (payment-receipts)
@@ -45,21 +47,21 @@ export async function uploadReceiptProof(userId, orderId, file) {
     .from('payment-receipts')
     .upload(filePath, file, {
       cacheControl: '3600',
-      upsert: true
+      upsert: false
     });
 
   if (error) {
-    console.warn('Storage upload error (fallbacking without upload):', error.message);
-    return null;
+    console.error('Storage upload error:', error.message);
+    throw error;
   }
 
-  return data.path || filePath;
+  return (data && data.path) || filePath;
 }
 
 // تأكيد إرسال الدفع (رقم العملية + مسار الإيصال)
 export async function submitPayment(orderId, txReference, proofPath, extraDetails = {}) {
   let cleanRef = String(txReference || '').trim();
-  if (cleanRef.length < 3) {
+  if (cleanRef.length < 4) {
     throw new Error('invalid reference');
   }
 
@@ -103,6 +105,7 @@ export async function getOrder(orderId) {
     .from('orders')
     .select(`
       id,
+      user_id,
       amount,
       payment_method,
       tx_reference,
@@ -112,7 +115,7 @@ export async function getOrder(orderId) {
       courses (
         id,
         title,
-        price,
+        price_egp,
         access_until
       )
     `)
@@ -129,10 +132,16 @@ export async function getOrder(orderId) {
 
 // فحص إذا كان للمستخدم طلب معلق وساري المفعول لنفس المادة
 export async function getActivePendingOrder(courseId) {
+  let session = await getSession();
+  if (!session || !session.user) {
+    return null;
+  }
+
   let { data, error } = await supabase
     .from('orders')
     .select(`
       id,
+      user_id,
       amount,
       payment_method,
       status,
@@ -140,6 +149,7 @@ export async function getActivePendingOrder(courseId) {
       created_at
     `)
     .eq('course_id', courseId)
+    .eq('user_id', session.user.id)
     .eq('status', 'pending')
     .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
@@ -147,6 +157,7 @@ export async function getActivePendingOrder(courseId) {
     .maybeSingle();
 
   if (error) {
+    console.error('getActivePendingOrder failed:', error.message);
     return null;
   }
 

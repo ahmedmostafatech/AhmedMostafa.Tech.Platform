@@ -10,8 +10,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// تنظيف النصوص لتجنب أخطاء Telegram HTML Parser
+function escapeTelegramHtml(text: string | null | undefined): string {
+  if (!text) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 serve(async (req) => {
-  // التعامل مع طلبات CORS preflight
+  // معالجة طلبات CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -19,20 +28,19 @@ serve(async (req) => {
   try {
     const payload = await req.json();
 
-    // استخراج بيانات الطلب
-    // يدعم استدعاء مباشر من الكود أو استدعاء Database Webhook من جدول orders
+    // استخراج بيانات الطلب سواء تم الاستدعاء من الكود أو من Database Webhook
     const record = payload.record || payload;
 
-    const studentName = record.student_name || record.full_name || "طالب جديد";
-    const studentEmail = record.student_email || record.email || "—";
-    const studentPhone = record.student_phone || record.phone || "—";
-    const courseTitle = record.course_title || "مادة دراسية";
+    const studentName = escapeTelegramHtml(record.student_name || record.full_name || "طالب جديد");
+    const studentEmail = escapeTelegramHtml(record.student_email || record.email || "—");
+    const studentPhone = escapeTelegramHtml(record.student_phone || record.phone || "—");
+    const courseTitle = escapeTelegramHtml(record.course_title || "مادة دراسية");
     const amount = record.amount ? `${Number(record.amount).toFixed(2)} ج.م` : "—";
     const paymentMethod = record.payment_method === "vodafone_cash" ? "🔴 فودافون كاش" : "🟣 إنستاباي";
-    const txRef = record.tx_reference || "—";
-    const orderId = record.id || record.order_id || "—";
+    const txRef = escapeTelegramHtml(record.tx_reference || "—");
+    const orderId = escapeTelegramHtml(record.id || record.order_id || "—");
 
-    // المتغيرات السرية في Supabase Secrets
+    // المتغيرات السرية المسجلة في Supabase Secrets
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
 
@@ -41,6 +49,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
+          simulated: true,
           message: "Telegram credentials missing in environment secrets (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)."
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
@@ -82,7 +91,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("notify-telegram error:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: (error as Error).message }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
