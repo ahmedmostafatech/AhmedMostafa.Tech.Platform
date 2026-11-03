@@ -984,6 +984,20 @@
     @media (max-width: 768px) {
       .tilted-grid {
         grid-template-columns: repeat(2, 260px);
+        transform: none !important;
+        transform-style: flat !important;
+        margin: 0 auto;
+      }
+      .perspective-stage {
+        perspective: none !important;
+        height: 520px;
+      }
+      .hero-particles {
+        display: none !important;
+      }
+      .aurora {
+        filter: blur(40px) !important;
+        opacity: 0.5 !important;
       }
     }
 
