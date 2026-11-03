@@ -38,16 +38,16 @@ function buildNavHTML(opts) {
             ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
             ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
             <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__link">كيفية الاشتراك</a>
-            <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__link" style="color:#25d366;">
-              تواصل واتساب 💬
+            <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__link" style="color:#25d366; display:inline-flex; align-items:center; gap:6px;">
+              <i class="fa-brands fa-whatsapp"></i> تواصل واتساب
             </a>
           </div>
 
           <!-- الأزرار التفاعلية -->
           <div class="navbar__actions">
             ${isAdmin ? `
-              <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="btn btn--secondary btn--sm" style="color:#fcd34d; border-color:rgba(252,211,77,0.4); font-size:0.8rem; min-height:36px; padding:0 12px; gap:4px;">
-                👑 لوحة الأدمن
+              <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="btn btn--secondary btn--sm" style="color:#fcd34d; border-color:rgba(252,211,77,0.4); font-size:0.8rem; min-height:36px; padding:0 12px; gap:6px; display:inline-flex; align-items:center;">
+                <i class="fa-solid fa-crown"></i> لوحة الأدمن
               </a>
             ` : ''}
 

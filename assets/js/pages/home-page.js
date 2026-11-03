@@ -21,28 +21,46 @@ function renderRevisionsGrid(revisions) {
 
   if (gridEl) {
     gridEl.innerHTML = revisions.map(function (rev) {
-      let desc = rev.short_description || rev.description || 'مراجعة شاملة لجميع محاور المنهج مع حل نماذج امتحانات عملية.';
+      let desc = rev.short_description || rev.description || 'مراجعة مكثفة وشاملة لجميع محاور المنهج واجتياز الامتحان العملي والنظري بنجاح.';
       let priceText = formatPrice(rev.price_egp || 120);
 
       return `
-        <article class="revision-card">
-          <div class="revision-card__header">
-            <span class="badge badge--accent">متاح للحجز الآن</span>
-            <span style="font-size:var(--text-xs); color:var(--color-text-muted);">EELU</span>
-          </div>
-          <h3 class="revision-card__title">${escapeHtml(rev.title)}</h3>
-          <p class="revision-card__desc">${escapeHtml(desc)}</p>
-          <div class="revision-card__footer">
-            <div>
-              <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">سعر الاشتراك</span>
-              <span class="revision-card__price">${escapeHtml(priceText)}</span>
+        <article class="prem-revision-card">
+          <div class="prem-card-glow"></div>
+          
+          <div class="prem-card-header">
+            <div class="prem-live-pill">
+              <span class="live-dot"></span>
+              <span>متاح للحجز الفوري</span>
             </div>
-            <div style="display:flex; gap:8px;">
-              <a href="revision.html?id=${encodeURIComponent(rev.id)}" class="btn btn--secondary btn--sm">
-                التفاصيل
+            <span class="prem-faculty-badge">
+              <i class="fa-solid fa-code"></i> EELU • CS
+            </span>
+          </div>
+
+          <h3 class="prem-card-title">${escapeHtml(rev.title)}</h3>
+          <p class="prem-card-desc">${escapeHtml(desc)}</p>
+
+          <!-- ميزات المراجعة الحصرية -->
+          <ul class="prem-card-perks">
+            <li><i class="fa-solid fa-circle-check"></i> شروحات Full HD مركزة ومباشرة على الامتحان</li>
+            <li><i class="fa-solid fa-circle-check"></i> سلايدات الشرح ومذكرات PDF جاهزة للطباعة</li>
+            <li><i class="fa-solid fa-circle-check"></i> حل نماذج الامتحانات السابقة بالتفصيل</li>
+          </ul>
+
+          <div class="prem-card-footer">
+            <div class="prem-price-box">
+              <span class="prem-price-lbl">سعر الاشتراك الكامل</span>
+              <span class="prem-price-val">${escapeHtml(priceText)}</span>
+            </div>
+            
+            <div class="prem-actions-row">
+              <a href="revision.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-sub">
+                <i class="fa-solid fa-circle-info"></i> التفاصيل
               </a>
-              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn btn--accent btn--sm" style="font-weight:700;">
-                احجز الآن
+              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-main">
+                <span>احجز الآن</span>
+                <i class="fa-solid fa-arrow-left"></i>
               </a>
             </div>
           </div>
