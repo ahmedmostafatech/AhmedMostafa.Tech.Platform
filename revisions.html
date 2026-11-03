@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>المراجعات المتاحة | أحمد مصطفى تك</title>
-  <meta name="description" content="استعرض جميع المراجعات النهائية المتاحة لمناهج تكنولوجيا المعلومات وسجل مباشرة.">
+  <meta name="description"
+    content="استعرض جميع المراجعات النهائية المتاحة لمناهج تكنولوجيا المعلومات والحاسبات واحجز مقعدك فوراً.">
   <link rel="icon" href="data:,">
 
   <!-- الخطوط الرسمية -->
@@ -17,67 +18,752 @@
   <!-- مكتبة الأيقونات الرسمية Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- ملفات الـ CSS -->
+  <!-- ملفات CSS الأساسية -->
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/layout.css">
   <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    /* ============================================================
+       REVISIONS PAGE CINEMATIC THEME
+       ============================================================ */
+
+    body {
+      background: #040914;
+      overflow-x: hidden;
+    }
+
+    .main-curtain-wrapper {
+      position: relative;
+      z-index: 10;
+      background: #ffffff;
+      border-bottom-left-radius: 40px;
+      border-bottom-right-radius: 40px;
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      margin-bottom: 560px;
+      transition: margin-bottom 0.25s ease;
+    }
+
+    @media (max-width: 768px) {
+      .main-curtain-wrapper {
+        border-bottom-left-radius: 24px;
+        border-bottom-right-radius: 24px;
+        margin-bottom: 640px;
+      }
+    }
+
+    /* هيرو صفحة المراجعات */
+    .rev-hero {
+      position: relative;
+      background: #060e20;
+      padding: 100px 0 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .rev-hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(54, 90, 162, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(54, 90, 162, 0.08) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .aurora-rev {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, rgba(54, 90, 162, 0.3) 0%, transparent 65%);
+      top: -100px;
+      right: -80px;
+    }
+
+    .aurora-rev-2 {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      width: 450px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(245, 197, 24, 0.12) 0%, transparent 65%);
+      bottom: -80px;
+      left: -60px;
+    }
+
+    .rev-hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 var(--space-4);
+    }
+
+    .rev-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 22px;
+      background: rgba(54, 90, 162, 0.2);
+      border: 1px solid rgba(54, 90, 162, 0.45);
+      border-radius: 99px;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: #9cbff7;
+      margin-bottom: var(--space-4);
+    }
+
+    .rev-hero-title {
+      font-size: clamp(2rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1.25;
+      margin: 0 0 var(--space-4) 0;
+    }
+
+    .rev-hero-title .hl-yellow {
+      color: #ffd154;
+      position: relative;
+      display: inline-block;
+    }
+
+    .svg-underline {
+      position: absolute;
+      bottom: -6px;
+      right: 0;
+      width: 100%;
+      height: 14px;
+      overflow: visible;
+      pointer-events: none;
+    }
+
+    .svg-underline path {
+      stroke: #ffd154;
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      fill: none;
+      stroke-dasharray: 340;
+      stroke-dashoffset: 0;
+    }
+
+    .rev-hero-desc {
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.8;
+      margin: 0 auto var(--space-6) auto;
+      max-width: 620px;
+    }
+
+    /* شريط البحث السريع */
+    .search-box-wrapper {
+      max-width: 540px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-input-prem {
+      width: 100%;
+      padding: 16px 54px 16px 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 16px;
+      font-family: inherit;
+      font-size: 15px;
+      color: #ffffff;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .search-input-prem:focus {
+      outline: none;
+      border-color: #ffd154;
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 35px rgba(255, 209, 84, 0.25);
+    }
+
+    .search-input-prem::placeholder {
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .search-icon-inside {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ffd154;
+      font-size: 1.15rem;
+      pointer-events: none;
+    }
+
+    /* قسم المراجعات */
+    .revisions-body-s {
+      padding: var(--space-8) 0 100px;
+      background: #ffffff;
+    }
+
+    .revisions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: var(--space-4);
+    }
+
+    .revisions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 28px;
+    }
+
+    /* كروت المراجعات البريميوم */
+    .prem-revision-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(7, 16, 34, 0.05);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .prem-card-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #365aa2, #ffd154, #365aa2);
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .prem-revision-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 50px rgba(54, 90, 162, 0.14);
+      border-color: rgba(54, 90, 162, 0.35);
+    }
+
+    .prem-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+      gap: 10px;
+    }
+
+    .prem-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #15803d;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: live-pulse 1.8s infinite;
+    }
+
+    @keyframes live-pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
+      }
+
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    .prem-faculty-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .prem-card-title {
+      font-size: var(--text-xl);
+      font-weight: 900;
+      color: var(--color-primary);
+      margin: 0 0 var(--space-2) 0;
+      line-height: 1.35;
+    }
+
+    .prem-card-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.65;
+      margin-bottom: var(--space-4);
+    }
+
+    .prem-card-perks {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 var(--space-5) 0;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: var(--space-4);
+      flex-grow: 1;
+    }
+
+    .prem-card-perks li {
+      font-size: 12.5px;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .prem-card-perks li i {
+      color: #16a34a;
+      font-size: 13px;
+    }
+
+    .prem-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f1f5f9;
+      padding-top: var(--space-4);
+      margin-top: auto;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .prem-price-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prem-price-lbl {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .prem-price-val {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--color-primary);
+    }
+
+    .prem-actions-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn-prem-sub {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #334155;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-prem-sub:hover {
+      background: #e2e8f0;
+      color: var(--color-primary);
+    }
+
+    .btn-prem-main {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      background: #365aa2;
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 14px rgba(54, 90, 162, 0.35);
+      transition: all 0.3s ease;
+    }
+
+    .btn-prem-main:hover {
+      background: #4a72bf;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(54, 90, 162, 0.45);
+    }
+
+    .btn-prem-main:hover i {
+      transform: translateX(-3px);
+    }
+
+    .btn-prem-main i {
+      transition: transform 0.25s ease;
+    }
+
+    /* الفوتر السينمائي المطابق للهوم */
+    .cin-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      min-height: 540px;
+      background: #040914;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .f-aurora {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .f-aurora-b1 {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      top: -120px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(54, 90, 162, 0.28) 0%, transparent 65%);
+      filter: blur(100px);
+    }
+
+    .f-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 54px 54px;
+      pointer-events: none;
+    }
+
+    .f-diagonal-strip {
+      position: absolute;
+      top: 50%;
+      left: -15%;
+      width: 130%;
+      transform: translateY(-50%) rotate(-4deg);
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.25;
+      overflow: hidden;
+      background: rgba(54, 90, 162, 0.12);
+      border-top: 1px solid rgba(54, 90, 162, 0.35);
+      border-bottom: 1px solid rgba(54, 90, 162, 0.35);
+      padding: 16px 0;
+    }
+
+    .f-strip-track {
+      display: flex;
+      gap: 40px;
+      width: max-content;
+      animation: f-marquee 24s linear infinite;
+    }
+
+    @keyframes f-marquee {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .f-strip-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #9cbff7;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .f-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #ffd154;
+      flex-shrink: 0;
+    }
+
+    .f-cta-area {
+      position: relative;
+      z-index: 3;
+      text-align: center;
+      padding: 60px var(--space-4) var(--space-6);
+    }
+
+    .f-giant {
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(70px, 16vw, 170px);
+      font-weight: 900;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    .f-cta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(54, 90, 162, 0.25);
+      border: 1px solid rgba(54, 90, 162, 0.5);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9cbff7;
+      margin-bottom: var(--space-4);
+    }
+
+    .f-cta-title {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: #ffffff;
+      margin: 0 0 var(--space-3) 0;
+    }
+
+    .f-cta-sub {
+      color: rgba(255, 255, 255, 0.65);
+      font-size: var(--text-md);
+      margin: 0 auto var(--space-6) auto;
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    .f-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: var(--space-5) 0;
+      position: relative;
+      z-index: 4;
+    }
+
+    .f-bottom-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- شريط الملاحة -->
-  <header id="site-header" class="site-header"></header>
+  <!-- غلاف الستارة الرئيسي -->
+  <div class="main-curtain-wrapper" id="main-curtain">
 
-  <main style="padding: var(--space-8) 0; min-height: 80vh;">
-    <div class="container">
+    <!-- شريط الملاحة -->
+    <header id="site-header" class="site-header"></header>
 
-      <!-- ترويسة الصفحة -->
-      <div class="section__header text-center" style="margin-bottom:var(--space-6);">
-        <span class="badge badge--accent" style="margin-bottom:8px;">المراجعات النشطة</span>
-        <h1 class="section__title">جميع المراجعات المتاحة</h1>
-        <p class="section__desc">اختر المراجعة التي تناسبك واستعرض كافة محاورها ومحتوياتها واحجز مقعدك فوراً</p>
-      </div>
+    <main>
 
-      <!-- حالة التحميل -->
-      <div id="revisions-loading" class="text-center" style="padding:var(--space-8) 0;">
-        <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
-        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري تحميل المراجعات...</p>
-      </div>
+      <!-- هيرو صفحة المراجعات السينمائي -->
+      <section class="rev-hero">
+        <div class="rev-hero-grid"></div>
+        <div class="aurora-rev"></div>
+        <div class="aurora-rev-2"></div>
 
-      <!-- شبكة المراجعات -->
-      <div id="revisions-grid" class="revisions-grid" hidden></div>
+        <div class="rev-hero-inner container">
+          <div class="rev-hero-badge">
+            <i class="fa-solid fa-graduation-cap"></i> مراجعات مكثفة وعملية
+          </div>
 
-      <!-- حالة فارغة أو خطأ -->
-      <div id="revisions-empty" class="text-center" hidden style="padding:var(--space-8) 0;">
-        <div style="font-size:2.8rem; margin-bottom:12px; color:var(--color-accent);"><i
-            class="fa-solid fa-book-open"></i></div>
-        <h3 style="color:var(--color-primary); font-size:var(--text-lg); margin-bottom:8px;">لا توجد مراجعات منشورة
-          حالياً</h3>
-        <p style="color:var(--color-text-muted); font-size:var(--text-sm); max-width:400px; margin:0 auto;">
-          سيتم فتح باب الحجز لمراجعات جديدة قريباً، تابعنا وتواصل معنا للاستفسار.
-        </p>
-      </div>
+          <h1 class="rev-hero-title">
+            تصفح واختر <br>
+            <span class="hl-yellow">مراجعتك للامتحان
+              <svg class="svg-underline" viewBox="0 0 240 14" preserveAspectRatio="none">
+                <path d="M 4 10 Q 60 3 120 9 Q 180 14 236 6" />
+              </svg>
+            </span>
+          </h1>
 
+          <p class="rev-hero-desc">
+            كل المواد اللي شايل همها مشروحة بذكاء وتركيز.. حل نماذج امتحانات، ملخصات مركزة، وتسجيل فوري بدون تعقيد.
+          </p>
+
+          <!-- حقل البحث المباشر السريع -->
+          <div class="search-box-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon-inside"></i>
+            <input type="text" id="revisions-search-input" class="search-input-prem"
+              placeholder="ابحث باسم المادة أو المراجعة (مثال: تراكيب بيانات، خوارزميات...)">
+          </div>
+        </div>
+      </section>
+
+      <!-- جسم صفحة المراجعات -->
+      <section class="revisions-body-s">
+        <div class="container">
+
+          <div class="revisions-bar">
+            <div>
+              <h2 style="font-size:var(--text-xl); font-weight:900; color:var(--color-primary); margin:0;">
+                المواد المتاحة للتسجيل
+              </h2>
+              <span style="font-size:var(--text-xs); color:var(--color-text-muted);">
+                اختر مادتك وسجل بياناتك ليصلك رابط المراجعة فور تأكيد الدفع
+              </span>
+            </div>
+            <div id="revisions-count-badge" class="badge badge--accent" style="font-size:12px; padding:6px 14px;">
+              <i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...
+            </div>
+          </div>
+
+          <!-- مؤشر التحميل -->
+          <div id="revisions-loading" class="text-center" style="padding:var(--space-8) 0;">
+            <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
+            <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري جلب أحدث المراجعات...</p>
+          </div>
+
+          <!-- شبكة المراجعات البريميوم -->
+          <div id="revisions-grid" class="revisions-grid" hidden></div>
+
+          <!-- حالة عدم وجود نتائج -->
+          <div id="revisions-empty" class="text-center" hidden style="padding:var(--space-8) 0;">
+            <div style="font-size:2.8rem; margin-bottom:12px; color:var(--color-accent);">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <h3 style="color:var(--color-primary); font-size:var(--text-lg); margin-bottom:8px;">
+              لا توجد مراجعات مطابقة لبحثك
+            </h3>
+            <p style="color:var(--color-text-muted); font-size:var(--text-sm); max-width:400px; margin:0 auto;">
+              تأكد من كتابة اسم المادة بشكل صحيح أو تواصل معنا لمساعدتك.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div><!-- نهاية غلاف الستارة -->
+
+  <!-- الفوتر السينمائي المخفي بنظام Curtain Reveal -->
+  <footer class="cin-footer" id="cin-footer">
+    <div class="f-aurora">
+      <div class="f-aurora-b1"></div>
     </div>
-  </main>
+    <div class="f-grid"></div>
 
-  <!-- الفوتر -->
-  <footer class="site-footer"
-    style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
-    <div class="container"
-      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
-      <div>
-        <strong>Ahmed Mostafa Tech</strong> — جميع الحقوق محفوظة &copy; 2026
+    <div class="f-diagonal-strip">
+      <div class="f-strip-track" id="f-strip-track"></div>
+    </div>
+
+    <div class="f-cta-area">
+      <div class="f-giant">AHMED MOSTAFA TECH</div>
+      <div class="f-cta-badge"><i class="fa-solid fa-sparkles"></i> Ahmed Mostafa Tech</div>
+      <h2 class="f-cta-title">جاهز تبدأ؟</h2>
+      <p class="f-cta-sub">سجل في مراجعتك دلوقتي وابدأ تذاكر بذكاء وبدون أي تضييع للوقت.</p>
+
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px;">
+        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" class="btn btn--accent btn--lg"
+          style="font-weight:800; min-height:48px; border-radius:12px;">
+          <i class="fa-brands fa-whatsapp"></i> تواصل مع المهندس أحمد
+        </a>
       </div>
-      <div style="display:flex; gap:var(--space-4);">
-        <a href="index.html" style="color:var(--color-primary);">الرئيسية</a>
-        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:#25d366; font-weight:700;">دعم
-          واتساب</a>
+    </div>
+
+    <div class="f-bottom">
+      <div class="container f-bottom-inner">
+        <span style="font-size:12px; color:rgba(255,255,255,0.35);">
+          © 2026 Ahmed Mostafa Tech — جميع الحقوق محفوظة
+        </span>
+        <div style="display:flex; gap:16px;">
+          <a href="index.html" style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">الرئيسية</a>
+          <a href="register.html"
+            style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">التسجيل</a>
+          <a href="https://wa.me/201066843568" target="_blank" rel="noopener"
+            style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">الدعم الفني</a>
+        </div>
       </div>
     </div>
   </footer>
 
+  <!-- سكربت صفحة المراجعات -->
   <script type="module" src="assets/js/pages/revisions-page.js"></script>
+
+  <script>
+    // مزامنة ارتفاع الفوتر لكشف الستارة
+    function syncCurtainFooter() {
+      var curtain = document.getElementById('main-curtain');
+      var footer = document.getElementById('cin-footer');
+      if (curtain && footer) {
+        var fHeight = footer.offsetHeight;
+        curtain.style.marginBottom = fHeight + 'px';
+      }
+    }
+    window.addEventListener('load', syncCurtainFooter);
+    window.addEventListener('resize', syncCurtainFooter);
+    window.addEventListener('orientationchange', syncCurtainFooter);
+
+    // شريط الفوتر الدوار
+    (function () {
+      var items = [
+        'تسجيل فوري وسريع', 'دفع آمن ومعتمد', 'رابط مباشر بجودة Full HD', 'شرح عملي ليلة الامتحان',
+        'دعم متواصل على مدار اليوم', 'فودافون كاش', 'إنستاباي', 'مراجعات حاسبات وهندسة'
+      ];
+      var track = document.getElementById('f-strip-track');
+      if (!track) return;
+      var doubled = items.concat(items).concat(items);
+      track.innerHTML = doubled.map(function (txt) {
+        return '<span class="f-strip-item"><span class="f-dot"></span>' + txt + '</span>';
+      }).join('');
+    })();
+  </script>
 
 </body>
 

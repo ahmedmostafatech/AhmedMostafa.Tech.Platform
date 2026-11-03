@@ -33,17 +33,33 @@ async function initPaymentPage() {
   }
 
   try {
-    let summary = await getRegistrationSummary(regId);
+    let regParam = getQueryParam('id') || getQueryParam('reg_id') || getQueryParam('ids');
+    let regIds = regParam.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+
+    let summaries = [];
+    for (let i = 0; i < regIds.length; i++) {
+      try {
+        let s = await getRegistrationSummary(regIds[i]);
+        if (s) summaries.push(s);
+      } catch (err) {
+        console.warn('Failed to load summary for id:', regIds[i], err);
+      }
+    }
 
     if (loadingEl) loadingEl.hidden = true;
 
-    if (!summary) {
+    if (summaries.length === 0) {
       if (errorEl) {
         errorEl.textContent = 'لم يتم العثور على بيانات هذا التسجيل، يرجى التأكد من الرابط.';
         errorEl.hidden = false;
       }
       return;
     }
+
+    let first = summaries[0];
+    let totalAmount = summaries.reduce(function (sum, item) { return sum + Number(item.amount || 0); }, 0);
+    let combinedCodes = summaries.map(function (item) { return item.registration_code; }).join(' • ');
+    let combinedCourses = summaries.map(function (item) { return item.course_title; }).join(' + ');
 
     // عرض بيانات الحجز
     let codeEl = document.getElementById('reg-code-text');
@@ -54,27 +70,27 @@ async function initPaymentPage() {
     let emailEl = document.getElementById('summary-email');
     let dateEl = document.getElementById('reg-date');
 
-    if (codeEl) codeEl.textContent = summary.registration_code;
-    if (titleEl) titleEl.textContent = summary.course_title;
-    if (nameEl) nameEl.textContent = summary.full_name;
-    if (branchEl) branchEl.textContent = summary.branch;
-    if (amountEl) amountEl.textContent = formatPrice(summary.amount);
-    if (emailEl) emailEl.textContent = summary.email;
-    if (dateEl && summary.created_at) dateEl.textContent = formatDateTime(summary.created_at);
+    if (codeEl) codeEl.textContent = combinedCodes;
+    if (titleEl) titleEl.textContent = combinedCourses;
+    if (nameEl) nameEl.textContent = first.full_name;
+    if (branchEl) branchEl.textContent = first.branch;
+    if (amountEl) amountEl.textContent = formatPrice(totalAmount);
+    if (emailEl) emailEl.textContent = first.email;
+    if (dateEl && first.created_at) dateEl.textContent = formatDateTime(first.created_at);
 
     // تجهيز رابط الواتساب المجهز مسبقاً
     let whatsappBtn = document.getElementById('whatsapp-send-btn');
     if (whatsappBtn) {
-      let methodLabel = summary.payment_method === 'instapay' ? 'إنستاباي (InstaPay)' : 'فودافون كاش';
-      let waText = `السلام عليكم، أنا سجلت في مراجعة ${summary.course_title}.
+      let methodLabel = first.payment_method === 'instapay' ? 'إنستاباي (InstaPay)' : 'فودافون كاش';
+      let waText = `السلام عليكم، أنا سجلت في مراجعة: ${combinedCourses}.
 
 بيانات التسجيل:
-الاسم: ${summary.full_name}
-كود التسجيل: ${summary.registration_code}
-الفرع: ${summary.branch}
-رقم الهاتف: ${summary.phone}
+الاسم: ${first.full_name}
+كود التسجيل: ${combinedCodes}
+الفرع: ${first.branch}
+رقم الهاتف: ${first.phone}
 طريقة الدفع: ${methodLabel}
-المبلغ: ${summary.amount} EGP
+المبلغ الإجمالي: ${totalAmount} EGP
 
 مرفق لحضرتك صورة إيصال التحويل، برجاء مراجعة الدفع وتأكيد الاشتراك.`;
 
@@ -86,9 +102,11 @@ async function initPaymentPage() {
     let copyCodeBtn = document.getElementById('copy-code-btn');
     if (copyCodeBtn) {
       copyCodeBtn.addEventListener('click', async function () {
-        let ok = await copyToClipboard(summary.registration_code);
-        copyCodeBtn.textContent = ok ? 'تم النسخ ✅' : 'فشل النسخ';
-        setTimeout(function () { copyCodeBtn.textContent = '📋 نسخ كود التسجيل'; }, 2000);
+        let ok = await copyToClipboard(combinedCodes);
+        copyCodeBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
+        setTimeout(function () {
+          copyCodeBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ كود التسجيل';
+        }, 2000);
       });
     }
 

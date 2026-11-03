@@ -1,10 +1,10 @@
 // ============================================================
 // register-page.js
-// منطق صفحة تسجيل بيانات الطالب بدون حساب (register.html)
+// منطق صفحة تسجيل بيانات الطالب مع إمكانية اختيار أكثر من مراجعة والتبديل المباشر
 // ============================================================
 
 import { initNavbar } from '../components/navbar.js';
-import { getRevisionById, registerStudent } from '../services/revisions-service.js';
+import { getPublishedRevisions, registerStudent } from '../services/revisions-service.js';
 import {
   getQueryParam,
   formatPrice,
@@ -15,7 +15,8 @@ import {
   escapeHtml
 } from '../core/utils.js';
 
-let currentCourse = null;
+let availableRevisions = [];
+let selectedCourseIds = new Set();
 let selectedPaymentMethod = 'vodafone_cash';
 
 function setupPaymentMethodRadios() {
@@ -33,45 +34,138 @@ function setupPaymentMethodRadios() {
   });
 }
 
+function updateSummaryPill() {
+  let countEl = document.getElementById('summary-course-count');
+  let titlesEl = document.getElementById('summary-course-titles');
+  let priceEl = document.getElementById('summary-total-price');
+  let errBox = document.getElementById('courses-selection-error');
+
+  let selectedList = availableRevisions.filter(function (r) {
+    return selectedCourseIds.has(r.id);
+  });
+
+  let totalAmount = selectedList.reduce(function (sum, r) {
+    return sum + Number(r.price_egp || 120);
+  }, 0);
+
+  if (countEl) countEl.textContent = `${selectedList.length} مراجعة`;
+  if (priceEl) priceEl.textContent = formatPrice(totalAmount);
+
+  if (titlesEl) {
+    if (selectedList.length === 0) {
+      titlesEl.innerHTML = '<span style="color:#ef4444; font-weight:700;"><i class="fa-solid fa-triangle-exclamation"></i> لم تختر أي مراجعة بعد — حدد مراجعتك بالأسفل</span>';
+      if (errBox) errBox.classList.add('show');
+    } else {
+      titlesEl.innerHTML = selectedList.map(function (r) {
+        return `<span class="selected-course-tag"><i class="fa-solid fa-check"></i> ${escapeHtml(r.title)}</span>`;
+      }).join(' ');
+      if (errBox) errBox.classList.remove('show');
+    }
+  }
+}
+
+function renderRevisionsPicker() {
+  let pickerEl = document.getElementById('revisions-picker-list');
+  if (!pickerEl) return;
+
+  if (availableRevisions.length === 0) {
+    pickerEl.innerHTML = '<div style="color:#64748b; font-size:13px; padding:12px;">لا توجد مراجعات معلنة حالياً.</div>';
+    return;
+  }
+
+  pickerEl.innerHTML = availableRevisions.map(function (rev) {
+    let isChecked = selectedCourseIds.has(rev.id);
+    let priceText = formatPrice(rev.price_egp || 120);
+
+    return `
+      <label class="rev-pick-card ${isChecked ? 'active' : ''}" data-id="${escapeHtml(rev.id)}">
+        <input type="checkbox" class="rev-pick-checkbox" value="${escapeHtml(rev.id)}" ${isChecked ? 'checked' : ''} style="display:none;">
+        
+        <div class="rev-pick-box-check">
+          <i class="fa-solid fa-check"></i>
+        </div>
+
+        <div class="rev-pick-info">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:3px; flex-wrap:wrap;">
+            <strong class="rev-pick-title">${escapeHtml(rev.title)}</strong>
+            <span class="rev-pick-tag"><i class="fa-solid fa-code"></i> EELU CS</span>
+          </div>
+          <span class="rev-pick-desc">${escapeHtml(rev.short_description || 'مراجعة شاملة للامتحان النهائي والعملي')}</span>
+        </div>
+
+        <div class="rev-pick-price">
+          ${escapeHtml(priceText)}
+        </div>
+      </label>
+    `;
+  }).join('');
+
+  // ربط أحداث النقر والاختيار المتعدد
+  pickerEl.querySelectorAll('.rev-pick-card').forEach(function (card) {
+    card.addEventListener('click', function (e) {
+      e.preventDefault();
+      let id = card.getAttribute('data-id');
+      let chk = card.querySelector('.rev-pick-checkbox');
+
+      if (selectedCourseIds.has(id)) {
+        selectedCourseIds.delete(id);
+        card.classList.remove('active');
+        if (chk) chk.checked = false;
+      } else {
+        selectedCourseIds.add(id);
+        card.classList.add('active');
+        if (chk) chk.checked = true;
+      }
+
+      updateSummaryPill();
+    });
+  });
+
+  updateSummaryPill();
+}
+
 async function initRegisterPage() {
   await initNavbar({ activePage: 'revisions' });
   setupPaymentMethodRadios();
 
-  let courseId = getQueryParam('id') || getQueryParam('course_id');
+  let paramId = getQueryParam('id') || getQueryParam('course_id');
   let errorEl = document.getElementById('register-error');
-  let titleEl = document.getElementById('summary-course-title');
-  let priceEl = document.getElementById('summary-course-price');
   let form = document.getElementById('register-form');
   let submitBtn = document.getElementById('submit-reg-btn');
 
-  if (!courseId) {
-    if (errorEl) {
-      errorEl.textContent = 'من فضلك اختر المراجعة أولاً من صفحة المراجعات المتاحة.';
-      errorEl.hidden = false;
-    }
-    if (submitBtn) submitBtn.disabled = true;
-    return;
-  }
-
-  // جلب بيانات المراجعة المختارة
+  // جلب كل المراجعات المنشورة
   try {
-    currentCourse = await getRevisionById(courseId);
-    if (!currentCourse) {
+    availableRevisions = await getPublishedRevisions();
+
+    if (availableRevisions.length === 0) {
       if (errorEl) {
-        errorEl.textContent = 'المراجعة المطلوبة غير متاحة حالياً للتسجيل.';
+        errorEl.textContent = 'لا توجد مراجعات متاحة حالياً للتسجيل.';
         errorEl.hidden = false;
       }
       if (submitBtn) submitBtn.disabled = true;
       return;
     }
 
-    if (titleEl) titleEl.textContent = currentCourse.title;
-    if (priceEl) priceEl.textContent = formatPrice(currentCourse.price_egp || 120);
+    // تحديد المراجعة المطلوبة مسبقاً إذا وُجدت في الرابط
+    if (paramId) {
+      let found = availableRevisions.find(function (r) { return r.id === paramId; });
+      if (found) {
+        selectedCourseIds.add(found.id);
+      } else {
+        // افتراضياً نختار أول مراجعة
+        selectedCourseIds.add(availableRevisions[0].id);
+      }
+    } else {
+      // اختيار أول مراجعة كخيار افتراضي سلس
+      selectedCourseIds.add(availableRevisions[0].id);
+    }
+
+    renderRevisionsPicker();
 
   } catch (err) {
-    console.error('Failed to load course for registration:', err);
+    console.error('Failed to load courses for registration:', err);
     if (errorEl) {
-      errorEl.textContent = 'تعذر تحميل بيانات المراجعة، يرجى إعادة المحاولة.';
+      errorEl.textContent = 'تعذر تحميل المراجعات المتاحة، يرجى إعادة المحاولة.';
       errorEl.hidden = false;
     }
     if (submitBtn) submitBtn.disabled = true;
@@ -83,6 +177,14 @@ async function initRegisterPage() {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       if (errorEl) errorEl.hidden = true;
+
+      // التأكد من اختيار مراجعة واحدة على الأقل
+      if (selectedCourseIds.size === 0) {
+        let errBox = document.getElementById('courses-selection-error');
+        if (errBox) errBox.classList.add('show');
+        errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
       let nameInput = document.getElementById('reg-name');
       let branchInput = document.getElementById('reg-branch');
@@ -122,7 +224,10 @@ async function initRegisterPage() {
       let phoneErrEl = document.getElementById('phone-error');
       let phoneCheck = validateEgyptianPhone(phoneVal);
       if (!phoneCheck.isValid) {
-        if (phoneErrEl) { phoneErrEl.textContent = phoneCheck.error || 'رقم موبايل مصري غير صحيح (11 رقم يبدأ بـ 01)'; phoneErrEl.classList.add('show'); }
+        if (phoneErrEl) {
+          phoneErrEl.textContent = phoneCheck.error || 'رقم موبايل مصري غير صحيح (11 رقم يبدأ بـ 01)';
+          phoneErrEl.classList.add('show');
+        }
         if (phoneInput) phoneInput.classList.add('form-input--error');
         hasError = true;
       } else {
@@ -146,22 +251,31 @@ async function initRegisterPage() {
         return;
       }
 
-      // إرسال التسجيل إلى السيرفر
-      setButtonLoading(submitBtn, true, 'جاري تأكيد التسجيل وحجز المقعد...');
+      // إرسال طلبات التسجيل لكل مراجعة محددة
+      setButtonLoading(submitBtn, true, 'جاري حجز المقاعد وتجهيز كود التسجيل...');
 
       try {
-        let result = await registerStudent({
-          courseId: currentCourse.id,
-          fullName: nameVal,
-          branch: branchVal,
-          phone: phoneCheck.normalized,
-          email: emailCheck.normalized,
-          paymentMethod: selectedPaymentMethod
-        });
+        let registrationIds = [];
+        let selectedArray = Array.from(selectedCourseIds);
 
-        if (result && result.registration_id) {
-          // التوجيه الفوري لصفحة الدفع مع معرّف التسجيل
-          window.location.href = `payment.html?id=${encodeURIComponent(result.registration_id)}`;
+        for (let i = 0; i < selectedArray.length; i++) {
+          let cid = selectedArray[i];
+          let result = await registerStudent({
+            courseId: cid,
+            fullName: nameVal,
+            branch: branchVal,
+            phone: phoneCheck.normalized,
+            email: emailCheck.normalized,
+            paymentMethod: selectedPaymentMethod
+          });
+
+          if (result && result.registration_id) {
+            registrationIds.push(result.registration_id);
+          }
+        }
+
+        if (registrationIds.length > 0) {
+          window.location.href = `payment.html?id=${encodeURIComponent(registrationIds.join(','))}`;
         } else {
           throw new Error('لم يتم استلام كود التسجيل من السيرفر.');
         }
@@ -180,4 +294,3 @@ async function initRegisterPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initRegisterPage);
-

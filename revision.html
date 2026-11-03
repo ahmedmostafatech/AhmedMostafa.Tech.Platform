@@ -12,6 +12,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+  <!-- مكتبة الأيقونات الرسمية Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <!-- ملفات الـ CSS -->
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/layout.css">
@@ -81,8 +84,8 @@
     <div class="container">
 
       <!-- زر العودة -->
-      <a href="revisions.html" style="display:inline-flex; align-items:center; gap:6px; font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:var(--space-4); text-decoration:none;">
-        ← العودة لقائمة المراجعات
+      <a href="revisions.html" style="display:inline-flex; align-items:center; gap:8px; font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:var(--space-4); text-decoration:none; font-weight:700;">
+        <i class="fa-solid fa-arrow-right"></i> العودة لقائمة المراجعات
       </a>
 
       <!-- تنبيه التحميل أو الخطأ -->
@@ -99,7 +102,7 @@
         <!-- العمود الرئيسي -->
         <div class="detail-card">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:8px;">
-            <span class="badge badge--accent" style="font-size:var(--text-xs);">متاح للتسجيل الفوري</span>
+            <span class="badge badge--accent" style="font-size:var(--text-xs);"><i class="fa-solid fa-bolt"></i> متاح للتسجيل الفوري</span>
             <span id="rev-expiry-badge" style="font-size:var(--text-xs); color:var(--color-text-muted);"></span>
           </div>
 
@@ -115,11 +118,11 @@
             ما الذي تتضمنه هذه المراجعة؟
           </h3>
           <ul class="includes-list">
-            <li class="includes-item"><span class="icon">✓</span> شروحات فيديو تفصيلية ومكثفة تغطي كل أجزاء المقرر.</li>
-            <li class="includes-item"><span class="icon">✓</span> مذكرات وملخصات PDF جاهزة للمذاكرة والطباعة.</li>
-            <li class="includes-item"><span class="icon">✓</span> حل نماذج امتحانات سابقة وشرح الأسئلة الأكثر تكراراً.</li>
-            <li class="includes-item"><span class="icon">✓</span> متابعة واستفسارات عبر مجموعة الواتساب المخصصة للمادة.</li>
-            <li class="includes-item"><span class="icon">✓</span> استلام فوري لرابط المراجعة الكامل فور مراجعة وتأكيد الدفع.</li>
+            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> شروحات فيديو تفصيلية ومكثفة تغطي كل أجزاء المقرر.</li>
+            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> مذكرات وملخصات PDF جاهزة للمذاكرة والطباعة.</li>
+            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> حل نماذج امتحانات سابقة وشرح الأسئلة الأكثر تكراراً.</li>
+            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> متابعة واستفسارات عبر مجموعة الواتساب المخصصة للمادة.</li>
+            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> استلام فوري لرابط المراجعة الكامل فور مراجعة وتأكيد الدفع.</li>
           </ul>
         </div>
 
@@ -133,12 +136,13 @@
               الدفع متاح عن طريق فودافون كاش أو إنستاباي. بعد التسجيل تقوم بالتحويل وترسل الإيصال على واتساب لتأكيد الاشتراك.
             </p>
 
-            <a id="rev-register-btn" href="#" class="btn btn--accent btn--block" style="font-size:var(--text-md); font-weight:800; min-height:48px;">
-              سجّل في هذه المراجعة الآن 🚀
+            <a id="rev-register-btn" href="#" class="btn btn--accent btn--block" style="font-size:var(--text-md); font-weight:800; min-height:48px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
+              <span>سجّل في هذه المراجعة الآن</span>
+              <i class="fa-solid fa-arrow-left"></i>
             </a>
 
             <div style="margin-top:var(--space-4); font-size:var(--text-xs); color:var(--color-text-muted); display:flex; align-items:center; justify-content:center; gap:6px;">
-              <span>🔒</span> تسجيل سريع بدون إنشاء حساب
+              <i class="fa-solid fa-shield-halved"></i> تسجيل فوري بدون إنشاء حساب
             </div>
           </div>
         </div>
