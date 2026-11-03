@@ -78,8 +78,11 @@ export async function signInWithEmail(email, password) {
   return data;
 }
 
-// إنشاء حساب جديد بالبريد الإلكتروني وكلمة المرور والبيانات
-export async function signUpWithEmail(email, password, { fullName, phone } = {}) {
+// إنشاء حساب جديد (الـ profile بيتعمل تلقائيًا بالـ trigger من الـ metadata)
+export async function signUpWithEmail(email, password, options) {
+  let fullName = options ? options.fullName : '';
+  let phone = options ? options.phone : '';
+
   let emailVal = validateEmail(email);
   if (!emailVal.isValid) {
     throw new Error(emailVal.error);
@@ -116,26 +119,11 @@ export async function signUpWithEmail(email, password, { fullName, phone } = {})
     throw error;
   }
 
-  // لو المستخدم اتسجل ورجع session على طول، نحدث جدول profiles بالبيانات
-  if (data && data.user) {
-    try {
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: emailVal.normalized,
-        full_name: cleanName,
-        phone: phoneVal.normalized,
-        profile_complete: true
-      });
-    } catch (upsertErr) {
-      console.warn('Profile upsert on signup note:', upsertErr);
-    }
-  }
-
   cachedProfile = null;
   return data;
 }
 
-// طلب استعادة كلمة المرور
+// طلب استعادة كلمة المرور (مش مستخدمة حاليًا، الزر اتشال من الواجهة)
 export async function resetPassword(email) {
   let emailVal = validateEmail(email);
   if (!emailVal.isValid) {
@@ -155,61 +143,38 @@ export async function resetPassword(email) {
   return data;
 }
 
-// تعديل بيانات الملف الشخصي (الاسم والموبايل)
-export async function updateMyProfile({ fullName, phone }) {
+// تعديل بيانات الملف الشخصي (الاسم والموبايل) عبر الدالة update_my_profile فقط
+export async function updateMyProfile(fields) {
   let session = await getSession();
   if (!session) {
     throw new Error('not authenticated');
   }
 
-  let cleanName = fullName !== undefined ? String(fullName).trim() : null;
+  let fullName = fields ? fields.fullName : undefined;
+  let phone = fields ? fields.phone : undefined;
+
+  let cleanName = fullName !== undefined && fullName !== null ? String(fullName).trim() : null;
   let normalizedPhone = null;
 
   if (phone !== undefined && phone !== null && String(phone).trim() !== '') {
-    let phoneVal = validateEgyptianPhone(phone);
+    let phoneVal = validateEgyptianPhone(String(phone));
     if (!phoneVal.isValid) {
       throw new Error(phoneVal.error);
     }
     normalizedPhone = phoneVal.normalized;
   }
 
-  // 1. استدعاء الدالة المخصصة update_my_profile إن وُجدت
-  let rpcSuccess = false;
-  try {
-    let rpcRes = await supabase.rpc('update_my_profile', {
-      p_full_name: cleanName,
-      p_phone: normalizedPhone
-    });
-    if (!rpcRes.error) {
-      rpcSuccess = true;
-    }
-  } catch (rpcErr) {
-    console.warn('RPC update_my_profile fallback to direct update:', rpcErr);
+  let { error } = await supabase.rpc('update_my_profile', {
+    p_full_name: cleanName,
+    p_phone: normalizedPhone
+  });
+
+  if (error) {
+    console.error('update_my_profile failed:', error.message);
+    throw error;
   }
 
-  // 2. تحديث مباشر في جدول profiles كـ fallback
-  if (!rpcSuccess) {
-    let updateFields = {};
-    if (cleanName !== null) updateFields.full_name = cleanName;
-    if (normalizedPhone !== null) {
-      updateFields.phone = normalizedPhone;
-      updateFields.profile_complete = true;
-    }
-
-    if (Object.keys(updateFields).length > 0) {
-      let { error: updateErr } = await supabase
-        .from('profiles')
-        .update(updateFields)
-        .eq('id', session.user.id);
-
-      if (updateErr) {
-        console.error('Direct profile update error:', updateErr.message);
-        throw updateErr;
-      }
-    }
-  }
-
-  // 3. تحديث Auth user_metadata أيضاً
+  // تحديث user_metadata كمان (اختياري، مش بيوقف العملية لو فشل)
   try {
     let metaUpdate = {};
     if (cleanName !== null) metaUpdate.full_name = cleanName;
@@ -221,7 +186,6 @@ export async function updateMyProfile({ fullName, phone }) {
     console.warn('Auth user_metadata update note:', metaErr);
   }
 
-  // تفريغ الكاش لإعادة القراءة
   cachedProfile = null;
   return await getMyProfile(true);
 }
@@ -237,14 +201,16 @@ export function consumeNextPath() {
   }
 }
 
-// تسجيل الخروج من هذا الجهاز فقط، وبعدها للرئيسية
-export async function signOut() {
+// تسجيل الخروج من هذا الجهاز فقط، وبعدها للمسار المطلوب (الافتراضي: الرئيسية)
+export async function signOut(redirectPath) {
   let { error } = await supabase.auth.signOut({ scope: 'local' });
   cachedProfile = null;
   if (error) {
     console.error('Sign-out failed:', error.message);
   }
-  window.location.replace(sitePath(ROUTES.HOME));
+
+  let target = sanitizeNextPath(redirectPath, null);
+  window.location.replace(target || sitePath(ROUTES.HOME));
 }
 
 // بيانات الطالب من جدول profiles (مع كاش)

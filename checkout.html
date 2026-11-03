@@ -189,6 +189,7 @@
       margin-top: var(--space-3);
       display: none;
       object-fit: contain;
+      margin-inline: auto;
     }
   </style>
 </head>
@@ -203,31 +204,49 @@
     <!-- ==================== العمود الرئيسي (خطوات الدفع) ==================== -->
     <div id="checkout-main-col">
 
-      <!-- شريط الحساب النشط والتنبيه -->
+      <!-- الحساب النشط -->
       <div class="account-callout-bar">
         <div style="display:flex; align-items:center; gap:8px;">
           <span>👤</span>
           <div>
             مسجل بالحساب: <strong id="active-user-email">...</strong>
-            <span style="color:var(--color-accent); margin-right:4px;">(الكورس هيتفعل عليه)</span>
+            <span style="color:var(--color-accent); margin-right:4px;">(الاشتراك هيتفعل على الإيميل ده)</span>
           </div>
         </div>
-        <a href="login.html?next=checkout.html" style="color:var(--color-text-muted); font-size:var(--text-xs); text-decoration:underline;">
+        <a href="#" id="switch-account-link" style="color:var(--color-text-muted); font-size:var(--text-xs); text-decoration:underline;">
           تغيير الحساب؟
         </a>
       </div>
 
-      <!-- رسائل الخطأ والنجاح -->
+      <!-- رسائل الخطأ -->
       <div id="checkout-error" class="alert alert--error" role="alert" hidden style="margin-bottom:var(--space-4);"></div>
 
-      <!-- مرحلة إتمام الطلب (Form) -->
+      <!-- مرحلة إتمام الطلب -->
       <div id="checkout-form-section">
+
+        <!-- بيانات الطالب (بتظهر لو الاسم أو الموبايل ناقصين) -->
+        <div class="checkout-card" id="profile-gate" hidden>
+          <div class="checkout-step-header">
+            <span class="checkout-step-num">👤</span>
+            <h2 class="checkout-step-title">بياناتك للتواصل</h2>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-name">الاسم</label>
+            <input class="form-input" style="direction:rtl;" type="text" id="profile-name" autocomplete="name">
+            <span class="form-field-error" id="profile-name-err"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="profile-phone">رقم الموبايل</label>
+            <input class="form-input" type="tel" id="profile-phone" autocomplete="tel" inputmode="tel" placeholder="01012345678">
+            <span class="form-field-error" id="profile-phone-err"></span>
+          </div>
+        </div>
 
         <!-- الخطوة 1: اختيار طريقة الدفع -->
         <div class="checkout-card">
           <div class="checkout-step-header">
             <span class="checkout-step-num">1</span>
-            <h2 class="checkout-step-title">اختر طريقة الدفع المناسبة ليك</h2>
+            <h2 class="checkout-step-title">اختر طريقة الدفع</h2>
           </div>
 
           <div class="payment-methods-grid">
@@ -236,7 +255,7 @@
               <div class="payment-method-icon">🔴</div>
               <div>
                 <strong style="color:var(--color-primary); display:block;">فودافون كاش</strong>
-                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل كاش عادي للمحفظة</span>
+                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل كاش للمحفظة</span>
               </div>
             </label>
 
@@ -245,106 +264,112 @@
               <div class="payment-method-icon">🟣</div>
               <div>
                 <strong style="color:var(--color-primary); display:block;">إنستاباي (InstaPay)</strong>
-                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل فوري بدون رسوم</span>
+                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل فوري</span>
               </div>
-            </div>
+            </label>
+          </div>
 
-          <!-- تفاصيل التحويل المتغيرة -->
+          <!-- تفاصيل التحويل -->
           <div id="transfer-details-box" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4); margin-top:var(--space-3);">
             <div style="font-size:var(--text-sm); font-weight:700; color:var(--color-primary); margin-bottom:var(--space-2);">
               بيانات التحويل:
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; background:var(--color-bg); padding:var(--space-2) var(--space-3); border-radius:var(--radius-sm); border:1px solid var(--color-border-light);">
-              <span id="transfer-target-number" style="font-family:monospace; font-size:var(--text-lg); font-weight:800; color:var(--color-primary); direction:ltr;">01066843568</span>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:var(--space-2); background:var(--color-bg); padding:var(--space-2) var(--space-3); border-radius:var(--radius-sm); border:1px solid var(--color-border-light);">
+              <span id="transfer-target-number" style="font-family:monospace; font-size:var(--text-lg); font-weight:800; color:var(--color-primary); direction:ltr;">...</span>
               <button type="button" id="copy-number-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs);">
                 📋 نسخ الرقم
               </button>
             </div>
-            <div id="transfer-instructions-note" style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-2);">
-              💡 حول المبلغ للمحفظة (تحويل كاش عادي وليس شحن رصيد).
-            </div>
+            <div id="transfer-instructions-note" style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-2);"></div>
           </div>
+
+          <button type="button" id="continue-btn" class="btn btn--accent btn--block" style="margin-top:var(--space-4);">
+            متابعة ←
+          </button>
         </div>
 
-        <!-- الخطوة 2: المبلغ المطلوب تحويله -->
-        <div class="checkout-card">
-          <div class="checkout-step-header">
-            <span class="checkout-step-num">2</span>
-            <h2 class="checkout-step-title">المبلغ المطلوب تحويله بدقة</h2>
-          </div>
+        <!-- الخطوتين 2 و3 بتظهر بعد إنشاء الطلب -->
+        <div id="after-method-section" hidden>
 
-          <div class="exact-amount-box">
-            <p style="font-size:var(--text-xs); font-weight:700; color:var(--color-accent-dark); margin:0;">
-              المبلغ المطلوب تحويله بالضبط بالقرش:
-            </p>
-            <div class="exact-amount-val" id="checkout-exact-amount">
-              <span class="skeleton" style="display:inline-block; width:140px; height:36px;"></span>
-            </div>
-            <button type="button" id="copy-amount-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs); border-radius:var(--radius-full); margin-top:4px;">
-              📋 نسخ المبلغ بالظبط
-            </button>
-            <p style="font-size:var(--text-xs); color:var(--color-danger); margin-top:var(--space-3); line-height:1.5;">
-              ⚠️ <strong>تنبيه هام جداً:</strong> حوّل المبلغ بالظبط بالقروش المعروضة لتسهيل ربط التحويل بحسابك وتفعيل الكورس تلقائياً دون أي تأخير!
-            </p>
-          </div>
-        </div>
-
-        <!-- الخطوة 3: إرسال بيانات التأكيد -->
-        <div class="checkout-card">
-          <div class="checkout-step-header">
-            <span class="checkout-step-num">3</span>
-            <h2 class="checkout-step-title">تأكيد عملية التحويل</h2>
-          </div>
-
-          <form id="payment-confirm-form" novalidate>
-            <div class="form-group">
-              <label class="form-label" for="tx-ref-input">
-                رقم العملية (Transaction Reference)
-                <span class="form-label-hint">من رسالة التحويل أو التطبيق</span>
-              </label>
-              <input
-                type="text"
-                id="tx-ref-input"
-                class="form-input"
-                placeholder="مثال: 987456321 أو كود العملية"
-                required
-              >
-              <span class="form-hint">الرقم المرجعي أو كود المعاملة اللي بيوصلك في رسالة بعد إتمام التحويل.</span>
-              <span class="form-field-error" id="tx-ref-err"></span>
+          <!-- الخطوة 2: المبلغ -->
+          <div class="checkout-card">
+            <div class="checkout-step-header">
+              <span class="checkout-step-num">2</span>
+              <h2 class="checkout-step-title">المبلغ المطلوب تحويله</h2>
             </div>
 
-            <!-- رفع صورة الإيصال -->
-            <div class="form-group">
-              <label class="form-label">صورة إيصال التحويل (اختياري لكن يسرّع التفعيل)</label>
-              <div class="file-upload-zone" id="drop-zone">
-                <input type="file" id="receipt-file-input" accept="image/*,.pdf" style="display:none;">
-                <div style="font-size:2rem; margin-bottom:var(--space-2);">📎</div>
-                <div style="font-weight:700; color:var(--color-primary); font-size:var(--text-sm);">
-                  اضغط هنا لاختيار صورة الإيصال أو اسحبها هنا
-                </div>
-                <div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:4px;">
-                  صور JPG, PNG, WEBP أو ملف PDF بحد أقصى 5 ميجابايت
-                </div>
-                <img id="receipt-preview-img" class="file-preview" alt="معاينة إيصال التحويل">
+            <div class="exact-amount-box">
+              <p style="font-size:var(--text-xs); font-weight:700; color:var(--color-accent-dark); margin:0;">
+                حوّل المبلغ ده بالظبط بالقرش:
+              </p>
+              <div class="exact-amount-val" id="checkout-exact-amount">—</div>
+              <button type="button" id="copy-amount-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs); margin-top:4px;">
+                📋 نسخ المبلغ بالظبط
+              </button>
+              <p style="font-size:var(--text-xs); color:var(--color-danger); margin-top:var(--space-3); line-height:1.6;">
+                ⚠️ <strong>مهم:</strong> المبلغ بالقروش مخصص لطلبك ده. حوّله بالظبط عشان نقدر نطابق تحويلك بسرعة ونفعّل اشتراكك. الطلب محجوز لمدة محدودة، فكمّل الدفع في أقرب وقت.
+              </p>
+            </div>
+          </div>
+
+          <!-- الخطوة 3: تأكيد التحويل -->
+          <div class="checkout-card">
+            <div class="checkout-step-header">
+              <span class="checkout-step-num">3</span>
+              <h2 class="checkout-step-title">تأكيد عملية التحويل</h2>
+            </div>
+
+            <form id="payment-confirm-form" novalidate>
+              <div class="form-group">
+                <label class="form-label" for="tx-ref-input">
+                  رقم العملية (Transaction Reference)
+                  <span class="form-label-hint">من رسالة التحويل أو التطبيق</span>
+                </label>
+                <input
+                  type="text"
+                  id="tx-ref-input"
+                  class="form-input"
+                  placeholder="مثال: 987456321"
+                  autocomplete="off"
+                  required
+                >
+                <span class="form-hint">الرقم المرجعي اللي بيوصلك في رسالة بعد إتمام التحويل.</span>
+                <span class="form-field-error" id="tx-ref-err"></span>
               </div>
-            </div>
 
-            <button type="submit" id="submit-order-btn" class="btn btn--accent btn--block btn--xl" style="margin-top:var(--space-4);">
-              تأكيد إرسال الدفع الآن 🚀
-            </button>
-          </form>
+              <!-- رفع صورة الإيصال -->
+              <div class="form-group">
+                <label class="form-label">صورة إيصال التحويل (اختياري لكن بيسرّع التفعيل)</label>
+                <div class="file-upload-zone" id="drop-zone">
+                  <input type="file" id="receipt-file-input" accept="image/jpeg,image/png,image/webp,application/pdf" style="display:none;">
+                  <div style="font-size:2rem; margin-bottom:var(--space-2);">📎</div>
+                  <div id="drop-zone-text" style="font-weight:700; color:var(--color-primary); font-size:var(--text-sm);">
+                    اضغط هنا لاختيار صورة الإيصال أو اسحبها هنا
+                  </div>
+                  <div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:4px;">
+                    صور JPG أو PNG أو WEBP أو ملف PDF بحد أقصى 5 ميجابايت
+                  </div>
+                  <img id="receipt-preview-img" class="file-preview" alt="معاينة إيصال التحويل">
+                </div>
+              </div>
+
+              <button type="submit" id="submit-order-btn" class="btn btn--accent btn--block btn--lg" style="margin-top:var(--space-4);">
+                تأكيد إرسال الدفع
+              </button>
+            </form>
+          </div>
+
         </div>
-
       </div>
 
       <!-- مرحلة النجاح بعد إرسال الطلب -->
       <div id="checkout-success-section" class="checkout-card" hidden style="text-align:center; padding:var(--space-10) var(--space-6);">
         <div style="font-size:3.5rem; margin-bottom:var(--space-4);">🎉</div>
         <h2 style="font-size:var(--text-3xl); font-weight:900; color:var(--color-primary); margin-bottom:var(--space-2);">
-          تم استلام طلبك بنجاح!
+          تم استلام طلبك!
         </h2>
         <p style="font-size:var(--text-base); color:var(--color-text-muted); max-width:520px; margin-inline:auto; line-height:1.7; margin-bottom:var(--space-6);">
-          جاري مراجعة التحويل وتأكيده في أسرع وقت. أول ما يتم القبول هتقدر تفتح كل فيديوهات المادة فوراً من لوحة تحكمك!
+          هنراجع التحويل ونفعّل اشتراكك في أقرب وقت. أول ما يتم القبول هتقدر تفتح كل فيديوهات المادة من لوحة التحكم.
         </p>
 
         <div style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-lg); padding:var(--space-4); max-width:400px; margin-inline:auto; margin-bottom:var(--space-6); text-align:right;">
@@ -353,7 +378,7 @@
             <strong id="success-order-id" style="font-family:monospace; direction:ltr;">—</strong>
           </div>
           <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:var(--text-sm);">
-            <span style="color:var(--color-text-muted);">المبلغ المدفوع:</span>
+            <span style="color:var(--color-text-muted);">المبلغ:</span>
             <strong id="success-order-amount">—</strong>
           </div>
           <div style="display:flex; justify-content:space-between; font-size:var(--text-sm);">
@@ -364,10 +389,10 @@
 
         <div style="display:flex; gap:var(--space-3); justify-content:center; flex-wrap:wrap;">
           <a href="dashboard.html" class="btn btn--primary btn--lg" style="min-width:200px;">
-            الذهاب للوحة التحكم 📊
+            الذهاب للوحة التحكم
           </a>
           <a href="https://wa.me/201066843568" target="_blank" rel="noopener" class="btn btn--secondary btn--lg">
-            تأكيد سريع عبر واتساب 💬
+            تواصل عبر واتساب 💬
           </a>
         </div>
       </div>
@@ -392,21 +417,13 @@
 
         <div style="border-top:1px dashed var(--color-border); padding-top:var(--space-3); margin-top:var(--space-3); display:flex; flex-direction:column; gap:8px; font-size:var(--text-sm);">
           <div style="display:flex; justify-content:space-between;">
-            <span style="color:var(--color-text-muted);">سعر الكورس الأصلي:</span>
-            <span style="text-decoration:line-through; color:var(--color-text-light);">250 ج.م</span>
-          </div>
-          <div style="display:flex; justify-content:space-between;">
             <span style="color:var(--color-text-muted);">صلاحية المشاهدة:</span>
             <span id="summary-expiry-date" style="font-weight:600; color:var(--color-primary);">نهاية الترم</span>
           </div>
           <div style="display:flex; justify-content:space-between; font-size:var(--text-base); font-weight:800; color:var(--color-primary); border-top:1px solid var(--color-border-light); padding-top:8px;">
-            <span>المبلغ المستحق:</span>
-            <span id="summary-total-price">120 ج.م</span>
+            <span>سعر الاشتراك:</span>
+            <span id="summary-total-price">—</span>
           </div>
-        </div>
-
-        <div style="margin-top:var(--space-5); background:rgba(22,163,74,0.06); border:1px solid rgba(22,163,74,0.2); border-radius:var(--radius-md); padding:var(--space-3); font-size:var(--text-xs); color:#15803d; line-height:1.6;">
-          🛡️ <strong>ضمان تفعيل كامل:</strong> فيديوهات بجودة عالية، إجابة أسئلة واستفسارات مستمرة طوال الترم.
         </div>
       </div>
     </aside>

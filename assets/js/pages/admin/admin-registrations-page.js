@@ -16,6 +16,37 @@ import {
 import { supabase } from '../../core/supabase-client.js';
 import { formatPrice, formatDateTime, escapeHtml, setButtonLoading, getErrorMessage } from '../../core/utils.js';
 
+// -------------------------------------------------------
+// قائمة الفروع الجامعية الثابتة (تظهر دائماً في الفلتر)
+// -------------------------------------------------------
+const UNIVERSITY_BRANCHES = [
+  'فرع القاهرة',
+  'فرع الإسكندرية',
+  'فرع المنوفية (شبين الكوم)',
+  'فرع أسيوط',
+  'فرع طنطا',
+  'فرع الزقازيق',
+  'فرع دمياط',
+  'فرع المنصورة',
+  'فرع بورسعيد',
+  'فرع الإسماعيلية',
+  'فرع السويس',
+  'فرع بني سويف',
+  'فرع الفيوم',
+  'فرع المنيا',
+  'فرع قنا',
+  'فرع الأقصر',
+  'فرع أسوان',
+  'فرع سوهاج',
+  'فرع كفر الشيخ',
+  'فرع الغردقة',
+  'فرع السادات',
+  'فرع العريش',
+  'فرع مرسى مطروح',
+  'فرع شرم الشيخ',
+  'فرع آخر'
+];
+
 let currentRegistrations = [];
 let selectedReg = null;
 
@@ -75,7 +106,7 @@ async function loadRegistrations() {
       tbody.innerHTML = currentRegistrations.map(function (r) {
         let courseTitle = r.courses ? r.courses.title : 'مراجعة غير محددة';
         let methodText = r.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
-        let waLink = `https://wa.me/2${r.phone}`;
+        let waLink = `https://wa.me/${r.phone.replace(/^0/, '2')}`;
 
         return `
           <tr style="border-bottom:1px solid #f1f5f9;">
@@ -142,7 +173,7 @@ function openReviewModal(regId) {
     detailsEl.innerHTML = `
       <div><strong>اسم الطالب:</strong> ${escapeHtml(selectedReg.full_name)}</div>
       <div><strong>الفرع:</strong> ${escapeHtml(selectedReg.branch)}</div>
-      <div><strong>رقم الموبايل:</strong> <a href="https://wa.me/2${selectedReg.phone}" target="_blank" style="color:#16a34a; font-weight:700;">${escapeHtml(selectedReg.phone)} (فتح واتساب)</a></div>
+      <div><strong>رقم الموبايل:</strong> <a href="https://wa.me/${selectedReg.phone.replace(/^0/, '2')}" target="_blank" style="color:#16a34a; font-weight:700;">${escapeHtml(selectedReg.phone)} (فتح واتساب)</a></div>
       <div><strong>البريد الإلكتروني:</strong> <span dir="ltr">${escapeHtml(selectedReg.email)}</span></div>
       <div><strong>المادة:</strong> ${escapeHtml(courseTitle)}</div>
       <div><strong>المبلغ:</strong> <span style="font-weight:800; color:var(--color-accent);">${formatPrice(selectedReg.amount)}</span></div>
@@ -290,6 +321,17 @@ async function initAdminRegistrationsPage() {
     }
   } catch (e) {
     console.warn('Failed to populate course filter', e);
+  }
+
+  // تعبئة فلتر الفروع بالقائمة الثابتة الكاملة
+  let branchSelect = document.getElementById('filter-branch');
+  if (branchSelect) {
+    UNIVERSITY_BRANCHES.forEach(function (branch) {
+      let opt = document.createElement('option');
+      opt.value = branch;
+      opt.textContent = branch;
+      branchSelect.appendChild(opt);
+    });
   }
 
   // ربط أحداث الفلاتر

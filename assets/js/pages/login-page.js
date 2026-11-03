@@ -6,8 +6,7 @@
 import {
   signInWithGoogle,
   signInWithEmail,
-  signUpWithEmail,
-  resetPassword
+  signUpWithEmail
 } from '../core/auth.js';
 import { redirectIfAuthenticated } from '../core/guard.js';
 import {
@@ -40,16 +39,8 @@ let loginForm = qs('#login-form');
 let signupForm = qs('#signup-form');
 let googleButtons = qsa('.google-auth-trigger');
 
-// استعادة كلمة المرور
-let forgotLink = qs('#forgot-password-link');
-let forgotModal = qs('#forgot-modal');
-let forgotModalClose = qs('#forgot-modal-close');
-let resetForm = qs('#reset-form');
-let resetEmailInput = qs('#reset-email');
-let resetModalError = qs('#reset-modal-error');
-let resetModalSuccess = qs('#reset-modal-success');
+// ---------- رسائل عامة ----------
 
-// إظهار وإخفاء رسائل الخطأ العامة
 function showError(message) {
   if (successBox) successBox.hidden = true;
   if (!errorBox) return;
@@ -71,7 +62,8 @@ function showSuccess(message) {
   successBox.hidden = false;
 }
 
-// عرض أخطاء الحقول الفردية
+// ---------- أخطاء الحقول ----------
+
 function setFieldError(fieldId, errorMsg) {
   let input = qs('#' + fieldId);
   let errSpan = qs('#' + fieldId + '-err');
@@ -105,7 +97,8 @@ function clearAllFieldErrors(form) {
   });
 }
 
-// تبديل التبويب
+// ---------- التبويبات ----------
+
 function switchTab(target) {
   hideError();
   if (successBox) successBox.hidden = true;
@@ -129,7 +122,8 @@ function switchTab(target) {
   }
 }
 
-// هل المتصفح مدمج في تطبيق؟
+// ---------- المتصفحات المدمجة ----------
+
 function isEmbeddedBrowser() {
   let ua = navigator.userAgent || '';
   let knownApps = /FBAN|FBAV|FB_IAB|Instagram|Snapchat|TikTok|musical_ly|BytedanceWebview|Line\/|Twitter|MicroMessenger/i;
@@ -137,7 +131,8 @@ function isEmbeddedBrowser() {
   return knownApps.test(ua) || androidWebView.test(ua);
 }
 
-// قراءة خطأ OAuth
+// ---------- أخطاء OAuth ----------
+
 function readOAuthErrorFromUrl() {
   let query = new URLSearchParams(window.location.search);
   let hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
@@ -158,7 +153,8 @@ function readOAuthErrorFromUrl() {
   return errorCode;
 }
 
-// أزرار جوجل
+// ---------- جوجل ----------
+
 async function handleGoogleClick(btn) {
   hideError();
   setButtonLoading(btn, true, 'جاري فتح حساب Google...');
@@ -173,7 +169,8 @@ async function handleGoogleClick(btn) {
   }
 }
 
-// إظهار وإخفاء كلمات المرور
+// ---------- إظهار وإخفاء كلمات المرور ----------
+
 function initPasswordToggles() {
   qsa('.toggle-password-visibility').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -192,62 +189,8 @@ function initPasswordToggles() {
   });
 }
 
-// استعادة كلمة المرور
-function initResetModal() {
-  if (!forgotLink || !forgotModal) return;
+// ---------- نموذج تسجيل الدخول ----------
 
-  forgotLink.addEventListener('click', function () {
-    if (resetModalError) resetModalError.hidden = true;
-    if (resetModalSuccess) resetModalSuccess.hidden = true;
-    resetEmailInput.value = qs('#login-email')?.value || '';
-    forgotModal.classList.add('show');
-  });
-
-  if (forgotModalClose) {
-    forgotModalClose.addEventListener('click', function () {
-      forgotModal.classList.remove('show');
-    });
-  }
-
-  forgotModal.addEventListener('click', function (e) {
-    if (e.target === forgotModal) {
-      forgotModal.classList.remove('show');
-    }
-  });
-
-  if (resetForm) {
-    resetForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      let email = resetEmailInput.value.trim();
-      let submitBtn = qs('#reset-submit-btn');
-
-      if (resetModalError) resetModalError.hidden = true;
-      if (resetModalSuccess) resetModalSuccess.hidden = true;
-
-      let emailVal = validateEmail(email);
-      if (!emailVal.isValid) {
-        resetModalError.textContent = emailVal.error;
-        resetModalError.hidden = false;
-        return;
-      }
-
-      setButtonLoading(submitBtn, true, 'جاري الإرسال...');
-
-      try {
-        await resetPassword(emailVal.normalized);
-        resetModalSuccess.textContent = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك، تفقّد صندوق الوارد أو الرسائل غير المرغوب فيها (Spam).';
-        resetModalSuccess.hidden = false;
-      } catch (err) {
-        resetModalError.textContent = getErrorMessage(err);
-        resetModalError.hidden = false;
-      } finally {
-        setButtonLoading(submitBtn, false);
-      }
-    });
-  }
-}
-
-// معالجة نموذج تسجيل الدخول
 function initLoginForm() {
   if (!loginForm) return;
 
@@ -255,7 +198,6 @@ function initLoginForm() {
   let passInput = qs('#login-password');
   let submitBtn = qs('#login-submit-btn');
 
-  // تنظيف الأخطاء عند الكتابة
   emailInput.addEventListener('input', function () {
     setFieldError('login-email', null);
   });
@@ -270,7 +212,6 @@ function initLoginForm() {
 
     let email = emailInput.value.trim();
     let password = passInput.value;
-
     let hasError = false;
 
     let emailVal = validateEmail(email);
@@ -300,7 +241,8 @@ function initLoginForm() {
   });
 }
 
-// معالجة نموذج إنشاء حساب
+// ---------- نموذج إنشاء حساب ----------
+
 function initSignupForm() {
   if (!signupForm) return;
 
@@ -311,7 +253,6 @@ function initSignupForm() {
   let confirmPassInput = qs('#signup-confirm-password');
   let submitBtn = qs('#signup-submit-btn');
 
-  // مسح الأخطاء عند الكتابة
   [nameInput, phoneInput, emailInput, passInput, confirmPassInput].forEach(function (inp) {
     if (!inp) return;
     inp.addEventListener('input', function () {
@@ -326,7 +267,7 @@ function initSignupForm() {
       if (!val.isValid) {
         setFieldError('signup-phone', val.error);
       } else {
-        phoneInput.value = val.normalized; // تحويله للتنسيق الموحد
+        phoneInput.value = val.normalized;
       }
     }
   });
@@ -341,7 +282,6 @@ function initSignupForm() {
     let email = emailInput.value.trim();
     let password = passInput.value;
     let confirmPass = confirmPassInput.value;
-
     let hasError = false;
 
     if (!fullName || fullName.length < 3) {
@@ -382,15 +322,15 @@ function initSignupForm() {
         phone: phoneVal.normalized
       });
 
-      // لو Supabase طلب تأكيد الإيميل
+      // لو الإعدادات فيها تأكيد إيميل (مفروض مقفول): مفيش جلسة بعد التسجيل
       if (res && res.user && !res.session) {
-        showSuccess('🎉 تم إنشاء حسابك بنجاح! راجع بريدك الإلكتروني لتأكيد الحساب ثم سجّل الدخول.');
+        showSuccess('تم إنشاء حسابك. سجّل الدخول بالإيميل وكلمة المرور.');
         switchTab('login');
         setButtonLoading(submitBtn, false);
         return;
       }
 
-      // لو دخل مباشرة
+      // دخول مباشر
       let nextPath = sanitizeNextPath(getQueryParam('next'));
       window.location.replace(nextPath);
     } catch (err) {
@@ -401,7 +341,8 @@ function initSignupForm() {
   });
 }
 
-// البدء والتهيئة
+// ---------- البدء ----------
+
 async function init() {
   try {
     let redirected = await redirectIfAuthenticated();
@@ -417,7 +358,6 @@ async function init() {
     tabLoginBtn.addEventListener('click', function () { switchTab('login'); });
     tabSignupBtn.addEventListener('click', function () { switchTab('signup'); });
 
-    // فحص الرابط: هل مطلوب فتح الـ signup مباشرة؟
     let tabParam = getQueryParam('tab') || getQueryParam('mode');
     if (tabParam === 'signup' || tabParam === 'register') {
       switchTab('signup');
@@ -431,7 +371,7 @@ async function init() {
     });
   });
 
-  // فحص المتصفحات المدمجة
+  // المتصفحات المدمجة
   if (isEmbeddedBrowser() && embeddedWarning) {
     embeddedWarning.hidden = false;
   }
@@ -447,15 +387,13 @@ async function init() {
     });
   }
 
-  // فحص أخطاء الـ OAuth
+  // أخطاء OAuth
   let oauthErr = readOAuthErrorFromUrl();
   if (oauthErr) {
-    showError('حصل مشكلة في تسجيل الدخول بحساب Google. جرّب تاني أو استخدم الإيميل وكلمة المرور.');
+    showError('حصلت مشكلة في تسجيل الدخول بحساب Google. جرّب تاني أو استخدم الإيميل وكلمة المرور.');
   }
 
-  // إعداد النماذج
   initPasswordToggles();
-  initResetModal();
   initLoginForm();
   initSignupForm();
 }

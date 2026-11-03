@@ -242,3 +242,5 @@ html.guard-pending body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+[hidden] { display: none !important; }

@@ -8,6 +8,15 @@ import { signOut } from '../../core/auth.js';
 import { getAllRegistrations, getAllRevisions } from '../../services/admin-service.js';
 import { formatPrice, formatDateTime } from '../../core/utils.js';
 
+// قائمة الفروع الثابتة (للفلتر حتى لو ما فيش تسجيلات بعد)
+const UNIVERSITY_BRANCHES = [
+  'فرع القاهرة', 'فرع الإسكندرية', 'فرع المنوفية (شبين الكوم)', 'فرع أسيوط',
+  'فرع طنطا', 'فرع الزقازيق', 'فرع دمياط', 'فرع المنصورة', 'فرع بورسعيد',
+  'فرع الإسماعيلية', 'فرع السويس', 'فرع بني سويف', 'فرع الفيوم', 'فرع المنيا',
+  'فرع قنا', 'فرع الأقصر', 'فرع أسوان', 'فرع سوهاج', 'فرع كفر الشيخ',
+  'فرع الغردقة', 'فرع السادات', 'فرع العريش', 'فرع مرسى مطروح', 'فرع شرم الشيخ', 'فرع آخر'
+];
+
 let cachedRegistrations = [];
 
 async function updateReportPreview() {
@@ -129,15 +138,24 @@ async function initAdminReportsPage() {
   try {
     cachedRegistrations = await getAllRegistrations();
 
-    // استخراج الفروع المتاحة ديناميكياً
+    // تعبئة فلتر الفروع بالقائمة الثابتة الكاملة أولاً
     let branchSelect = document.getElementById('export-branch');
-    let branches = Array.from(new Set(cachedRegistrations.map(function (r) { return r.branch; }))).filter(Boolean);
     if (branchSelect) {
-      branches.forEach(function (b) {
+      UNIVERSITY_BRANCHES.forEach(function (b) {
         let opt = document.createElement('option');
         opt.value = b;
         opt.textContent = b;
         branchSelect.appendChild(opt);
+      });
+      // إضافة أي فروع إضافية من قاعدة البيانات ليست في القائمة الثابتة
+      let dbBranches = Array.from(new Set(cachedRegistrations.map(function (r) { return r.branch; }))).filter(Boolean);
+      dbBranches.forEach(function (b) {
+        if (!UNIVERSITY_BRANCHES.includes(b)) {
+          let opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b + ' (إضافي)';
+          branchSelect.appendChild(opt);
+        }
       });
     }
 

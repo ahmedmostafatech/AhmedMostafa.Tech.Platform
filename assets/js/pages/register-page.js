@@ -121,8 +121,8 @@ async function initRegisterPage() {
       // تحقق الموبايل
       let phoneErrEl = document.getElementById('phone-error');
       let phoneCheck = validateEgyptianPhone(phoneVal);
-      if (!phoneCheck.valid) {
-        if (phoneErrEl) phoneErrEl.classList.add('show');
+      if (!phoneCheck.isValid) {
+        if (phoneErrEl) { phoneErrEl.textContent = phoneCheck.error || 'رقم موبايل مصري غير صحيح (11 رقم يبدأ بـ 01)'; phoneErrEl.classList.add('show'); }
         if (phoneInput) phoneInput.classList.add('form-input--error');
         hasError = true;
       } else {
@@ -132,7 +132,8 @@ async function initRegisterPage() {
 
       // تحقق الإيميل
       let emailErrEl = document.getElementById('email-error');
-      if (!validateEmail(emailVal)) {
+      let emailCheck = validateEmail(emailVal);
+      if (!emailCheck.isValid) {
         if (emailErrEl) emailErrEl.classList.add('show');
         if (emailInput) emailInput.classList.add('form-input--error');
         hasError = true;
@@ -154,7 +155,7 @@ async function initRegisterPage() {
           fullName: nameVal,
           branch: branchVal,
           phone: phoneCheck.normalized,
-          email: emailVal,
+          email: emailCheck.normalized,
           paymentMethod: selectedPaymentMethod
         });
 
