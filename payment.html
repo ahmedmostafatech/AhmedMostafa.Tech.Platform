@@ -141,18 +141,30 @@
             </div>
 
             <!-- تفاصيل وسيلة التحويل -->
-            <div id="method-section-vodafone" class="account-box" style="margin-top:var(--space-4);">
+            <div id="method-section-vodafone" class="account-box spotlight-card glow-vodafone"
+              style="margin-top:var(--space-4); border-radius:18px; padding:20px;">
               <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2); flex-wrap:wrap; gap:8px;">
-                <span class="badge badge--primary">فودافون كاش (Vodafone Cash)</span>
-                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل عادي للمحفظة</span>
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3); flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="16" r="16" fill="#e60000" />
+                    <path
+                      d="M16 7C12.134 7 9 10.134 9 14C9 17.067 11.026 19.645 13.846 20.612C13.298 19.825 13 18.847 13 17.8C13 15.039 15.239 12.8 18 12.8C18.8 12.8 19.55 12.99 20.21 13.33C19.78 9.77 18.17 7 16 7Z"
+                      fill="white" />
+                    <circle cx="19.5" cy="17.5" r="3.2" fill="white" />
+                  </svg>
+                  <strong style="font-size:var(--text-sm); color:var(--color-primary);">فودافون كاش (Vodafone
+                    Cash)</strong>
+                </div>
+                <span class="badge badge--primary">تحويل محفظة كاش</span>
               </div>
               <div
-                style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; background:#fff; padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0;">
                 <div>
                   <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">رقم المحفظة
-                    للاستلام:</span>
-                  <span class="account-num-display" id="vodafone-num">01066843568</span>
+                    المعتمد للاستلام:</span>
+                  <span class="account-num-display" id="vodafone-num"
+                    style="letter-spacing:1px; color:#e60000;">01066843568</span>
                 </div>
                 <button type="button" id="copy-vodafone-btn" class="btn btn--secondary btn--sm"
                   style="display:inline-flex; align-items:center; gap:6px;">
@@ -164,18 +176,27 @@
               </p>
             </div>
 
-            <div id="method-section-instapay" class="account-box" style="margin-top:var(--space-4);">
+            <div id="method-section-instapay" class="account-box spotlight-card glow-instapay"
+              style="margin-top:var(--space-4); border-radius:18px; padding:20px;">
               <div
-                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-2); flex-wrap:wrap; gap:8px;">
-                <span class="badge badge--accent">إنستاباي (InstaPay)</span>
-                <span style="font-size:var(--text-xs); color:var(--color-text-muted);">تحويل لحظي مباشر</span>
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3); flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="32" height="32" rx="8" fill="#5c2d91" />
+                    <path d="M10 16L16 10L22 16L16 22L10 16Z" fill="#ffd154" />
+                    <circle cx="21" cy="16" r="3.2" fill="#00d2c4" />
+                    <circle cx="16" cy="16" r="2.2" fill="#ffffff" />
+                  </svg>
+                  <strong style="font-size:var(--text-sm); color:var(--color-primary);">إنستاباي (InstaPay IPN)</strong>
+                </div>
+                <span class="badge badge--accent">تحويل لحظي مباشر</span>
               </div>
               <div
-                style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; background:#fff; padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0;">
                 <div>
-                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">عنوان الدفع أو
-                    رقم الموبايل:</span>
-                  <span class="account-num-display" id="instapay-id">ahmedmo57@instapay</span>
+                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">معرف الدفع
+                    اللحظي (IPA):</span>
+                  <span class="account-num-display" id="instapay-id" style="color:#5c2d91;">ahmedmo57@instapay</span>
                 </div>
                 <div style="display:flex; gap:8px;">
                   <button type="button" id="copy-instapay-btn" class="btn btn--secondary btn--sm"
@@ -184,17 +205,17 @@
                   </button>
                   <a href="https://ipn.eg/S/ahmedmo57/instapay/3Iiwwf" target="_blank" rel="noopener"
                     class="btn btn--primary btn--sm" style="display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح رابط الدفع
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح إنستاباي
                   </a>
                 </div>
               </div>
               <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
-                يمكنك التحويل إلى العنوان المبين أعلاه أو الضغط على زر فتح رابط الدفع المباشر في تطبيق إنستاباي.
+                يمكنك التحويل إلى المعرف الموضح أعلاه من تطبيق إنستاباي أو الضغط على زر فتح إنستاباي للدفع المباشر.
               </p>
             </div>
 
             <!-- صندوق الواتساب لإرسال الإيصال -->
-            <div class="whatsapp-box">
+            <div class="whatsapp-box spotlight-card" style="border-radius:20px; padding:24px;">
               <h3
                 style="font-size:var(--text-md); font-weight:800; color:#128c7e; margin:0 0 var(--space-2) 0; display:flex; align-items:center; justify-content:center; gap:8px;">
                 <i class="fa-brands fa-whatsapp"></i> الخطوة الأخيرة: إرسال صورة إيصال التحويل
@@ -205,9 +226,11 @@
                 لقطة شاشة الإيصال داخل المحادثة.
               </p>
               <a id="whatsapp-send-btn" href="#" target="_blank" rel="noopener"
-                class="btn btn--whatsapp btn--block btn--lg"
-                style="font-size:var(--text-md); min-height:48px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp"></i> إرسال صورة الإيصال عبر واتساب الآن
+                class="btn btn--whatsapp btn--block btn--lg btn-interactive"
+                style="font-size:var(--text-md); min-height:52px; display:inline-flex; align-items:center; justify-content:center; gap:12px;">
+                <span class="btn-dot"></span>
+                <span>إرسال صورة الإيصال عبر واتساب الآن</span>
+                <i class="fa-brands fa-whatsapp"></i>
               </a>
             </div>
 

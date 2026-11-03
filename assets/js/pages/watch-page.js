@@ -49,7 +49,7 @@ function loadVideo(videoItem) {
   // تحديث بيانات العنوان والتصنيف
   if (videoCurrentTitle) videoCurrentTitle.textContent = videoItem.title;
   if (videoModuleTag) videoModuleTag.textContent = videoItem.moduleTitle || 'محاضرة';
-  if (videoDurationTag) videoDurationTag.textContent = '🎓 منصة أحمد مصطفى تك';
+  if (videoDurationTag) videoDurationTag.textContent = ' منصة أحمد مصطفى تك';
 
   let isFree = videoItem.is_free;
   let canWatch = userHasAccess || isFree;
@@ -57,7 +57,7 @@ function loadVideo(videoItem) {
   if (canWatch) {
     if (videoAccessBadge) {
       videoAccessBadge.className = isFree ? 'badge badge--free' : 'badge badge--success';
-      videoAccessBadge.textContent = isFree ? '🎁 درس مجاني' : '✅ مشمول باشتراكك';
+      videoAccessBadge.textContent = isFree ? ' درس مجاني' : ' مشمول باشتراكك';
     }
 
     let ytid = (videoItem.video_sources && videoItem.video_sources.youtube_id) || '';
@@ -70,7 +70,7 @@ function loadVideo(videoItem) {
   } else {
     if (videoAccessBadge) {
       videoAccessBadge.className = 'badge badge--warning';
-      videoAccessBadge.textContent = '🔒 للمشتركين فقط';
+      videoAccessBadge.textContent = ' للمشتركين فقط';
     }
 
     let checkoutUrl = `${sitePath(ROUTES.CHECKOUT)}?course_id=${encodeURIComponent(currentCourse.id)}`;
@@ -78,7 +78,7 @@ function loadVideo(videoItem) {
     if (playerBox) {
       playerBox.innerHTML = `
         <div class="locked-video-card">
-          <div style="font-size:3.5rem; margin-bottom:var(--space-3);">🔒</div>
+          <div style="font-size:3.5rem; margin-bottom:var(--space-3);"></div>
           <h2 style="font-size:var(--text-2xl); font-weight:800; color:#fff; margin-bottom:var(--space-2);">
             هذه المحاضرة مخصصة للمشتركين
           </h2>
@@ -86,7 +86,7 @@ function loadVideo(videoItem) {
             اشترك الآن في مادة "${escapeHtml(currentCourse.title)}" لفتح جميع فيديوهات الشرح وحل امتحانات الفاينال والمتابعة حتى ليلة الامتحان!
           </p>
           <a href="${escapeHtml(checkoutUrl)}" class="btn btn--accent btn--lg" style="padding-inline:var(--space-8);">
-            اشترك الآن وفعل حسابك 🚀
+            اشترك الآن وفعل حسابك 
           </a>
         </div>
       `;
@@ -135,7 +135,7 @@ function renderPlaylist(modules) {
       let canWatch = userHasAccess || isFree;
       let isActive = v.id === currentVideoId;
 
-      let icon = canWatch ? '▶' : '🔒';
+      let icon = canWatch ? '▶' : '';
       let badge = '';
       if (isFree) {
         badge = '<span class="badge badge--free" style="font-size:10px; padding:2px 6px;">مجاني</span>';
@@ -199,7 +199,7 @@ async function init() {
 
   // تحديث شارة المستخدم
   let displayName = (currentProfile && currentProfile.full_name) || currentSession.user.email.split('@')[0];
-  if (userDisplayBadge) userDisplayBadge.textContent = `👤 ${displayName}`;
+  if (userDisplayBadge) userDisplayBadge.textContent = ` ${displayName}`;
 
   let targetVideoId = getQueryParam('video_id');
   let targetCourseId = getQueryParam('course_id');

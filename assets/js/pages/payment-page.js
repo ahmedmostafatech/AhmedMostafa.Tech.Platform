@@ -115,8 +115,8 @@ async function initPaymentPage() {
       copyVodafoneBtn.addEventListener('click', async function () {
         let num = document.getElementById('vodafone-num').textContent.trim();
         let ok = await copyToClipboard(num);
-        copyVodafoneBtn.textContent = ok ? 'تم النسخ ✅' : 'فشل النسخ';
-        setTimeout(function () { copyVodafoneBtn.textContent = '📋 نسخ الرقم'; }, 2000);
+        copyVodafoneBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
+        setTimeout(function () { copyVodafoneBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ الرقم'; }, 2000);
       });
     }
 
@@ -125,8 +125,8 @@ async function initPaymentPage() {
       copyInstapayBtn.addEventListener('click', async function () {
         let idVal = document.getElementById('instapay-id').textContent.trim();
         let ok = await copyToClipboard(idVal);
-        copyInstapayBtn.textContent = ok ? 'تم النسخ ✅' : 'فشل النسخ';
-        setTimeout(function () { copyInstapayBtn.textContent = '📋 نسخ المعرف'; }, 2000);
+        copyInstapayBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
+        setTimeout(function () { copyInstapayBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ المعرف'; }, 2000);
       });
     }
 

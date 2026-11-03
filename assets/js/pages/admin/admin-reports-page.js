@@ -6,9 +6,9 @@
 import { requireAdmin } from '../../core/guard.js';
 import { signOut } from '../../core/auth.js';
 import { getAllRegistrations, getAllRevisions } from '../../services/admin-service.js';
-import { formatPrice, formatDateTime } from '../../core/utils.js';
+import { formatPrice, formatDateTime, initSpotlightCards } from '../../core/utils.js';
 
-// قائمة الفروع الثابتة (للفلتر حتى لو ما فيش تسجيلات بعد)
+// قائمة الفروع الثابتة
 const UNIVERSITY_BRANCHES = [
   'فرع القاهرة', 'فرع الإسكندرية', 'فرع المنوفية (شبين الكوم)', 'فرع أسيوط',
   'فرع طنطا', 'فرع الزقازيق', 'فرع دمياط', 'فرع المنصورة', 'فرع بورسعيد',
@@ -20,25 +20,25 @@ const UNIVERSITY_BRANCHES = [
 let cachedRegistrations = [];
 
 async function updateReportPreview() {
-  let courseVal = document.getElementById('export-course').value;
-  let statusVal = document.getElementById('export-status').value;
-  let branchVal = document.getElementById('export-branch').value;
+  const courseVal = document.getElementById('export-course').value;
+  const statusVal = document.getElementById('export-status').value;
+  const branchVal = document.getElementById('export-branch').value;
 
-  let filtered = cachedRegistrations.filter(function (r) {
+  const filtered = cachedRegistrations.filter(r => {
     if (courseVal !== 'all' && r.course_id !== courseVal) return false;
     if (statusVal !== 'all' && r.payment_status !== statusVal) return false;
     if (branchVal !== 'all' && r.branch !== branchVal) return false;
     return true;
   });
 
-  let countEl = document.getElementById('export-match-count');
-  let revEl = document.getElementById('export-match-revenue');
+  const countEl = document.getElementById('export-match-count');
+  const revEl = document.getElementById('export-match-revenue');
 
   if (countEl) countEl.textContent = `${filtered.length} طالب`;
 
-  let totalRevenue = filtered
-    .filter(function (r) { return r.payment_status === 'paid'; })
-    .reduce(function (sum, r) { return sum + Number(r.amount || 0); }, 0);
+  const totalRevenue = filtered
+    .filter(r => r.payment_status === 'paid')
+    .reduce((sum, r) => sum + Number(r.amount || 0), 0);
 
   if (revEl) revEl.textContent = formatPrice(totalRevenue);
 
@@ -47,12 +47,12 @@ async function updateReportPreview() {
 
 function escapeCsvField(val) {
   if (val === null || val === undefined) return '""';
-  let str = String(val).replace(/"/g, '""');
+  const str = String(val).replace(/"/g, '""');
   return `"${str}"`;
 }
 
 async function downloadCSV() {
-  let filtered = await updateReportPreview();
+  const filtered = await updateReportPreview();
 
   if (filtered.length === 0) {
     alert('لا توجد سجلات مطابقة للفلترة الحالية لتصديرها.');
@@ -60,7 +60,7 @@ async function downloadCSV() {
   }
 
   // الترويسة العربية
-  let headers = [
+  const headers = [
     'كود التسجيل',
     'اسم الطالب',
     'الفرع الجامعي',
@@ -75,11 +75,11 @@ async function downloadCSV() {
     'ملاحظات الأدمن'
   ];
 
-  let rows = [headers.map(escapeCsvField).join(',')];
+  const rows = [headers.map(escapeCsvField).join(',')];
 
-  filtered.forEach(function (r) {
-    let courseTitle = r.courses ? r.courses.title : '';
-    let methodText = r.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
+  filtered.forEach(r => {
+    const courseTitle = r.courses ? r.courses.title : '';
+    const methodText = r.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
     let statusText = '';
     switch (r.payment_status) {
       case 'paid': statusText = 'مؤكد (Paid)'; break;
@@ -89,11 +89,11 @@ async function downloadCSV() {
       default: statusText = r.payment_status; break;
     }
 
-    let row = [
+    const row = [
       escapeCsvField(r.registration_code),
       escapeCsvField(r.full_name),
       escapeCsvField(r.branch),
-      escapeCsvField(`\t${r.phone}`), // \t لمنع Excel من حذف الصفر الأول في رقم الهاتف
+      escapeCsvField(`\t${r.phone}`), // \t لمنع Excel من حذف الصفر الأول
       escapeCsvField(r.email),
       escapeCsvField(courseTitle),
       escapeCsvField(r.amount),
@@ -107,13 +107,13 @@ async function downloadCSV() {
     rows.push(row.join(','));
   });
 
-  // إضافة UTF-8 BOM (\uFEFF) لضمان فتح الملف في Excel العربي بدون أي مشاكل تشفير
-  let csvContent = '\uFEFF' + rows.join('\r\n');
-  let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  let url = URL.createObjectURL(blob);
+  // إضافة UTF-8 BOM (\uFEFF)
+  const csvContent = '\uFEFF' + rows.join('\r\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
 
-  let a = document.createElement('a');
-  let dateStr = new Date().toISOString().split('T')[0];
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
   a.href = url;
   a.download = `AMT-Registrations-${dateStr}.csv`;
   document.body.appendChild(a);
@@ -123,11 +123,11 @@ async function downloadCSV() {
 }
 
 async function initAdminReportsPage() {
-  let authContext = await requireAdmin('login.html');
+  const authContext = await requireAdmin('login.html');
   if (!authContext) return;
 
   // خروج
-  let signOutBtn = document.getElementById('admin-signout-btn');
+  const signOutBtn = document.getElementById('admin-signout-btn');
   if (signOutBtn) {
     signOutBtn.addEventListener('click', async function () {
       await signOut('login.html');
@@ -138,20 +138,19 @@ async function initAdminReportsPage() {
   try {
     cachedRegistrations = await getAllRegistrations();
 
-    // تعبئة فلتر الفروع بالقائمة الثابتة الكاملة أولاً
-    let branchSelect = document.getElementById('export-branch');
+    // تعبئة فلتر الفروع
+    const branchSelect = document.getElementById('export-branch');
     if (branchSelect) {
-      UNIVERSITY_BRANCHES.forEach(function (b) {
-        let opt = document.createElement('option');
+      UNIVERSITY_BRANCHES.forEach(b => {
+        const opt = document.createElement('option');
         opt.value = b;
         opt.textContent = b;
         branchSelect.appendChild(opt);
       });
-      // إضافة أي فروع إضافية من قاعدة البيانات ليست في القائمة الثابتة
-      let dbBranches = Array.from(new Set(cachedRegistrations.map(function (r) { return r.branch; }))).filter(Boolean);
-      dbBranches.forEach(function (b) {
+      const dbBranches = Array.from(new Set(cachedRegistrations.map(r => r.branch))).filter(Boolean);
+      dbBranches.forEach(b => {
         if (!UNIVERSITY_BRANCHES.includes(b)) {
-          let opt = document.createElement('option');
+          const opt = document.createElement('option');
           opt.value = b;
           opt.textContent = b + ' (إضافي)';
           branchSelect.appendChild(opt);
@@ -160,11 +159,11 @@ async function initAdminReportsPage() {
     }
 
     // استخراج المراجعات
-    let revisions = await getAllRevisions();
-    let courseSelect = document.getElementById('export-course');
+    const revisions = await getAllRevisions();
+    const courseSelect = document.getElementById('export-course');
     if (courseSelect) {
-      revisions.forEach(function (rev) {
-        let opt = document.createElement('option');
+      revisions.forEach(rev => {
+        const opt = document.createElement('option');
         opt.value = rev.id;
         opt.textContent = rev.title;
         courseSelect.appendChild(opt);
@@ -173,13 +172,15 @@ async function initAdminReportsPage() {
 
     await updateReportPreview();
 
-    ['export-course', 'export-status', 'export-branch'].forEach(function (id) {
-      let el = document.getElementById(id);
+    ['export-course', 'export-status', 'export-branch'].forEach(id => {
+      const el = document.getElementById(id);
       if (el) el.addEventListener('change', updateReportPreview);
     });
 
-    let downloadBtn = document.getElementById('btn-download-csv');
+    const downloadBtn = document.getElementById('btn-download-csv');
     if (downloadBtn) downloadBtn.addEventListener('click', downloadCSV);
+
+    initSpotlightCards();
 
   } catch (err) {
     console.error('Failed to init reports page:', err);
@@ -187,4 +188,3 @@ async function initAdminReportsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminReportsPage);
-

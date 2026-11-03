@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>تفاصيل المراجعة | أحمد مصطفى تك</title>
-  <meta name="description" content="تعرف على تفاصيل المراجعة والمحاور المشمولة وطريقة التسجيل المباشر.">
+  <meta name="description"
+    content="تعرف على تفاصيل المراجعة الشاملة، المحاور المشمولة، وطريقة التسجيل المباشر بدون تعقيد.">
   <link rel="icon" href="data:,">
 
   <!-- الخطوط الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
 
   <!-- مكتبة الأيقونات الرسمية Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -21,153 +25,731 @@
   <link rel="stylesheet" href="assets/css/components.css">
 
   <style>
+    /* ============================================================
+       REVISION DETAILS CINEMATIC THEME
+       ============================================================ */
+
+    body {
+      background: #040914;
+      overflow-x: hidden;
+    }
+
+    .main-curtain-wrapper {
+      position: relative;
+      z-index: 10;
+      background: #070e1c;
+      border-bottom-left-radius: 40px;
+      border-bottom-right-radius: 40px;
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      margin-bottom: 560px;
+      transition: margin-bottom 0.25s ease;
+    }
+
+    @media (max-width: 768px) {
+      .main-curtain-wrapper {
+        border-bottom-left-radius: 24px;
+        border-bottom-right-radius: 24px;
+        margin-bottom: 640px;
+      }
+    }
+
+    /* هيرو تفاصيل المراجعة */
+    .detail-hero {
+      position: relative;
+      background: radial-gradient(circle at 50% 0%, #15274d 0%, #070e1c 70%);
+      padding: 90px 0 60px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .detail-hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(54, 90, 162, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(54, 90, 162, 0.08) 1px, transparent 1px);
+      background-size: 40px 40px;
+      mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 0%, transparent 75%);
+      pointer-events: none;
+    }
+
+    .wavy-underline {
+      position: relative;
+      display: inline-block;
+      color: #ffffff;
+    }
+
+    .wavy-underline svg {
+      position: absolute;
+      bottom: -14px;
+      left: 0;
+      width: 100%;
+      height: 14px;
+      pointer-events: none;
+    }
+
+    /* Layout Grid */
     .revision-layout {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: var(--space-6);
-      margin-top: var(--space-6);
+      gap: 32px;
+      margin-top: 36px;
+      align-items: start;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 991px) {
       .revision-layout {
         grid-template-columns: 1fr;
       }
     }
 
-    .detail-card {
-      background: var(--color-bg);
-      border: 1px solid var(--color-border-light);
-      border-radius: var(--radius-xl);
-      padding: var(--space-6);
-      box-shadow: var(--shadow-sm);
+    /* Content Cards */
+    .detail-main-card {
+      background: rgba(14, 25, 48, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
     }
 
-    .sidebar-card {
-      background: var(--color-surface);
-      border: 2px solid var(--color-accent);
-      border-radius: var(--radius-xl);
-      padding: var(--space-6);
+    .sidebar-sticky-card {
       position: sticky;
-      top: 90px;
+      top: 100px;
+      background: rgba(15, 26, 50, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 32px 28px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
     }
 
-    .includes-list {
-      list-style: none;
-      padding: 0;
-      margin: var(--space-4) 0;
+    /* Features Grid */
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .perks-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .perk-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 18px;
+      padding: 22px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .perk-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(54, 90, 162, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .perk-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(54, 90, 162, 0.2);
+      border: 1px solid rgba(54, 90, 162, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #72a2ff;
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .perk-card:hover .perk-icon-wrap {
+      transform: scale(1.1) rotate(-4deg);
+      background: rgba(54, 90, 162, 0.4);
+      color: #ffd154;
+      border-color: #ffd154;
+    }
+
+    .perk-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .perk-desc {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Live Pulse */
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulse-live 1.8s infinite;
+      margin-left: 6px;
+    }
+
+    @keyframes pulse-live {
+      0% {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.4);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.9);
+        opacity: 0.8;
+      }
+    }
+
+    /* Payment Badges */
+    .method-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 99px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    /* الفوتر السينمائي Curtain Footer */
+    .cin-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      min-height: 560px;
+      background: #020409;
+      color: #ffffff;
+      z-index: 1;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .f-aurora {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .f-aurora-b1 {
+      position: absolute;
+      top: -150px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(54, 90, 162, 0.28) 0%, rgba(255, 209, 84, 0.06) 45%, transparent 70%);
+      filter: blur(80px);
+    }
+
+    .f-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.8) 0%, transparent 80%);
+      pointer-events: none;
+    }
+
+    .f-diagonal-strip {
+      position: absolute;
+      top: 50%;
+      left: -20%;
+      width: 140%;
+      height: 60px;
+      background: linear-gradient(90deg, rgba(54, 90, 162, 0.12), rgba(255, 209, 84, 0.12), rgba(54, 90, 162, 0.12));
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      transform: rotate(-6deg) translateY(-50%);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .f-strip-track {
+      display: flex;
+      gap: 32px;
+      animation: f-strip-scroll 24s linear infinite;
+    }
+
+    @keyframes f-strip-scroll {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .f-strip-item {
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
       gap: 12px;
     }
 
-    .includes-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: var(--text-sm);
-      color: var(--color-text);
+    .f-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffd154;
+      display: inline-block;
     }
 
-    .includes-item span.icon {
-      color: var(--color-success);
-      font-size: 1.1rem;
+    .f-giant {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(3rem, 11vw, 10rem);
+      font-weight: 900;
+      color: rgba(255, 255, 255, 0.02);
+      white-space: nowrap;
+      letter-spacing: 0.08em;
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+    }
+
+    .f-cta-area {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 100px 20px 40px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .f-cta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      border-radius: 99px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: #ffd154;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    .f-cta-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+
+    .f-cta-sub {
+      font-size: clamp(14px, 2vw, 17px);
+      color: rgba(255, 255, 255, 0.65);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .f-bottom {
+      position: relative;
+      z-index: 2;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 22px 0;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .f-bottom-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- شريط الملاحة -->
-  <header id="site-header" class="site-header"></header>
+  <!-- غلاف الستارة المتحركة الرئيسي -->
+  <div class="main-curtain-wrapper" id="main-curtain">
 
-  <main style="padding: var(--space-8) 0; min-height: 80vh;">
-    <div class="container">
+    <!-- شريط الملاحة -->
+    <header id="site-header" class="site-header"></header>
 
-      <!-- زر العودة -->
-      <a href="revisions.html" style="display:inline-flex; align-items:center; gap:8px; font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:var(--space-4); text-decoration:none; font-weight:700;">
-        <i class="fa-solid fa-arrow-right"></i> العودة لقائمة المراجعات
-      </a>
+    <!-- الهيرو -->
+    <section class="detail-hero">
+      <div class="detail-hero-grid"></div>
+      <div class="container" style="position:relative; z-index:2;">
 
-      <!-- تنبيه التحميل أو الخطأ -->
-      <div id="revision-loading" class="text-center" style="padding:var(--space-8) 0;">
-        <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
-        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري جلب تفاصيل المراجعة...</p>
-      </div>
+        <!-- رابط العودة المباشر -->
+        <a href="revisions.html"
+          style="display:inline-flex; align-items:center; gap:8px; font-size:14px; color:rgba(255,255,255,0.7); margin-bottom:24px; text-decoration:none; font-weight:700; transition:color 0.2s ease;">
+          <i class="fa-solid fa-arrow-right"></i> العودة لجميع المراجعات
+        </a>
 
-      <div id="revision-error" class="alert alert--error" hidden role="alert" style="margin-bottom:var(--space-6);"></div>
-
-      <!-- محتوى المراجعة -->
-      <div id="revision-content" class="revision-layout" hidden>
-
-        <!-- العمود الرئيسي -->
-        <div class="detail-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:8px;">
-            <span class="badge badge--accent" style="font-size:var(--text-xs);"><i class="fa-solid fa-bolt"></i> متاح للتسجيل الفوري</span>
-            <span id="rev-expiry-badge" style="font-size:var(--text-xs); color:var(--color-text-muted);"></span>
-          </div>
-
-          <h1 id="rev-title" style="font-size:var(--text-2xl); font-weight:900; color:var(--color-primary); margin-bottom:var(--space-4);">...</h1>
-
-          <div id="rev-desc" style="font-size:var(--text-md); color:var(--color-text); line-height:1.8; margin-bottom:var(--space-6); white-space:pre-line;">
-            ...
-          </div>
-
-          <hr style="border:0; border-top:1px solid var(--color-border-light); margin:var(--space-6) 0;">
-
-          <h3 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin-bottom:var(--space-3);">
-            ما الذي تتضمنه هذه المراجعة؟
-          </h3>
-          <ul class="includes-list">
-            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> شروحات فيديو تفصيلية ومكثفة تغطي كل أجزاء المقرر.</li>
-            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> مذكرات وملخصات PDF جاهزة للمذاكرة والطباعة.</li>
-            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> حل نماذج امتحانات سابقة وشرح الأسئلة الأكثر تكراراً.</li>
-            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> متابعة واستفسارات عبر مجموعة الواتساب المخصصة للمادة.</li>
-            <li class="includes-item"><i class="fa-solid fa-circle-check" style="color:#16a34a;"></i> استلام فوري لرابط المراجعة الكامل فور مراجعة وتأكيد الدفع.</li>
-          </ul>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+          <span class="badge"
+            style="background:rgba(54,90,162,0.3); border:1px solid #365aa2; color:#9cbdfc; font-size:12px; padding:6px 14px;">
+            <span class="pulse-dot"></span> متاح للتسجيل الفوري
+          </span>
+          <span id="rev-expiry-badge" style="font-size:13px; color:rgba(255,255,255,0.55); font-weight:600;">
+            سارية طوال الفصل الدراسي
+          </span>
         </div>
 
-        <!-- العمود الجانبي (كارت الحجز والسعر) -->
-        <div>
-          <div class="sidebar-card text-center">
-            <span style="font-size:var(--text-xs); font-weight:700; color:var(--color-text-muted); display:block; margin-bottom:4px;">سعر الاشتراك بالمراجعة</span>
-            <div id="rev-price" style="font-size:2.4rem; font-weight:900; color:var(--color-primary); margin-bottom:var(--space-4);">...</div>
+        <h1 id="rev-title" class="wavy-underline"
+          style="font-size:clamp(1.8rem, 4vw, 2.8rem); font-weight:900; line-height:1.2; margin:0 0 20px 0;">
+          جاري جلب تفاصيل المراجعة...
+          <svg viewBox="0 0 100 12" preserveAspectRatio="none">
+            <path d="M0,7 Q25,0 50,7 T100,7" fill="none" stroke="#ffd154" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </h1>
 
-            <p style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:var(--space-5);">
-              الدفع متاح عن طريق فودافون كاش أو إنستاباي. بعد التسجيل تقوم بالتحويل وترسل الإيصال على واتساب لتأكيد الاشتراك.
-            </p>
+        <p style="font-size:15px; color:rgba(255,255,255,0.7); max-width:640px; margin:0; line-height:1.7;">
+          استعد للامتحان النهائي بأقوى ملخص شامل وشرح مركز بالحلول النموذجية لكافة أسئلة المقرر.
+        </p>
 
-            <a id="rev-register-btn" href="#" class="btn btn--accent btn--block" style="font-size:var(--text-md); font-weight:800; min-height:48px; display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-              <span>سجّل في هذه المراجعة الآن</span>
-              <i class="fa-solid fa-arrow-left"></i>
-            </a>
+      </div>
+    </section>
 
-            <div style="margin-top:var(--space-4); font-size:var(--text-xs); color:var(--color-text-muted); display:flex; align-items:center; justify-content:center; gap:6px;">
-              <i class="fa-solid fa-shield-halved"></i> تسجيل فوري بدون إنشاء حساب
+    <!-- منطقة المحتوى الرئيسي -->
+    <main style="padding: 40px 0 80px; min-height: 60vh;">
+      <div class="container">
+
+        <!-- تنبيه التحميل أو الخطأ -->
+        <div id="revision-loading" class="text-center" style="padding: 60px 0;">
+          <div class="loading-spinner" style="margin: 0 auto 16px auto;"></div>
+          <p style="color: rgba(255,255,255,0.6); font-size: 15px;">جاري تحميل محتوى وتفاصيل المراجعة...</p>
+        </div>
+
+        <div id="revision-error" class="alert alert--error" hidden role="alert" style="margin-bottom: 24px;"></div>
+
+        <!-- تخطيط المراجعة -->
+        <div id="revision-content" class="revision-layout" hidden>
+
+          <!-- العمود الأيمن: تفاصيل ومميزات المراجعة -->
+          <div>
+
+            <!-- كارت نبذة عن المراجعة Spotlight Card -->
+            <div class="detail-main-card spotlight-card">
+              <h2
+                style="font-size:20px; font-weight:900; color:#ffffff; margin-bottom:14px; display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-circle-info" style="color:#72a2ff;"></i>
+                عن المنهج والمراجعة
+              </h2>
+              <div id="rev-desc"
+                style="font-size:15px; color:rgba(255,255,255,0.8); line-height:1.85; white-space:pre-line;">
+                ...
+              </div>
+            </div>
+
+            <!-- شبكة المميزات التفاعلية الإبداعية (Creative Animated Perks Grid) -->
+            <div style="margin-bottom: 30px;">
+              <h3
+                style="font-size:20px; font-weight:900; color:#ffffff; margin-bottom:8px; display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-sparkles" style="color:#ffd154;"></i>
+                ما الذي ستحصل عليه فور تأكيد اشتراكك؟
+              </h3>
+              <p style="font-size:14px; color:rgba(255,255,255,0.6); margin:0 0 16px 0;">
+                حزمة مكثفة مصممة لضمان فهمك الكامل للمقرر وحصولك على تقدير امتياز (A+).
+              </p>
+
+              <div class="perks-grid">
+
+                <!-- ميزة 1: شروحات فيديو -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-solid fa-video"></i>
+                  </div>
+                  <h4 class="perk-title">محاضرات فيديو مكثفة</h4>
+                  <p class="perk-desc">
+                    شرح دقيق ومركّز لكل فصول المقرر بدون حشو، مع التركيز على أهم النقاط المعقدة والمسائل.
+                  </p>
+                </div>
+
+                <!-- ميزة 2: مذكرات وملخصات PDF -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-solid fa-file-pdf"></i>
+                  </div>
+                  <h4 class="perk-title">مذكرات PDF شاملة</h4>
+                  <p class="perk-desc">
+                    ملخصات منسقة وعالية الجودة جاهزة للقراءة والطباعة لتسترجع المنهج بسرعة ليلة الامتحان.
+                  </p>
+                </div>
+
+                <!-- ميزة 3: حل نماذج امتحانات سابقة -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                  </div>
+                  <h4 class="perk-title">حل امتحانات السنوات السابقة</h4>
+                  <p class="perk-desc">
+                    حل نماذج امتحانات سابقة خطوة بخطوة لمعرفة صيغ الأسئلة الأكثر تكراراً وطريقة الإجابة النموذجية.
+                  </p>
+                </div>
+
+                <!-- ميزة 4: وصول سحابي Google Drive -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-brands fa-google-drive"></i>
+                  </div>
+                  <h4 class="perk-title">رابط مباشر Google Drive</h4>
+                  <p class="perk-desc">
+                    مشاهدة وتحميل مباشر بجودة عالية وبدون إعلانات، متاح على هاتفك واللابتوب طوال الفصل.
+                  </p>
+                </div>
+
+                <!-- ميزة 5: جروب ومتابعة واتساب -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-brands fa-whatsapp"></i>
+                  </div>
+                  <h4 class="perk-title">جروب دعم ومناقشة خاص</h4>
+                  <p class="perk-desc">
+                    انضمام فوري لمجموعة الواتساب الخاصة بطلاب المادة للإجابة عن أسئلتك مع المهندس أحمد.
+                  </p>
+                </div>
+
+                <!-- ميزة 6: منهج جامعي معتمد -->
+                <div class="perk-card spotlight-card">
+                  <div class="perk-icon-wrap">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                  </div>
+                  <h4 class="perk-title">موافق لأحدث توصيف جامعي</h4>
+                  <p class="perk-desc">
+                    محتوى محدث وفقاً لمنهج جامعتك واللائحة الدراسية المعتمدة لهذا العام بدون أي نقص.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- خطوات الحجز السريع -->
+            <div class="detail-main-card spotlight-card" style="margin-bottom:0;">
+              <h3
+                style="font-size:18px; font-weight:900; color:#ffffff; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-route" style="color:#22c55e;"></i>
+                كيف يتم تأكيد اشتراكك واستلام الرابط؟
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                  <span
+                    style="width:26px; height:26px; border-radius:50%; background:#ffd154; color:#000; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;">1</span>
+                  <div style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.6;">
+                    اضغط على زر <strong>سجّل في هذه المراجعة</strong> واملأ بياناتك (الاسم، الجامعة، رقم الواتساب).
+                  </div>
+                </div>
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                  <span
+                    style="width:26px; height:26px; border-radius:50%; background:#365aa2; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;">2</span>
+                  <div style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.6;">
+                    قم بتحويل المبلغ عبر <strong>فودافون كاش</strong> أو <strong>إنستاباي</strong> للرقم الموضح في صفحة
+                    الدفع.
+                  </div>
+                </div>
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                  <span
+                    style="width:26px; height:26px; border-radius:50%; background:#22c55e; color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;">3</span>
+                  <div style="font-size:14px; color:rgba(255,255,255,0.8); line-height:1.6;">
+                    أرسل لقطة شاشة للإيصال على الواتساب بضغطة زر، وسيتم تفعيل حسابك وإرسال الرابط فوراً!
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- العمود الأيسر: كارت الحجز والسعر المثبت Sticky Card -->
+          <div>
+            <div class="sidebar-sticky-card spotlight-card">
+
+              <div style="text-align:center; margin-bottom:20px;">
+                <span
+                  style="font-size:13px; font-weight:700; color:rgba(255,255,255,0.6); display:block; margin-bottom:6px;">
+                  قيمة الاشتراك الكامل
+                </span>
+                <div id="rev-price" style="font-size:2.8rem; font-weight:900; color:#ffd154; line-height:1;">
+                  ...
+                </div>
+                <span style="font-size:12px; color:rgba(255,255,255,0.5); display:block; margin-top:6px;">
+                  شامل كافة الفيديوهات والمذكرات والدعم
+                </span>
+              </div>
+
+              <!-- وسائل الدفع المدعومة مع أيقونات -->
+              <div style="display:flex; justify-content:center; gap:8px; margin-bottom:24px;">
+                <div class="method-badge-pill">
+                  <span
+                    style="width:10px; height:10px; border-radius:50%; background:#ef4444; display:inline-block;"></span>
+                  فودافون كاش
+                </div>
+                <div class="method-badge-pill">
+                  <span
+                    style="width:10px; height:10px; border-radius:50%; background:#a855f7; display:inline-block;"></span>
+                  إنستاباي
+                </div>
+              </div>
+
+              <!-- زر الحجز التفاعلي Interactive Button -->
+              <a id="rev-register-btn" href="#" class="btn-interactive"
+                style="width:100%; min-height:52px; font-size:15px; border-radius:14px;">
+                <span class="btn-dot"></span>
+                <span>سجّل في هذه المراجعة الآن</span>
+                <i class="fa-solid fa-arrow-left"></i>
+              </a>
+
+              <!-- ضمانات وأمان -->
+              <div
+                style="margin-top:24px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,0.7);">
+                  <i class="fa-solid fa-bolt" style="color:#ffd154;"></i>
+                  <span>تفعيل مباشر وسريع فور إرسال الإيصال</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,0.7);">
+                  <i class="fa-solid fa-lock" style="color:#22c55e;"></i>
+                  <span>دفع آمن ومعتمد 100%</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(255,255,255,0.7);">
+                  <i class="fa-solid fa-headset" style="color:#72a2ff;"></i>
+                  <span>دعم متواصل للإجابة على كل استفساراتك</span>
+                </div>
+              </div>
+
+              <!-- زر الاستفسار عبر واتساب -->
+              <div style="margin-top:20px; text-align:center;">
+                <a href="https://wa.me/201066843568" target="_blank" rel="noopener"
+                  style="font-size:13px; color:#25d366; text-decoration:none; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                  <i class="fa-brands fa-whatsapp"></i> هل لديك استفسار؟ تحدث مع البشمهندس
+                </a>
+              </div>
+
             </div>
           </div>
+
         </div>
 
       </div>
+    </main>
 
+  </div><!-- نهاية غلاف الستارة -->
+
+  <!-- الفوتر السينمائي المخفي بنظام Curtain Reveal -->
+  <footer class="cin-footer" id="cin-footer">
+    <div class="f-aurora">
+      <div class="f-aurora-b1"></div>
     </div>
-  </main>
+    <div class="f-grid"></div>
 
-  <!-- الفوتر -->
-  <footer class="site-footer" style="background:var(--color-surface); border-top:1px solid var(--color-border-light); padding:var(--space-6) 0; font-size:var(--text-sm); color:var(--color-text-muted);">
-    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
-      <div>
-        <strong>Ahmed Mostafa Tech</strong> — جميع الحقوق محفوظة &copy; 2026
+    <div class="f-diagonal-strip">
+      <div class="f-strip-track" id="f-strip-track"></div>
+    </div>
+
+    <div class="f-giant">AHMED MOSTAFA TECH</div>
+
+    <div class="f-cta-area">
+      <div class="f-cta-badge"><i class="fa-solid fa-sparkles"></i> Ahmed Mostafa Tech</div>
+      <h2 class="f-cta-title">جاهز تبدأ مذاكرة بذكاء؟</h2>
+      <p class="f-cta-sub">انضم لمئات الطلاب اللي اختصروا وقتهم وحققوا أعلى التقديرات مع مراجعاتنا المكثفة.</p>
+
+      <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin-top:20px;">
+        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" class="btn btn--accent btn--lg"
+          style="font-weight:800; min-height:48px; border-radius:12px;">
+          <i class="fa-brands fa-whatsapp"></i> تواصل مع المهندس أحمد
+        </a>
       </div>
-      <div style="display:flex; gap:var(--space-4);">
-        <a href="index.html" style="color:var(--color-primary);">الرئيسية</a>
-        <a href="revisions.html" style="color:var(--color-primary);">المراجعات</a>
-        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:#25d366; font-weight:700;">دعم واتساب</a>
+    </div>
+
+    <div class="f-bottom">
+      <div class="container f-bottom-inner">
+        <span style="font-size:12px; color:rgba(255,255,255,0.35);">
+          © 2026 Ahmed Mostafa Tech — جميع الحقوق محفوظة
+        </span>
+        <div style="display:flex; gap:16px;">
+          <a href="index.html" style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">الرئيسية</a>
+          <a href="revisions.html"
+            style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">المراجعات</a>
+          <a href="https://wa.me/201066843568" target="_blank" rel="noopener"
+            style="font-size:12px; color:rgba(255,255,255,0.45); text-decoration:none;">الدعم الفني</a>
+        </div>
       </div>
     </div>
   </footer>
 
+  <!-- سكربت صفحة تفاصيل المراجعة -->
   <script type="module" src="assets/js/pages/revision-page.js"></script>
 
-</body>
-</html>
+  <script>
+    // مزامنة ارتفاع الفوتر لكشف الستارة
+    function syncCurtainFooter() {
+      var curtain = document.getElementById('main-curtain');
+      var footer = document.getElementById('cin-footer');
+      if (curtain && footer) {
+        var fHeight = footer.offsetHeight;
+        curtain.style.marginBottom = fHeight + 'px';
+      }
+    }
+    window.addEventListener('load', syncCurtainFooter);
+    window.addEventListener('resize', syncCurtainFooter);
+    window.addEventListener('orientationchange', syncCurtainFooter);
 
+    // شريط الفوتر الدوار
+    (function () {
+      var items = [
+        'تسجيل فوري وسريع', 'دفع آمن ومعتمد', 'رابط مباشر بجودة Full HD', 'شرح عملي ليلة الامتحان',
+        'دعم متواصل على مدار اليوم', 'فودافون كاش', 'إنستاباي', 'مراجعات حاسبات وهندسة'
+      ];
+      var track = document.getElementById('f-strip-track');
+      if (!track) return;
+      var doubled = items.concat(items).concat(items);
+      track.innerHTML = doubled.map(function (txt) {
+        return '<span class="f-strip-item"><span class="f-dot"></span>' + txt + '</span>';
+      }).join('');
+    })();
+  </script>
+
+</body>
+
+</html>

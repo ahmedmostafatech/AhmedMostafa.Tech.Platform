@@ -6,13 +6,13 @@
 import { requireAdmin } from '../../core/guard.js';
 import { signOut } from '../../core/auth.js';
 import { getAllRevisions, createRevision, updateRevision } from '../../services/admin-service.js';
-import { formatPrice, formatDate, escapeHtml, setButtonLoading, getErrorMessage } from '../../core/utils.js';
+import { formatPrice, formatDate, escapeHtml, setButtonLoading, getErrorMessage, initSpotlightCards } from '../../core/utils.js';
 
 let allRevisions = [];
 
 async function loadRevisionsTable() {
-  let tbody = document.getElementById('revisions-tbody');
-  let alertEl = document.getElementById('revisions-alert');
+  const tbody = document.getElementById('revisions-tbody');
+  const alertEl = document.getElementById('revisions-alert');
   if (alertEl) alertEl.hidden = true;
 
   try {
@@ -22,7 +22,7 @@ async function loadRevisionsTable() {
       if (allRevisions.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="text-center" style="padding:32px; color:#94a3b8;">
+            <td colspan="6" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">
               لا توجد مراجعات مسجلة حتى الآن. اضغط على "إضافة مراجعة جديدة" بالأعلى لإضافة أول مراجعة.
             </td>
           </tr>
@@ -30,31 +30,31 @@ async function loadRevisionsTable() {
         return;
       }
 
-      tbody.innerHTML = allRevisions.map(function (rev) {
-        let priceText = formatPrice(rev.price_egp || 120);
-        let expiryText = rev.access_until ? formatDate(rev.access_until) : 'مفتوح';
-        let hasLinkBadge = rev.access_link
-          ? `<a href="${escapeHtml(rev.access_link)}" target="_blank" rel="noopener" style="color:#16a34a; font-weight:700; text-decoration:none;">رابط معين 🔗</a>`
-          : '<span style="color:#f59e0b; font-weight:700;">غير معين ⚠️</span>';
+      tbody.innerHTML = allRevisions.map(rev => {
+        const priceText = formatPrice(rev.price_egp || 120);
+        const expiryText = rev.access_until ? formatDate(rev.access_until) : 'مفتوح طوال الترم';
+        const hasLinkBadge = rev.access_link
+          ? `<a href="${escapeHtml(rev.access_link)}" target="_blank" rel="noopener" style="color:#22c55e; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><i class="fa-solid fa-link"></i> رابط معين</a>`
+          : '<span style="color:#f59e0b; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><i class="fa-solid fa-triangle-exclamation"></i> غير معين</span>';
 
-        let publishBadge = rev.is_published
-          ? '<span class="badge badge--success">منشور للطلاب</span>'
-          : '<span class="badge badge--muted">مسودة (مخفي)</span>';
+        const publishBadge = rev.is_published
+          ? '<span class="badge badge--success" style="font-size:11px;"><i class="fa-solid fa-circle-check"></i> منشور للطلاب</span>'
+          : '<span class="badge badge--muted" style="font-size:11px;"><i class="fa-solid fa-eye-slash"></i> مسودة (مخفي)</span>';
 
         return `
-          <tr style="border-bottom:1px solid #f1f5f9;">
-            <td style="padding:12px; font-weight:800; color:var(--color-primary);">${escapeHtml(rev.title)}</td>
-            <td style="padding:12px; font-weight:800; color:var(--color-accent);">${escapeHtml(priceText)}</td>
-            <td style="padding:12px; color:#64748b;">${escapeHtml(expiryText)}</td>
-            <td style="padding:12px;">${hasLinkBadge}</td>
-            <td style="padding:12px;">${publishBadge}</td>
-            <td style="padding:12px; text-align:center;">
-              <div style="display:flex; gap:6px; justify-content:center;">
-                <button type="button" class="btn btn--secondary btn--sm btn-edit-rev" data-id="${escapeHtml(rev.id)}" style="font-size:11px; padding:3px 8px;">
-                  ✏️ تعديل
+          <tr>
+            <td style="font-weight:800; color:#ffffff;">${escapeHtml(rev.title)}</td>
+            <td style="font-weight:800; color:#4ade80;">${escapeHtml(priceText)}</td>
+            <td style="color:rgba(255,255,255,0.6);">${escapeHtml(expiryText)}</td>
+            <td>${hasLinkBadge}</td>
+            <td>${publishBadge}</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:8px; justify-content:center;">
+                <button type="button" class="btn btn--secondary btn--sm btn-edit-rev" data-id="${escapeHtml(rev.id)}" style="font-size:11px; padding:4px 10px; border-radius:8px;">
+                  <i class="fa-solid fa-pen"></i> تعديل
                 </button>
-                <button type="button" class="btn btn--ghost btn--sm btn-toggle-publish" data-id="${escapeHtml(rev.id)}" data-published="${rev.is_published ? 'true' : 'false'}" style="font-size:11px; padding:3px 8px;">
-                  ${rev.is_published ? 'إخفاء' : 'إتاحة'}
+                <button type="button" class="btn btn--ghost btn--sm btn-toggle-publish" data-id="${escapeHtml(rev.id)}" data-published="${rev.is_published ? 'true' : 'false'}" style="font-size:11px; padding:4px 10px; border-radius:8px;">
+                  ${rev.is_published ? '<i class="fa-solid fa-eye-slash"></i> إخفاء' : '<i class="fa-solid fa-eye"></i> إتاحة'}
                 </button>
               </div>
             </td>
@@ -63,18 +63,18 @@ async function loadRevisionsTable() {
       }).join('');
 
       // ربط أزرار التعديل
-      tbody.querySelectorAll('.btn-edit-rev').forEach(function (btn) {
+      tbody.querySelectorAll('.btn-edit-rev').forEach(btn => {
         btn.addEventListener('click', function () {
-          let id = btn.getAttribute('data-id');
+          const id = btn.getAttribute('data-id');
           openEditModal(id);
         });
       });
 
       // ربط أزرار تغيير النشر السريع
-      tbody.querySelectorAll('.btn-toggle-publish').forEach(function (btn) {
+      tbody.querySelectorAll('.btn-toggle-publish').forEach(btn => {
         btn.addEventListener('click', async function () {
-          let id = btn.getAttribute('data-id');
-          let currentPub = btn.getAttribute('data-published') === 'true';
+          const id = btn.getAttribute('data-id');
+          const currentPub = btn.getAttribute('data-published') === 'true';
           try {
             await updateRevision(id, { is_published: !currentPub });
             await loadRevisionsTable();
@@ -84,6 +84,8 @@ async function loadRevisionsTable() {
         });
       });
     }
+
+    initSpotlightCards();
 
   } catch (err) {
     console.error('Failed to load revisions table:', err);
@@ -95,25 +97,28 @@ async function loadRevisionsTable() {
 }
 
 function openCreateModal() {
-  let modal = document.getElementById('revision-modal');
-  let form = document.getElementById('revision-form');
-  let heading = document.getElementById('modal-rev-heading');
+  const modal = document.getElementById('revision-modal');
+  const form = document.getElementById('revision-form');
+  const heading = document.getElementById('modal-rev-heading');
 
   if (form) form.reset();
   document.getElementById('rev-form-id').value = '';
   document.getElementById('rev-form-price').value = '120';
   document.getElementById('rev-form-published').checked = true;
 
-  if (heading) heading.textContent = 'إضافة مراجعة جديدة';
+  if (heading) {
+    heading.innerHTML = '<i class="fa-solid fa-plus" style="color:#72a2ff;"></i> إضافة مراجعة جديدة';
+  }
   if (modal) modal.hidden = false;
+  initSpotlightCards();
 }
 
 function openEditModal(id) {
-  let rev = allRevisions.find(function (r) { return r.id === id; });
+  const rev = allRevisions.find(r => r.id === id);
   if (!rev) return;
 
-  let modal = document.getElementById('revision-modal');
-  let heading = document.getElementById('modal-rev-heading');
+  const modal = document.getElementById('revision-modal');
+  const heading = document.getElementById('modal-rev-heading');
 
   document.getElementById('rev-form-id').value = rev.id;
   document.getElementById('rev-form-title').value = rev.title || '';
@@ -124,21 +129,24 @@ function openEditModal(id) {
   document.getElementById('rev-form-link').value = rev.access_link || '';
   document.getElementById('rev-form-published').checked = !!rev.is_published;
 
-  if (heading) heading.textContent = 'تعديل بيانات المراجعة';
+  if (heading) {
+    heading.innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:#ffd154;"></i> تعديل بيانات المراجعة';
+  }
   if (modal) modal.hidden = false;
+  initSpotlightCards();
 }
 
 function closeRevModal() {
-  let modal = document.getElementById('revision-modal');
+  const modal = document.getElementById('revision-modal');
   if (modal) modal.hidden = true;
 }
 
 async function initAdminRevisionsPage() {
-  let authContext = await requireAdmin('login.html');
+  const authContext = await requireAdmin('login.html');
   if (!authContext) return;
 
   // خروج
-  let signOutBtn = document.getElementById('admin-signout-btn');
+  const signOutBtn = document.getElementById('admin-signout-btn');
   if (signOutBtn) {
     signOutBtn.addEventListener('click', async function () {
       await signOut('login.html');
@@ -146,31 +154,31 @@ async function initAdminRevisionsPage() {
   }
 
   // فتح وإغلاق المودال
-  let openBtn = document.getElementById('btn-open-create-modal');
+  const openBtn = document.getElementById('btn-open-create-modal');
   if (openBtn) openBtn.addEventListener('click', openCreateModal);
 
-  let closeBtn = document.getElementById('modal-rev-close');
+  const closeBtn = document.getElementById('modal-rev-close');
   if (closeBtn) closeBtn.addEventListener('click', closeRevModal);
 
-  let cancelBtn = document.getElementById('btn-cancel-rev-modal');
+  const cancelBtn = document.getElementById('btn-cancel-rev-modal');
   if (cancelBtn) cancelBtn.addEventListener('click', closeRevModal);
 
   // إرسال فورم الحفظ
-  let form = document.getElementById('revision-form');
-  let submitBtn = document.getElementById('btn-submit-rev-form');
+  const form = document.getElementById('revision-form');
+  const submitBtn = document.getElementById('btn-submit-rev-form');
 
   if (form) {
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      let revId = document.getElementById('rev-form-id').value;
-      let title = document.getElementById('rev-form-title').value.trim();
-      let shortDesc = document.getElementById('rev-form-short').value.trim();
-      let desc = document.getElementById('rev-form-desc').value.trim();
-      let price = parseInt(document.getElementById('rev-form-price').value, 10) || 120;
-      let expiry = document.getElementById('rev-form-expiry').value || null;
-      let link = document.getElementById('rev-form-link').value.trim();
-      let isPub = document.getElementById('rev-form-published').checked;
+      const revId = document.getElementById('rev-form-id').value;
+      const title = document.getElementById('rev-form-title').value.trim();
+      const shortDesc = document.getElementById('rev-form-short').value.trim();
+      const desc = document.getElementById('rev-form-desc').value.trim();
+      const price = parseInt(document.getElementById('rev-form-price').value, 10) || 120;
+      const expiry = document.getElementById('rev-form-expiry').value || null;
+      const link = document.getElementById('rev-form-link').value.trim();
+      const isPub = document.getElementById('rev-form-published').checked;
 
       if (!title) {
         alert('من فضلك اكتب عنوان المراجعة.');
@@ -220,4 +228,3 @@ async function initAdminRevisionsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminRevisionsPage);
-

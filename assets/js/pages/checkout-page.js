@@ -88,10 +88,10 @@ function setPaymentMethod(method) {
 
   if (method === 'vodafone_cash') {
     transferNumberEl.textContent = '01066843568';
-    transferInstructionsNote.textContent = '💡 حول كاش عادي للمحفظة من تطبيق أنا فودافون أو كود *9*7*الرقم*المبلغ#';
+    transferInstructionsNote.textContent = ' حول كاش عادي للمحفظة من تطبيق أنا فودافون أو كود *9*7*الرقم*المبلغ#';
   } else {
     transferNumberEl.textContent = '01066843568';
-    transferInstructionsNote.textContent = '💡 حول من تطبيق إنستاباي (InstaPay) على رقم الموبايل أو المعرف الموضح أعلاه.';
+    transferInstructionsNote.textContent = ' حول من تطبيق إنستاباي (InstaPay) على رقم الموبايل أو المعرف الموضح أعلاه.';
   }
 }
 
@@ -175,7 +175,7 @@ function handleSelectedFile(file) {
 
   let textEl = dropZone.querySelector('div[style*="font-weight:700"]');
   if (textEl) {
-    textEl.textContent = `✅ تم اختيار الملف: ${file.name}`;
+    textEl.textContent = ` تم اختيار الملف: ${file.name}`;
   }
 }
 
@@ -246,8 +246,8 @@ async function init() {
     copyNumberBtn.addEventListener('click', async function () {
       let num = transferNumberEl.textContent.trim();
       let ok = await copyToClipboard(num);
-      copyNumberBtn.textContent = ok ? 'تم النسخ ✅' : 'انسخ يدوياً';
-      setTimeout(function () { copyNumberBtn.textContent = '📋 نسخ الرقم'; }, 2500);
+      copyNumberBtn.textContent = ok ? 'تم النسخ ' : 'انسخ يدوياً';
+      setTimeout(function () { copyNumberBtn.textContent = ' نسخ الرقم'; }, 2500);
     });
   }
 
@@ -256,8 +256,8 @@ async function init() {
       if (!currentOrderAmount) return;
       let exact = formatExactAmount(currentOrderAmount);
       let ok = await copyToClipboard(exact);
-      copyAmountBtn.textContent = ok ? 'تم نسخ المبلغ ✅' : 'انسخ يدوياً';
-      setTimeout(function () { copyAmountBtn.textContent = '📋 نسخ المبلغ بالظبط'; }, 2500);
+      copyAmountBtn.textContent = ok ? 'تم نسخ المبلغ ' : 'انسخ يدوياً';
+      setTimeout(function () { copyAmountBtn.textContent = ' نسخ المبلغ بالظبط'; }, 2500);
     });
   }
 

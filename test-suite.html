@@ -145,7 +145,7 @@
 <body>
 
 <div class="header">
-  <h1>🧪 لوحة اختبار المنصة</h1>
+  <h1> لوحة اختبار المنصة</h1>
   <span class="badge">AMT Platform</span>
 </div>
 
@@ -154,7 +154,7 @@
   <!-- قسم 1: الإعدادات الأساسية -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">⚙️</span>
+      <span class="icon">️</span>
       <h2>1. الإعدادات الأساسية (config.js)</h2>
     </div>
     <div class="section-body" id="config-tests"></div>
@@ -164,7 +164,7 @@
   <!-- قسم 2: اتصال Supabase -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">🔌</span>
+      <span class="icon"></span>
       <h2>2. اتصال Supabase</h2>
     </div>
     <div class="section-body" id="supabase-tests"></div>
@@ -174,7 +174,7 @@
   <!-- قسم 3: RLS من زائر -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">🔒</span>
+      <span class="icon"></span>
       <h2>3. سياسات الأمان RLS (زائر بدون تسجيل دخول)</h2>
     </div>
     <div class="section-body" id="rls-tests">
@@ -192,7 +192,7 @@
   <!-- قسم 4: هيكل الملفات -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">📁</span>
+      <span class="icon"></span>
       <h2>4. هيكل ملفات المشروع</h2>
     </div>
     <div class="section-body" id="files-tests"></div>
@@ -202,7 +202,7 @@
   <!-- قسم 5: صفحة login.html -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">🔑</span>
+      <span class="icon"></span>
       <h2>5. صفحة تسجيل الدخول (login.html)</h2>
     </div>
     <div class="section-body" id="login-tests">
@@ -220,7 +220,7 @@
   <!-- قسم 6: روابط سريعة -->
   <div class="section">
     <div class="section-header">
-      <span class="icon">🔗</span>
+      <span class="icon"></span>
       <h2>6. روابط سريعة للصفحات</h2>
     </div>
     <div class="section-body" id="links-section"></div>
@@ -241,9 +241,9 @@ import { formatPrice, escapeHtml, sanitizeNextPath } from './assets/js/core/util
 // ---------- أدوات مساعدة ----------
 
 function mkRow(label, detail, statusClass, statusText) {
-  let dot = statusClass === 'pass' ? '✔' :
-            statusClass === 'fail' ? '✘' :
-            statusClass === 'warn' ? '⚠' :
+  let dot = statusClass === 'pass' ? '' :
+            statusClass === 'fail' ? '' :
+            statusClass === 'warn' ? '' :
             statusClass === 'running' ? '<span class="spinner"></span>' : '–';
   return `
     <div class="test-row">
@@ -266,9 +266,9 @@ function log(areaId, text, cls) {
 
 function setSummary(id, pass, fail, warn) {
   let el = document.getElementById(id);
-  el.innerHTML = `<span class="s-pass">✔ نجح: ${pass}</span>
-    <span class="s-fail">✘ فشل: ${fail}</span>
-    <span class="s-warn">⚠ تحذير: ${warn}</span>`;
+  el.innerHTML = `<span class="s-pass"> نجح: ${pass}</span>
+    <span class="s-fail"> فشل: ${fail}</span>
+    <span class="s-warn"> تحذير: ${warn}</span>`;
 }
 
 // ============================================================
@@ -299,7 +299,7 @@ async function testConfig() {
   let keyIsAnon = SUPABASE_PUBLIC_KEY.startsWith('eyJ');
   add(
     'SUPABASE_PUBLIC_KEY',
-    keyIsPublishable ? 'مفتاح publishable ✓' : keyIsAnon ? 'مفتاح anon JWT ✓' : 'شكل المفتاح غير معروف',
+    keyIsPublishable ? 'مفتاح publishable ' : keyIsAnon ? 'مفتاح anon JWT ' : 'شكل المفتاح غير معروف',
     keyOk && (keyIsPublishable || keyIsAnon)
   );
 
@@ -366,7 +366,7 @@ async function testSupabase() {
         fail++;
       }
     } else {
-      add('ping قاعدة البيانات', 'الاتصال ناجح ✓', true);
+      add('ping قاعدة البيانات', 'الاتصال ناجح ', true);
     }
   } catch (err) {
     add('ping قاعدة البيانات', err.message, false);
@@ -391,7 +391,7 @@ async function testRLS() {
 
   function add(label, detail, ok, isWarn) {
     let cls = isWarn ? 'warn' : (ok ? 'pass' : 'fail');
-    let txt = isWarn ? 'تحذير' : (ok ? 'آمن ✓' : 'خطر ✘');
+    let txt = isWarn ? 'تحذير' : (ok ? 'آمن ' : 'خطر ');
     container.innerHTML += mkRow(label, detail, cls, txt);
     if (isWarn) warn++; else if (ok) pass++; else fail++;
   }
@@ -580,10 +580,10 @@ async function testFiles() {
         container.innerHTML += mkRow(f.desc, f.path, 'pass', 'موجود');
         pass++;
       } else if (res.ok && isEmpty) {
-        container.innerHTML += mkRow(f.desc, f.path + ' — الملف فاضي!', f.required ? 'fail' : 'warn', f.required ? 'فاضي ✘' : 'فاضي ⚠');
+        container.innerHTML += mkRow(f.desc, f.path + ' — الملف فاضي!', f.required ? 'fail' : 'warn', f.required ? 'فاضي ' : 'فاضي ');
         if (f.required) fail++; else warn++;
       } else {
-        container.innerHTML += mkRow(f.desc, f.path + ' — 404', f.required ? 'fail' : 'skip', f.required ? 'غير موجود ✘' : 'غير موجود');
+        container.innerHTML += mkRow(f.desc, f.path + ' — 404', f.required ? 'fail' : 'skip', f.required ? 'غير موجود ' : 'غير موجود');
         if (f.required) fail++; else warn++;
       }
     } catch(err) {
@@ -610,7 +610,7 @@ async function testLoginPage() {
 
   function add(label, detail, ok, isWarn) {
     let cls = isWarn ? 'warn' : (ok ? 'pass' : 'fail');
-    let txt = isWarn ? 'تحذير' : (ok ? 'صحيح ✓' : 'خطأ ✘');
+    let txt = isWarn ? 'تحذير' : (ok ? 'صحيح ' : 'خطأ ');
     container.innerHTML += mkRow(label, detail, cls, txt);
     if (isWarn) warn++; else if (ok) pass++; else fail++;
   }
@@ -625,17 +625,17 @@ async function testLoginPage() {
 
     // هل فيها DOCTYPE؟
     add('DOCTYPE موجود', '', html.includes('<!DOCTYPE html'));
-    log(logId, 'DOCTYPE: ' + (html.includes('<!DOCTYPE html') ? '✓' : '✗'));
+    log(logId, 'DOCTYPE: ' + (html.includes('<!DOCTYPE html') ? '' : ''));
 
     // هل فيها script type=module?
     let hasModule = html.includes('type="module"') || html.includes("type='module'");
     add('script type="module" موجود', '', hasModule);
-    log(logId, 'script[type=module]: ' + (hasModule ? '✓' : '✗'), hasModule ? 'ok' : 'err');
+    log(logId, 'script[type=module]: ' + (hasModule ? '' : ''), hasModule ? 'ok' : 'err');
 
     // هل بتحمل login-page.js؟
     let hasLoginPage = html.includes('login-page.js');
     add('تحميل login-page.js', '', hasLoginPage);
-    log(logId, 'login-page.js: ' + (hasLoginPage ? '✓' : '✗'), hasLoginPage ? 'ok' : 'err');
+    log(logId, 'login-page.js: ' + (hasLoginPage ? '' : ''), hasLoginPage ? 'ok' : 'err');
 
     // هل فيها google-btn؟
     add('زر google-btn موجود', '', html.includes('id="google-btn"'));
@@ -670,15 +670,15 @@ async function testLoginPage() {
 
 function buildLinks() {
   let pages = [
-    { label: 'تسجيل الدخول', path: 'login.html', icon: '🔑' },
-    { label: 'الرئيسية', path: 'index.html', icon: '🏠' },
-    { label: 'صفحة المادة', path: 'course.html', icon: '📚' },
-    { label: 'الدفع', path: 'checkout.html', icon: '💳' },
-    { label: 'لوحة الطالب', path: 'dashboard.html', icon: '📊' },
+    { label: 'تسجيل الدخول', path: 'login.html', icon: '' },
+    { label: 'الرئيسية', path: 'index.html', icon: '' },
+    { label: 'صفحة المادة', path: 'course.html', icon: '' },
+    { label: 'الدفع', path: 'checkout.html', icon: '' },
+    { label: 'لوحة الطالب', path: 'dashboard.html', icon: '' },
     { label: 'المشاهدة', path: 'watch.html', icon: '▶️' },
-    { label: 'أدمن — الرئيسية', path: 'admin/index.html', icon: '⚙️' },
-    { label: 'أدمن — الطلبات', path: 'admin/orders.html', icon: '📋' },
-    { label: 'أدمن — الطلاب', path: 'admin/students.html', icon: '👥' },
+    { label: 'أدمن — الرئيسية', path: 'admin/index.html', icon: '️' },
+    { label: 'أدمن — الطلبات', path: 'admin/orders.html', icon: '' },
+    { label: 'أدمن — الطلاب', path: 'admin/students.html', icon: '' },
   ];
 
   let html = pages.map(function(p) {

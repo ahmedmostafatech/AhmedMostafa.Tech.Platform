@@ -26,11 +26,11 @@ import { ROUTES } from '../core/config.js';
 // ============================================================
 
 let STATUS_MAP = {
-  pending: { label: 'في الانتظار', icon: '⏳', cls: 'badge--warning' },
-  paid: { label: 'تم القبول والتفعيل', icon: '✅', cls: 'badge--success' },
-  approved: { label: 'تم القبول والتفعيل', icon: '✅', cls: 'badge--success' },
-  rejected: { label: 'مرفوض', icon: '❌', cls: 'badge--danger' },
-  expired: { label: 'انتهت صلاحيته', icon: '⌛', cls: 'badge--muted' }
+  pending: { label: 'في الانتظار', icon: '<i class="fa-solid fa-hourglass-half"></i>', cls: 'badge--warning' },
+  paid: { label: 'تم القبول والتفعيل', icon: '<i class="fa-solid fa-circle-check"></i>', cls: 'badge--success' },
+  approved: { label: 'تم القبول والتفعيل', icon: '<i class="fa-solid fa-circle-check"></i>', cls: 'badge--success' },
+  rejected: { label: 'مرفوض', icon: '<i class="fa-solid fa-circle-xmark"></i>', cls: 'badge--danger' },
+  expired: { label: 'انتهت صلاحيته', icon: '<i class="fa-solid fa-clock-rotate-left"></i>', cls: 'badge--muted' }
 };
 
 let currentActiveProfile = null;
@@ -57,7 +57,7 @@ function renderWelcome(profile, session) {
   el.innerHTML = `
     <div class="dash-welcome">
       <div class="dash-welcome__text">
-        <p class="dash-welcome__greeting">${escapeHtml(greeting)} 👋</p>
+        <p class="dash-welcome__greeting">${escapeHtml(greeting)} <i class="fa-solid fa-hand-wave"></i></p>
         <h1 class="dash-welcome__name">${escapeHtml(name || 'طالب')}</h1>
         <p class="dash-welcome__sub">
           تقدر تشوف اشتراكاتك وتتابع طلباتك من هنا.
@@ -81,7 +81,7 @@ function renderSubscriptions(subs) {
   if (!subs || subs.length === 0) {
     el.innerHTML = `
       <div class="dash-empty">
-        <div class="dash-empty__icon">📚</div>
+        <div class="dash-empty__icon"><i class="fa-solid fa-book-open" style="font-size:2.5rem; color:#94a3b8;"></i></div>
         <h3 class="dash-empty__title">مش مشترك لحد دلوقتي</h3>
         <p class="dash-empty__desc">اشترك في مادة وابدأ مذاكرتك!</p>
         <a href="${escapeHtml(sitePath(ROUTES.COURSE))}" class="btn btn--accent">
@@ -103,7 +103,7 @@ function renderSubscriptions(subs) {
     let urgencyMsg = '';
     if (isActive && daysLeft_ <= 7) {
       urgencyClass = 'dash-sub-card--urgent';
-      urgencyMsg = `<div class="dash-sub-card__urgent">⚠️ باقي ${daysLeft_} يوم بس!</div>`;
+      urgencyMsg = `<div class="dash-sub-card__urgent">️ باقي ${daysLeft_} يوم بس!</div>`;
     }
 
     let watchUrl = `${sitePath(ROUTES.WATCH)}?course_id=${encodeURIComponent(course.id || '')}`;
@@ -113,7 +113,7 @@ function renderSubscriptions(subs) {
         <div class="dash-sub-card__header">
           <div class="dash-sub-card__course-info">
             <span class="dash-sub-card__tag ${isActive ? 'badge--success' : 'badge--muted'}">
-              ${isActive ? '🟢 نشط' : '🔴 منتهي'}
+              ${isActive ? ' نشط' : ' منتهي'}
             </span>
             <h3 class="dash-sub-card__title">${escapeHtml(course.title || 'مادة غير معروفة')}</h3>
           </div>
@@ -170,7 +170,7 @@ function renderOrders(orders) {
   if (pendingOrders.length === 0) {
     el.innerHTML = `
       <p style="color:var(--color-text-muted); font-size:var(--text-sm); text-align:center; padding:var(--space-5) 0;">
-        مفيش طلبات معلقة حالياً 🎉
+        مفيش طلبات معلقة حالياً 
       </p>
     `;
     return;
@@ -192,7 +192,7 @@ function renderOrders(orders) {
         actionButtonHtml = `
               <div class="dash-order-row__action">
                 <a href="${escapeHtml(checkoutUrl)}" class="btn btn--secondary btn--sm">
-                  📤 أكمل الدفع
+                   أكمل الدفع
                 </a>
               </div>
             `;
@@ -200,7 +200,7 @@ function renderOrders(orders) {
         actionButtonHtml = `
               <div class="dash-order-row__action">
                 <a href="${escapeHtml(checkoutUrl)}" class="btn btn--ghost btn--sm">
-                  تفاصيل التحويل 👁️
+                  تفاصيل التحويل ️
                 </a>
               </div>
             `;
@@ -250,11 +250,11 @@ function renderAccountCard(profile, session) {
         <div style="margin-top:6px; font-size:var(--text-xs);">
           ${phone ? `
             <span style="display:inline-flex; align-items:center; gap:4px; color:var(--color-text-body); font-weight:600;">
-              <span>📱</span> <span style="direction:ltr;">${escapeHtml(phone)}</span>
+              <span></span> <span style="direction:ltr;">${escapeHtml(phone)}</span>
             </span>
           ` : `
             <button type="button" id="dash-add-phone-btn" class="badge badge--warning" style="cursor:pointer; border:none; padding:4px 8px;">
-              ⚠️ أضف رقم الموبايل لتفعيل الكورس
+              ️ أضف رقم الموبايل لتفعيل الكورس
             </button>
           `}
         </div>
@@ -262,7 +262,7 @@ function renderAccountCard(profile, session) {
       </div>
       <div style="display:flex; flex-direction:column; gap:6px;">
         <button type="button" id="dash-edit-profile-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs); padding:0 var(--space-3);">
-          ✏️ تعديل
+          ️ تعديل
         </button>
         <button type="button" id="dash-signout-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs); color:var(--color-danger); border-color:rgba(220,38,38,0.2);">
           خروج
@@ -392,7 +392,7 @@ function setupProfileModalEvents() {
         currentActiveProfile = updatedProfile;
 
         if (successEl) {
-          successEl.textContent = '✅ تم تحديث بياناتك بنجاح!';
+          successEl.textContent = ' تم تحديث بياناتك بنجاح!';
           successEl.hidden = false;
         }
 

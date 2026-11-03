@@ -180,10 +180,10 @@ function initPasswordToggles() {
 
       if (targetInput.type === 'password') {
         targetInput.type = 'text';
-        btn.textContent = '🔒';
+        btn.innerHTML = '<i class="fa-solid fa-lock-open"></i>';
       } else {
         targetInput.type = 'password';
-        btn.textContent = '👁️';
+        btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
       }
     });
   });
@@ -382,7 +382,7 @@ async function init() {
       let copied = await copyToClipboard(link);
       copyLinkButton.textContent = copied ? 'تم النسخ، الصقه في Chrome' : 'تعذر النسخ، انسخ الرابط يدويًا';
       setTimeout(function () {
-        copyLinkButton.textContent = '📋 انسخ الرابط';
+        copyLinkButton.innerHTML = '<i class="fa-solid fa-copy"></i> انسخ الرابط';
       }, 3000);
     });
   }

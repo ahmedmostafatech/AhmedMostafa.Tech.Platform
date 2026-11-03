@@ -18,7 +18,7 @@ export function createPlayer(container, options = {}) {
   if (!youtubeId) {
     container.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:rgba(255,255,255,0.7); gap:12px; background:#071022;">
-        <span style="font-size:3rem;">🎬</span>
+        <i class="fa-solid fa-film" style="font-size:2.5rem; color:rgba(255,255,255,0.5);"></i>
         <p style="font-size:var(--text-base); margin:0;">الفيديو غير متوفر أو جاري تجهيزه.</p>
       </div>
     `;

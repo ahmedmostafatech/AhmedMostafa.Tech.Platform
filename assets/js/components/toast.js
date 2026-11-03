@@ -22,10 +22,10 @@ function getOrCreateContainer() {
 
 // ألوان وأنماط أنواع الإشعارات
 let TOAST_STYLES = {
-  success: { bg: '#ecfdf3', border: '#abefc6', color: '#067647', icon: '✓' },
-  error: { bg: '#fdf2f1', border: '#f5c6c2', color: '#c0392b', icon: '✕' },
-  info: { bg: 'rgba(54,90,162,0.08)', border: 'rgba(54,90,162,0.25)', color: '#274880', icon: 'ℹ' },
-  warning: { bg: '#fffaeb', border: '#fedf89', color: '#7a4a00', icon: '⚠️' }
+  success: { bg: '#ecfdf3', border: '#abefc6', color: '#067647', icon: '<i class="fa-solid fa-circle-check"></i>' },
+  error: { bg: '#fdf2f1', border: '#f5c6c2', color: '#c0392b', icon: '<i class="fa-solid fa-circle-xmark"></i>' },
+  info: { bg: 'rgba(54,90,162,0.08)', border: 'rgba(54,90,162,0.25)', color: '#274880', icon: '<i class="fa-solid fa-circle-info"></i>' },
+  warning: { bg: '#fffaeb', border: '#fedf89', color: '#7a4a00', icon: '<i class="fa-solid fa-triangle-exclamation"></i>' }
 };
 
 /**

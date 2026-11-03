@@ -5,16 +5,16 @@
 
 import { initNavbar } from '../components/navbar.js';
 import { getRevisionById } from '../services/revisions-service.js';
-import { getQueryParam, formatPrice, formatDate, escapeHtml } from '../core/utils.js';
+import { getQueryParam, formatPrice, formatDate, initSpotlightCards } from '../core/utils.js';
 
 async function initRevisionDetailPage() {
   await initNavbar({ activePage: 'revisions' });
 
-  let revisionId = getQueryParam('id') || getQueryParam('course_id');
+  const revisionId = getQueryParam('id') || getQueryParam('course_id');
 
-  let loadingEl = document.getElementById('revision-loading');
-  let errorEl = document.getElementById('revision-error');
-  let contentEl = document.getElementById('revision-content');
+  const loadingEl = document.getElementById('revision-loading');
+  const errorEl = document.getElementById('revision-error');
+  const contentEl = document.getElementById('revision-content');
 
   if (!revisionId) {
     if (loadingEl) loadingEl.hidden = true;
@@ -26,7 +26,7 @@ async function initRevisionDetailPage() {
   }
 
   try {
-    let rev = await getRevisionById(revisionId);
+    const rev = await getRevisionById(revisionId);
 
     if (loadingEl) loadingEl.hidden = true;
 
@@ -41,15 +41,29 @@ async function initRevisionDetailPage() {
     // تعبئة البيانات
     document.title = `${rev.title} | أحمد مصطفى تك`;
 
-    let titleEl = document.getElementById('rev-title');
-    let descEl = document.getElementById('rev-desc');
-    let priceEl = document.getElementById('rev-price');
-    let expiryEl = document.getElementById('rev-expiry-badge');
-    let regBtn = document.getElementById('rev-register-btn');
+    const titleEl = document.getElementById('rev-title');
+    const descEl = document.getElementById('rev-desc');
+    const priceEl = document.getElementById('rev-price');
+    const expiryEl = document.getElementById('rev-expiry-badge');
+    const regBtn = document.getElementById('rev-register-btn');
 
-    if (titleEl) titleEl.textContent = rev.title;
-    if (descEl) descEl.textContent = rev.description || 'مراجعة شاملة وتفصيلية للمقرر مع مذكرات الشرح وحل نماذج الامتحانات.';
-    if (priceEl) priceEl.textContent = formatPrice(rev.price_egp || 120);
+    if (titleEl) {
+      // الحفاظ على خط الـ SVG المائل المعرج تحت العنوان
+      titleEl.innerHTML = `
+        ${rev.title}
+        <svg viewBox="0 0 100 12" preserveAspectRatio="none">
+          <path d="M0,7 Q25,0 50,7 T100,7" fill="none" stroke="#ffd154" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    if (descEl) {
+      descEl.textContent = rev.description || 'مراجعة شاملة وتفصيلية للمقرر مع مذكرات الشرح وحل نماذج الامتحانات النهائية.';
+    }
+
+    if (priceEl) {
+      priceEl.textContent = formatPrice(rev.price_egp || 120);
+    }
 
     if (expiryEl) {
       expiryEl.textContent = rev.access_until ? `سارية حتى: ${formatDate(rev.access_until)}` : 'سارية طوال الفصل الدراسي';
@@ -59,7 +73,12 @@ async function initRevisionDetailPage() {
       regBtn.href = `register.html?id=${encodeURIComponent(rev.id)}`;
     }
 
-    if (contentEl) contentEl.hidden = false;
+    if (contentEl) {
+      contentEl.hidden = false;
+    }
+
+    // تشغيل تأثير الـ Spotlight Glow Cards التفاعلي على كل كروت الصفحة
+    initSpotlightCards();
 
   } catch (err) {
     console.error('Failed to load revision details:', err);
@@ -72,4 +91,3 @@ async function initRevisionDetailPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initRevisionDetailPage);
-

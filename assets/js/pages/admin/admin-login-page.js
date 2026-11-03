@@ -4,9 +4,11 @@
 // ============================================================
 
 import { getSession, getMyProfile, signInWithEmail, signOut } from '../../core/auth.js';
-import { setButtonLoading, getErrorMessage } from '../../core/utils.js';
+import { setButtonLoading, getErrorMessage, initSpotlightCards } from '../../core/utils.js';
 
 async function initAdminLoginPage() {
+  initSpotlightCards();
+
   let form = document.getElementById('admin-login-form');
   let submitBtn = document.getElementById('admin-submit-btn');
   let errorEl = document.getElementById('login-error');
@@ -72,4 +74,3 @@ async function initAdminLoginPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initAdminLoginPage);
-

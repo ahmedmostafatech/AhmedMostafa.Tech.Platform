@@ -72,16 +72,16 @@ function renderCurriculum(modules) {
         let watchUrl = `${sitePath(ROUTES.WATCH)}?course_id=${encodeURIComponent(currentCourse.id)}&video_id=${encodeURIComponent(v.id)}`;
         actionBadge = `<a href="${watchUrl}" class="badge badge--success" style="text-decoration:none;">▶ شاهد الآن</a>`;
       } else if (isFree) {
-        actionBadge = `<a href="#free-lesson-section" class="badge badge--free" style="text-decoration:none;">🎁 درس مجاني</a>`;
+        actionBadge = `<a href="#free-lesson-section" class="badge badge--free" style="text-decoration:none;"> درس مجاني</a>`;
       } else {
-        actionBadge = `<span class="badge" style="background:var(--color-surface); color:var(--color-text-muted); border:1px solid var(--color-border);">🔒 للمشتركين</span>`;
+        actionBadge = `<span class="badge" style="background:var(--color-surface); color:var(--color-text-muted); border:1px solid var(--color-border);"> للمشتركين</span>`;
       }
 
       return `
               <div class="curriculum-video-item ${isFree ? 'is-free' : ''}">
                 <div style="display:flex; align-items:center; gap:var(--space-3);">
                   <span style="font-size:0.9rem; opacity:0.7;">
-                    ${isFree || userHasAccess ? '▶' : '🔒'}
+                    ${isFree || userHasAccess ? '▶' : ''}
                   </span>
                   <div>
                     <div style="font-weight:600; color:var(--color-primary);">${escapeHtml(v.title)}</div>
@@ -108,7 +108,7 @@ function renderFreeVideo(freeVideo) {
   if (!freeVideo || !freeVideo.video_sources || !freeVideo.video_sources.youtube_id) {
     container.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:rgba(255,255,255,0.7); gap:8px;">
-        <span style="font-size:2rem;">🎬</span>
+        <span style="font-size:2rem;"></span>
         <span>جاري تجهيز الفيديو التجريبي للمادة</span>
       </div>
     `;

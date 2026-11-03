@@ -307,3 +307,27 @@ export function getErrorMessage(error) {
   console.error('Unmapped error:', error);
   return 'حصل خطأ غير متوقع، حاول مرة أخرى.';
 }
+
+
+// تشغيل تأثير تتبع الماوس والإضاءة التفاعلية لكروت Spotlight Glow Cards
+export function initSpotlightCards() {
+  if (typeof document === 'undefined') return;
+  let selector = '.spotlight-card, .glow-card, .prem-revision-card, .method-radio-card, .account-box, .detail-card, .sidebar-card, .stat-card, .flip-card-front, .flip-card-back, .rev-pick-card';
+  let cards = document.querySelectorAll(selector);
+  cards.forEach(function (card) {
+    if (card._hasSpotlight) return;
+    card._hasSpotlight = true;
+    card.addEventListener('mousemove', function (e) {
+      let rect = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
+      card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
+    });
+  });
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function () {
+    initSpotlightCards();
+  });
+}
+
