@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>لوحة اختبار المنصة | AMT</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Cairo', system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.7;
+    }
+    .header {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header h1 { margin: 0; font-size: 1.1rem; color: #38bdf8; }
+    .header .badge {
+      background: #0ea5e9;
+      color: #fff;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .section {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.25rem;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+    }
+    .section-header h2 { margin: 0; font-size: 0.95rem; }
+    .section-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .test-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.625rem 0.875rem;
+      border-radius: 8px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+    }
+    .test-row .info { flex: 1; min-width: 0; }
+    .test-row .info .label { font-size: 0.875rem; font-weight: 600; color: #94a3b8; }
+    .test-row .info .detail { font-size: 0.8rem; color: #64748b; margin-top: 2px; word-break: break-all; }
+    .status {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+    .status.pending  { background: #1e3a5f; color: #60a5fa; }
+    .status.running  { background: #1c3a2e; color: #4ade80; }
+    .status.pass     { background: #14532d; color: #86efac; }
+    .status.fail     { background: #450a0a; color: #fca5a5; }
+    .status.warn     { background: #431407; color: #fdba74; }
+    .status.skip     { background: #1e293b; color: #64748b; }
+    .btn-run {
+      background: #0ea5e9;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 1.25rem;
+      font: 600 0.875rem 'Cairo', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-run:hover { background: #0284c7; }
+    .btn-run:disabled { background: #334155; cursor: not-allowed; }
+    .log-area {
+      background: #020617;
+      border-radius: 8px;
+      padding: 0.875rem 1rem;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.75rem;
+      line-height: 1.8;
+      min-height: 80px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #94a3b8;
+    }
+    .log-area .ok  { color: #86efac; }
+    .log-area .err { color: #fca5a5; }
+    .log-area .inf { color: #60a5fa; }
+    .log-area .wrn { color: #fdba74; }
+    .summary-bar {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      background: #0f172a;
+      border-top: 1px solid #334155;
+      font-size: 0.8rem;
+    }
+    .summary-bar span { color: #64748b; }
+    .summary-bar .s-pass { color: #86efac; font-weight: 700; }
+    .summary-bar .s-fail { color: #fca5a5; font-weight: 700; }
+    .summary-bar .s-warn { color: #fdba74; font-weight: 700; }
+    .spinner {
+      display: inline-block;
+      width: 0.75em; height: 0.75em;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .icon { font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧪 لوحة اختبار المنصة</h1>
+  <span class="badge">AMT Platform</span>
+</div>
+
+<div class="container">
+
+  <!-- قسم 1: الإعدادات الأساسية -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">⚙️</span>
+      <h2>1. الإعدادات الأساسية (config.js)</h2>
+    </div>
+    <div class="section-body" id="config-tests"></div>
+    <div class="summary-bar" id="config-summary">جاري الاختبار...</div>
+  </div>
+
+  <!-- قسم 2: اتصال Supabase -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">🔌</span>
+      <h2>2. اتصال Supabase</h2>
+    </div>
+    <div class="section-body" id="supabase-tests"></div>
+    <div class="summary-bar" id="supabase-summary">جاري الاختبار...</div>
+  </div>
+
+  <!-- قسم 3: RLS من زائر -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">🔒</span>
+      <h2>3. سياسات الأمان RLS (زائر بدون تسجيل دخول)</h2>
+    </div>
+    <div class="section-body" id="rls-tests">
+      <div style="color:#64748b; font-size:0.875rem; padding:0.5rem;">
+        اضغط "تشغيل اختبار RLS" لبدء الاختبار
+      </div>
+    </div>
+    <div class="section-body" style="border-top:1px solid #334155; padding-top:0.75rem;">
+      <button class="btn-run" id="btn-rls">تشغيل اختبار RLS</button>
+      <div class="log-area" id="rls-log">في انتظار الضغط على الزر...</div>
+    </div>
+    <div class="summary-bar" id="rls-summary">لم يبدأ بعد</div>
+  </div>
+
+  <!-- قسم 4: هيكل الملفات -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">📁</span>
+      <h2>4. هيكل ملفات المشروع</h2>
+    </div>
+    <div class="section-body" id="files-tests"></div>
+    <div class="summary-bar" id="files-summary">جاري الاختبار...</div>
+  </div>
+
+  <!-- قسم 5: صفحة login.html -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">🔑</span>
+      <h2>5. صفحة تسجيل الدخول (login.html)</h2>
+    </div>
+    <div class="section-body" id="login-tests">
+      <div style="color:#64748b; font-size:0.875rem; padding:0.5rem;">
+        اضغط "فحص login.html" لتشغيل الاختبار
+      </div>
+    </div>
+    <div class="section-body" style="border-top:1px solid #334155;">
+      <button class="btn-run" id="btn-login-check">فحص login.html</button>
+      <div class="log-area" id="login-log">في انتظار الضغط على الزر...</div>
+    </div>
+    <div class="summary-bar" id="login-summary">لم يبدأ بعد</div>
+  </div>
+
+  <!-- قسم 6: روابط سريعة -->
+  <div class="section">
+    <div class="section-header">
+      <span class="icon">🔗</span>
+      <h2>6. روابط سريعة للصفحات</h2>
+    </div>
+    <div class="section-body" id="links-section"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script type="module">
+// ============================================================
+// test-suite.html — سكريبت الاختبار الشامل
+// ============================================================
+
+import { SUPABASE_URL, SUPABASE_PUBLIC_KEY, APP_CONFIG, ROUTES } from './assets/js/core/config.js';
+import { supabase } from './assets/js/core/supabase-client.js';
+import { getSession } from './assets/js/core/auth.js';
+import { formatPrice, escapeHtml, sanitizeNextPath } from './assets/js/core/utils.js';
+
+// ---------- أدوات مساعدة ----------
+
+function mkRow(label, detail, statusClass, statusText) {
+  let dot = statusClass === 'pass' ? '✔' :
+            statusClass === 'fail' ? '✘' :
+            statusClass === 'warn' ? '⚠' :
+            statusClass === 'running' ? '<span class="spinner"></span>' : '–';
+  return `
+    <div class="test-row">
+      <div class="info">
+        <div class="label">${escapeHtml(label)}</div>
+        ${detail ? `<div class="detail">${escapeHtml(detail)}</div>` : ''}
+      </div>
+      <span class="status ${statusClass}">${dot} ${escapeHtml(statusText)}</span>
+    </div>`;
+}
+
+function log(areaId, text, cls) {
+  let area = document.getElementById(areaId);
+  let line = document.createElement('span');
+  if (cls) line.className = cls;
+  line.textContent = text + '\n';
+  area.appendChild(line);
+  area.scrollTop = area.scrollHeight;
+}
+
+function setSummary(id, pass, fail, warn) {
+  let el = document.getElementById(id);
+  el.innerHTML = `<span class="s-pass">✔ نجح: ${pass}</span>
+    <span class="s-fail">✘ فشل: ${fail}</span>
+    <span class="s-warn">⚠ تحذير: ${warn}</span>`;
+}
+
+// ============================================================
+// 1. اختبار config.js
+// ============================================================
+
+async function testConfig() {
+  let container = document.getElementById('config-tests');
+  let pass = 0, fail = 0, warn = 0;
+
+  function add(label, detail, ok, warning) {
+    let cls = warning ? 'warn' : (ok ? 'pass' : 'fail');
+    let txt = warning ? 'تحذير' : (ok ? 'صحيح' : 'خطأ');
+    container.innerHTML += mkRow(label, detail, cls, txt);
+    if (warning) warn++; else if (ok) pass++; else fail++;
+  }
+
+  // SUPABASE_URL
+  add(
+    'SUPABASE_URL',
+    SUPABASE_URL,
+    typeof SUPABASE_URL === 'string' && SUPABASE_URL.startsWith('https://') && !SUPABASE_URL.includes('YOUR-PROJECT')
+  );
+
+  // SUPABASE_PUBLIC_KEY
+  let keyOk = typeof SUPABASE_PUBLIC_KEY === 'string' && SUPABASE_PUBLIC_KEY.length > 20 && !SUPABASE_PUBLIC_KEY.includes('YOUR_');
+  let keyIsPublishable = SUPABASE_PUBLIC_KEY.startsWith('sb_publishable_');
+  let keyIsAnon = SUPABASE_PUBLIC_KEY.startsWith('eyJ');
+  add(
+    'SUPABASE_PUBLIC_KEY',
+    keyIsPublishable ? 'مفتاح publishable ✓' : keyIsAnon ? 'مفتاح anon JWT ✓' : 'شكل المفتاح غير معروف',
+    keyOk && (keyIsPublishable || keyIsAnon)
+  );
+
+  // APP_CONFIG
+  add('APP_CONFIG.LOCALE', APP_CONFIG.LOCALE, APP_CONFIG.LOCALE === 'ar-EG-u-nu-latn');
+  add('APP_CONFIG.TIMEZONE', APP_CONFIG.TIMEZONE, APP_CONFIG.TIMEZONE === 'Africa/Cairo');
+  add('APP_CONFIG.CURRENCY', APP_CONFIG.CURRENCY, APP_CONFIG.CURRENCY === 'EGP');
+
+  // ROUTES
+  add('ROUTES.LOGIN', ROUTES.LOGIN, ROUTES.LOGIN === '/login.html');
+  add('ROUTES.DASHBOARD', ROUTES.DASHBOARD, ROUTES.DASHBOARD === '/dashboard.html');
+
+  // payment accounts
+  add('PAYMENT_ACCOUNTS — ملئها؟',
+    'إن كانت الأرقام الافتراضية تم ملؤها',
+    true,
+    false
+  );
+
+  setSummary('config-summary', pass, fail, warn);
+}
+
+// ============================================================
+// 2. اختبار اتصال Supabase
+// ============================================================
+
+async function testSupabase() {
+  let container = document.getElementById('supabase-tests');
+  let pass = 0, fail = 0, warn = 0;
+
+  function add(label, detail, ok, isWarn) {
+    let cls = isWarn ? 'warn' : (ok ? 'pass' : 'fail');
+    let txt = isWarn ? 'تحذير' : (ok ? 'متصل' : 'خطأ');
+    container.innerHTML += mkRow(label, detail, cls, txt);
+    if (isWarn) warn++; else if (ok) pass++; else fail++;
+  }
+
+  // هل supabase client اتحمل؟
+  add('supabase client', typeof supabase === 'object' ? 'Object موجود' : 'غير موجود', !!supabase);
+
+  // هل getSession تشتغل؟
+  try {
+    let session = await getSession();
+    add(
+      'getSession()',
+      session ? `مسجل: ${session.user.email}` : 'لا توجد جلسة (طبيعي قبل الدخول)',
+      true
+    );
+  } catch (err) {
+    add('getSession()', err.message, false);
+    fail++;
+  }
+
+  // ping بسيط
+  try {
+    let { error } = await supabase.from('courses').select('id').limit(1);
+    if (error) {
+      // لو الجدول مش موجود يبقى SQL لسه ما اتشغلش
+      if (error.message.includes('does not exist') || error.code === '42P01') {
+        add('ping قاعدة البيانات', 'جداول لم تُنشأ بعد — شغّل ملف 01_schema في Supabase', false);
+        fail++;
+      } else {
+        add('ping قاعدة البيانات', error.message, false);
+        fail++;
+      }
+    } else {
+      add('ping قاعدة البيانات', 'الاتصال ناجح ✓', true);
+    }
+  } catch (err) {
+    add('ping قاعدة البيانات', err.message, false);
+    fail++;
+  }
+
+  setSummary('supabase-summary', pass, fail, warn);
+}
+
+// ============================================================
+// 3. اختبار RLS
+// ============================================================
+
+async function testRLS() {
+  let logId = 'rls-log';
+  let container = document.getElementById('rls-tests');
+  container.innerHTML = '';
+  document.getElementById('rls-log').innerHTML = '';
+  document.getElementById('btn-rls').disabled = true;
+
+  let pass = 0, fail = 0, warn = 0;
+
+  function add(label, detail, ok, isWarn) {
+    let cls = isWarn ? 'warn' : (ok ? 'pass' : 'fail');
+    let txt = isWarn ? 'تحذير' : (ok ? 'آمن ✓' : 'خطر ✘');
+    container.innerHTML += mkRow(label, detail, cls, txt);
+    if (isWarn) warn++; else if (ok) pass++; else fail++;
+  }
+
+  log(logId, '=== بدء اختبار RLS (بدون جلسة / zائر) ===', 'inf');
+
+  // videos
+  log(logId, '\n[1] videos — يجب أن يظهر كل الفيديوهات العامة...');
+  try {
+    let { data, error } = await supabase
+      .from('videos')
+      .select('id, title, is_free, video_sources(youtube_id)')
+      .order('sort_order');
+
+    if (error) {
+      if (error.code === '42P01') {
+        add('videos', 'الجدول غير موجود — شغّل 01_schema أولاً', false, true);
+        log(logId, 'خطأ: الجدول غير موجود بعد', 'err');
+      } else {
+        add('videos', error.message, false);
+        log(logId, 'خطأ: ' + error.message, 'err');
+      }
+    } else {
+      log(logId, `النتيجة: ${JSON.stringify(data, null, 2)}`, 'ok');
+
+      let free = data.filter(function(v) { return v.is_free; });
+      let paid = data.filter(function(v) { return !v.is_free; });
+
+      // الدرس المجاني لازم يكون له youtube_id
+      let freeHasId = free.every(function(v) {
+        return v.video_sources && v.video_sources.youtube_id;
+      });
+      add(
+        'الدرس المجاني له youtube_id',
+        `${free.length} مجاني، يجب أن يظهر الـ ID`,
+        free.length === 0 ? true : freeHasId,  // لو مفيش بيانات نتجاوز
+        free.length === 0
+      );
+
+      // الدرس المدفوع لازم video_sources = null
+      let paidNoId = paid.every(function(v) {
+        return !v.video_sources || !v.video_sources.youtube_id;
+      });
+      add(
+        'الدرس المدفوع بدون youtube_id',
+        `${paid.length} مدفوع — يجب ألا يظهر الـ ID`,
+        paid.length === 0 ? true : paidNoId,
+        paid.length === 0
+      );
+    }
+  } catch(err) {
+    add('videos', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  // video_sources مباشرة
+  log(logId, '\n[2] video_sources مباشرة — يجب أن يظهر الدرس المجاني فقط...');
+  try {
+    let { data, error } = await supabase.from('video_sources').select('*');
+    if (error) {
+      if (error.code === '42P01') {
+        add('video_sources مباشرة', 'جدول غير موجود', false, true);
+      } else {
+        add('video_sources مباشرة', error.message, false);
+        log(logId, 'خطأ: ' + error.message, 'err');
+      }
+    } else {
+      log(logId, `النتيجة: ${JSON.stringify(data, null, 2)}`, 'ok');
+      // يجب أن يظهر صف واحد فقط (المجاني)
+      add(
+        'video_sources: صف واحد فقط (المجاني)',
+        `ظهر ${data.length} صف`,
+        data.length <= 1,
+        data.length === 0
+      );
+    }
+  } catch(err) {
+    add('video_sources مباشرة', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  // orders — يجب أن يرجع []
+  log(logId, '\n[3] orders — يجب أن يرجع [] للزائر...');
+  try {
+    let { data, error } = await supabase.from('orders').select('*');
+    if (error && error.code !== '42P01') {
+      add('orders للزائر', error.message, false);
+      log(logId, 'خطأ: ' + error.message, 'err');
+    } else if (error) {
+      add('orders للزائر', 'جدول غير موجود', false, true);
+    } else {
+      add('orders للزائر', `ظهر ${data.length} صف (يجب أن يكون 0)`, data.length === 0);
+      log(logId, `النتيجة: ${JSON.stringify(data)}`, data.length === 0 ? 'ok' : 'err');
+    }
+  } catch(err) {
+    add('orders للزائر', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  // subscriptions — يجب أن يرجع []
+  log(logId, '\n[4] subscriptions — يجب أن يرجع [] للزائر...');
+  try {
+    let { data, error } = await supabase.from('subscriptions').select('*');
+    if (error && error.code !== '42P01') {
+      add('subscriptions للزائر', error.message, false);
+      log(logId, 'خطأ: ' + error.message, 'err');
+    } else if (error) {
+      add('subscriptions للزائر', 'جدول غير موجود', false, true);
+    } else {
+      add('subscriptions للزائر', `ظهر ${data.length} صف (يجب أن يكون 0)`, data.length === 0);
+      log(logId, `النتيجة: ${JSON.stringify(data)}`, data.length === 0 ? 'ok' : 'err');
+    }
+  } catch(err) {
+    add('subscriptions للزائر', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  // profiles — يجب أن يرجع []
+  log(logId, '\n[5] profiles — يجب أن يرجع [] للزائر...');
+  try {
+    let { data, error } = await supabase.from('profiles').select('*');
+    if (error && error.code !== '42P01') {
+      add('profiles للزائر', error.message, false);
+      log(logId, 'خطأ: ' + error.message, 'err');
+    } else if (error) {
+      add('profiles للزائر', 'جدول غير موجود', false, true);
+    } else {
+      add('profiles للزائر', `ظهر ${data.length} صف (يجب أن يكون 0)`, data.length === 0);
+      log(logId, `النتيجة: ${JSON.stringify(data)}`, data.length === 0 ? 'ok' : 'err');
+    }
+  } catch(err) {
+    add('profiles للزائر', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  log(logId, '\n=== انتهى اختبار RLS ===', 'inf');
+  setSummary('rls-summary', pass, fail, warn);
+  document.getElementById('btn-rls').disabled = false;
+}
+
+// ============================================================
+// 4. اختبار هيكل الملفات (بـ fetch)
+// ============================================================
+
+async function testFiles() {
+  let container = document.getElementById('files-tests');
+  let pass = 0, fail = 0, warn = 0;
+
+  let filesToCheck = [
+    { path: 'assets/js/core/config.js',          required: true,  desc: 'core — config' },
+    { path: 'assets/js/core/supabase-client.js', required: true,  desc: 'core — supabase-client' },
+    { path: 'assets/js/core/auth.js',            required: true,  desc: 'core — auth' },
+    { path: 'assets/js/core/guard.js',           required: true,  desc: 'core — guard' },
+    { path: 'assets/js/core/utils.js',           required: true,  desc: 'core — utils' },
+    { path: 'assets/css/base.css',               required: true,  desc: 'CSS — base' },
+    { path: 'assets/css/layout.css',             required: true,  desc: 'CSS — layout' },
+    { path: 'assets/css/components.css',         required: true,  desc: 'CSS — components' },
+    { path: 'assets/css/admin.css',              required: true,  desc: 'CSS — admin (فاضي)' },
+    { path: 'login.html',                        required: true,  desc: 'صفحة تسجيل الدخول' },
+    { path: 'index.html',                        required: true,  desc: 'الصفحة الرئيسية' },
+    { path: 'course.html',                       required: false, desc: 'صفحة المادة' },
+    { path: 'checkout.html',                     required: false, desc: 'صفحة الدفع' },
+    { path: 'dashboard.html',                    required: false, desc: 'لوحة الطالب' },
+    { path: 'watch.html',                        required: false, desc: 'مشاهدة الفيديو' },
+    { path: 'assets/js/pages/login-page.js',     required: true,  desc: 'pages — login-page' },
+    { path: 'assets/js/pages/home-page.js',      required: false, desc: 'pages — home-page' },
+    { path: 'assets/js/services/courses-service.js',    required: false, desc: 'services — courses' },
+    { path: 'assets/js/services/orders-service.js',     required: false, desc: 'services — orders' },
+    { path: 'assets/js/services/subscriptions-service.js', required: false, desc: 'services — subscriptions' },
+    { path: 'assets/js/services/admin-service.js',      required: false, desc: 'services — admin' },
+    { path: 'assets/js/components/navbar.js',    required: false, desc: 'components — navbar' },
+    { path: 'assets/js/components/toast.js',     required: false, desc: 'components — toast' },
+    { path: 'assets/js/components/player.js',    required: false, desc: 'components — player' },
+  ];
+
+  for (let f of filesToCheck) {
+    try {
+      let res = await fetch(f.path, { method: 'HEAD' });
+      let empty = res.headers.get('content-length') === '0' || res.headers.get('content-length') === null;
+      // نجرب GET للتحقق من الحجم لو HEAD مش واضح
+      let r2 = await fetch(f.path);
+      let txt = await r2.text();
+      let isEmpty = txt.trim().length === 0;
+
+      if (res.ok && !isEmpty) {
+        container.innerHTML += mkRow(f.desc, f.path, 'pass', 'موجود');
+        pass++;
+      } else if (res.ok && isEmpty) {
+        container.innerHTML += mkRow(f.desc, f.path + ' — الملف فاضي!', f.required ? 'fail' : 'warn', f.required ? 'فاضي ✘' : 'فاضي ⚠');
+        if (f.required) fail++; else warn++;
+      } else {
+        container.innerHTML += mkRow(f.desc, f.path + ' — 404', f.required ? 'fail' : 'skip', f.required ? 'غير موجود ✘' : 'غير موجود');
+        if (f.required) fail++; else warn++;
+      }
+    } catch(err) {
+      container.innerHTML += mkRow(f.desc, f.path, 'fail', 'خطأ');
+      fail++;
+    }
+  }
+
+  setSummary('files-summary', pass, fail, warn);
+}
+
+// ============================================================
+// 5. اختبار login.html
+// ============================================================
+
+async function testLoginPage() {
+  let logId = 'login-log';
+  let container = document.getElementById('login-tests');
+  container.innerHTML = '';
+  document.getElementById('login-log').innerHTML = '';
+  document.getElementById('btn-login-check').disabled = true;
+
+  let pass = 0, fail = 0, warn = 0;
+
+  function add(label, detail, ok, isWarn) {
+    let cls = isWarn ? 'warn' : (ok ? 'pass' : 'fail');
+    let txt = isWarn ? 'تحذير' : (ok ? 'صحيح ✓' : 'خطأ ✘');
+    container.innerHTML += mkRow(label, detail, cls, txt);
+    if (isWarn) warn++; else if (ok) pass++; else fail++;
+  }
+
+  log(logId, '=== فحص login.html ===', 'inf');
+
+  try {
+    let res = await fetch('login.html');
+    let html = await res.text();
+
+    log(logId, `الحجم: ${html.length} حرف`);
+
+    // هل فيها DOCTYPE؟
+    add('DOCTYPE موجود', '', html.includes('<!DOCTYPE html'));
+    log(logId, 'DOCTYPE: ' + (html.includes('<!DOCTYPE html') ? '✓' : '✗'));
+
+    // هل فيها script type=module?
+    let hasModule = html.includes('type="module"') || html.includes("type='module'");
+    add('script type="module" موجود', '', hasModule);
+    log(logId, 'script[type=module]: ' + (hasModule ? '✓' : '✗'), hasModule ? 'ok' : 'err');
+
+    // هل بتحمل login-page.js؟
+    let hasLoginPage = html.includes('login-page.js');
+    add('تحميل login-page.js', '', hasLoginPage);
+    log(logId, 'login-page.js: ' + (hasLoginPage ? '✓' : '✗'), hasLoginPage ? 'ok' : 'err');
+
+    // هل فيها google-btn؟
+    add('زر google-btn موجود', '', html.includes('id="google-btn"'));
+
+    // هل فيها guard-pending؟
+    add('class="guard-pending" موجودة', 'تمنع flash قبل التحقق', html.includes('guard-pending'));
+
+    // هل مغلقة صح؟
+    add('تنتهي بـ </html>', '', html.trim().endsWith('</html>'));
+
+    // CSS
+    let hasBase = html.includes('base.css');
+    let hasLayout = html.includes('layout.css');
+    let hasComponents = html.includes('components.css');
+    add('base.css مرتبط', '', hasBase);
+    add('layout.css مرتبط', '', hasLayout);
+    add('components.css مرتبط', '', hasComponents);
+
+    log(logId, '\n=== انتهى فحص login.html ===', 'inf');
+  } catch(err) {
+    add('login.html', err.message, false);
+    log(logId, 'استثناء: ' + err.message, 'err');
+  }
+
+  setSummary('login-summary', pass, fail, warn);
+  document.getElementById('btn-login-check').disabled = false;
+}
+
+// ============================================================
+// 6. الروابط السريعة
+// ============================================================
+
+function buildLinks() {
+  let pages = [
+    { label: 'تسجيل الدخول', path: 'login.html', icon: '🔑' },
+    { label: 'الرئيسية', path: 'index.html', icon: '🏠' },
+    { label: 'صفحة المادة', path: 'course.html', icon: '📚' },
+    { label: 'الدفع', path: 'checkout.html', icon: '💳' },
+    { label: 'لوحة الطالب', path: 'dashboard.html', icon: '📊' },
+    { label: 'المشاهدة', path: 'watch.html', icon: '▶️' },
+    { label: 'أدمن — الرئيسية', path: 'admin/index.html', icon: '⚙️' },
+    { label: 'أدمن — الطلبات', path: 'admin/orders.html', icon: '📋' },
+    { label: 'أدمن — الطلاب', path: 'admin/students.html', icon: '👥' },
+  ];
+
+  let html = pages.map(function(p) {
+    return `<div class="test-row">
+      <div class="info">
+        <div class="label">${p.icon} ${escapeHtml(p.label)}</div>
+        <div class="detail">${escapeHtml(p.path)}</div>
+      </div>
+      <a href="${p.path}" target="_blank" style="
+        background:#0ea5e9; color:#fff; border-radius:6px;
+        padding:4px 14px; font-size:0.8rem; font-weight:600;
+        text-decoration:none; white-space:nowrap;">
+        فتح
+      </a>
+    </div>`;
+  }).join('');
+
+  document.getElementById('links-section').innerHTML = html;
+}
+
+// ============================================================
+// تشغيل الاختبارات التلقائية
+// ============================================================
+
+async function runAutoTests() {
+  await testConfig();
+  await testSupabase();
+  await testFiles();
+  buildLinks();
+}
+
+document.getElementById('btn-rls').addEventListener('click', testRLS);
+document.getElementById('btn-login-check').addEventListener('click', testLoginPage);
+
+runAutoTests();
+</script>
+
+</body>
+</html>

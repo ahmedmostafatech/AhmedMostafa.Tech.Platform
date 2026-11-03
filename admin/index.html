@@ -1,6 +1,29 @@
-<script type="module">
-  import { supabase } from './assets/js/core/supabase-client.js';
-  import { getSession } from './assets/js/core/auth.js';
-  console.log('Client ready:', !!supabase);
-  console.log('Session:', await getSession());
-</script>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="guard-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>الأدمن | Ahmed Mostafa Tech</title>
+  <link rel="icon" href="data:,">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- المسار نسبي للخروج من مجلد admin/ -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <noscript>
+    <style>html.guard-pending body { visibility: visible; }</style>
+  </noscript>
+</head>
+<body>
+  <p>جاري التحقق من الصلاحيات...</p>
+
+  <!-- المسار نسبي للخروج من مجلد admin/ -->
+  <script type="module" src="../assets/js/pages/admin/admin-home-page.js"></script>
+</body>
+</html>
