@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="guard-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>إدارة الاشتراكات | أحمد مصطفى تك</title>
+  <link rel="icon" href="data:,">
+
+  <!-- خطوط جوجل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <noscript>
+    <style>html.guard-pending body { visibility: visible; }</style>
+  </noscript>
+</head>
+
+<body>
+
+  <div class="admin-app">
+
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+          A
+        </div>
+        <div>
+          <div class="admin-brand-title">أحمد مصطفى تك</div>
+          <div class="admin-brand-sub">لوحة الإدارة والأدمن 👑</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link">
+          <span>📊 نظرة عامة والداشبورد</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span>📋 إدارة جميع الطلبات</span>
+        </a>
+        <a href="subscriptions.html" class="admin-nav-link active">
+          <span>⚡ إدارة الاشتراكات</span>
+        </a>
+        <a href="content.html" class="admin-nav-link">
+          <span>📚 إدارة المواد والمحتوى</span>
+        </a>
+        <a href="students.html" class="admin-nav-link">
+          <span>👥 قائمة الطلاب المسجلين</span>
+        </a>
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:var(--space-3) 0;"></div>
+        <a href="../index.html" class="admin-nav-link">
+          <span>🏠 العودة للموقع الرئيسي</span>
+        </a>
+        <a href="../dashboard.html" class="admin-nav-link">
+          <span>🎓 لوحة تحكم الطالب</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="admin-main">
+
+      <header class="admin-topbar">
+        <div>
+          <h1 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin:0;">
+            إدارة الاشتراكات السارية والمنتهية ⚡
+          </h1>
+          <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+            تتبع صلاحيات اشتراك الطلاب، تمديد الفترات، وتفعيل الاشتراكات يدوياً.
+          </p>
+        </div>
+
+        <div style="display:flex; gap:var(--space-3);">
+          <button type="button" id="btn-open-manual-sub" class="btn btn--accent btn--sm">
+            ➕ تفعيل اشتراك يدوي
+          </button>
+          <button type="button" id="refresh-subs-btn" class="btn btn--secondary btn--sm">
+            🔄 تحديث
+          </button>
+        </div>
+      </header>
+
+      <main class="admin-content">
+
+        <div id="subs-alert" class="alert alert--info" role="alert" hidden style="margin-bottom:var(--space-4);"></div>
+
+        <section class="admin-card">
+          <!-- شريط الفلترة والبحث -->
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-5);">
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button type="button" class="btn btn--secondary btn--sm sub-filter-btn active" data-filter="all">الكل</button>
+              <button type="button" class="btn btn--secondary btn--sm sub-filter-btn" data-filter="active">✅ سارية فقط</button>
+              <button type="button" class="btn btn--secondary btn--sm sub-filter-btn" data-filter="expired">⌛ منتهية الصلاحية</button>
+            </div>
+
+            <div style="width:100%; max-width:320px;">
+              <input
+                type="text"
+                id="search-subs-input"
+                class="form-input"
+                placeholder="🔍 ابحث بالاسم، الإيميل، أو المادة..."
+                style="min-height:38px; font-size:var(--text-xs);"
+              >
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>الطالب</th>
+                  <th>الموبايل</th>
+                  <th>المادة</th>
+                  <th>تاريخ البداية</th>
+                  <th>ينتهي في</th>
+                  <th>الحالة</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody id="all-subs-tbody">
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:var(--space-6); color:#64748b;">
+                    جاري تحميل الاشتراكات...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- نافذة تفعيل اشتراك يدوي (Modal) -->
+  <div id="manual-sub-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="manual-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="manual-modal-title" class="modal-title">تفعيل اشتراك يدوي لطالب ⚡</h3>
+        <button type="button" id="manual-modal-close" class="modal-close-btn" aria-label="إغلاق">✕</button>
+      </div>
+
+      <form id="manual-sub-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="manual-student-select">اختر الطالب</label>
+          <select id="manual-student-select" class="form-input" style="direction:rtl;" required>
+            <option value="">جاري تحميل الطلاب...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="manual-course-select">اختر المادة</label>
+          <select id="manual-course-select" class="form-input" style="direction:rtl;" required>
+            <option value="">جاري تحميل المواد...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="manual-ends-at">تاريخ انتهاء الاشتراك</label>
+          <input type="date" id="manual-ends-at" class="form-input" required>
+        </div>
+
+        <button type="submit" id="manual-submit-btn" class="btn btn--primary btn--block btn--lg" style="margin-top:var(--space-4);">
+          تفعيل الاشتراك للطالب الآن ✅
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="../assets/js/pages/admin/admin-subs-page.js"></script>
+
+</body>
+</html>

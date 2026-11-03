@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>أحمد مصطفى تك | مراجعات EELU</title>
+  <meta name="description" content="مراجعات فيديو احترافية لطلاب EELU — اشترك وذاكر بالراحة.">
+  <link rel="icon" href="data:,">
+
+  <!-- خطوط -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+
+  <style>
+    /* ============================================================
+       تخصيصات الهوم
+    ============================================================ */
+
+    /* تأثير دخول العناصر */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-fade-up {
+      animation: fade-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .anim-delay-1 { animation-delay: 0.1s; }
+    .anim-delay-2 { animation-delay: 0.22s; }
+    .anim-delay-3 { animation-delay: 0.34s; }
+    .anim-delay-4 { animation-delay: 0.46s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim-fade-up { animation: none; }
+    }
+
+    /* -------- Hero -------- */
+    .hero {
+      min-height: 100vh;
+      padding-top: 68px; /* ارتفاع الـ navbar */
+    }
+
+    /* ديكور شكل الـ A في خلفية الـ Hero */
+    .hero__deco {
+      position: absolute;
+      left: -5%;
+      bottom: -10%;
+      width: min(55%, 600px);
+      aspect-ratio: 1;
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* -------- خطوط ديكورية -------- */
+    .deco-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(54,90,162,0.4), transparent);
+      width: 100%;
+      pointer-events: none;
+    }
+
+    /* -------- سكشن الميزات -------- */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .feature-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      transition: all var(--transition);
+    }
+
+    .feature-card:hover {
+      border-color: rgba(54, 90, 162, 0.3);
+      box-shadow: var(--shadow-accent-sm);
+      transform: translateY(-3px);
+    }
+
+    .feature-card__emoji {
+      font-size: 2rem;
+      margin-bottom: var(--space-3);
+      display: block;
+    }
+
+    .feature-card__title {
+      font-size: var(--text-base);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .feature-card__desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.65;
+    }
+
+    /* -------- سكشن الدرس المجاني -------- */
+    .preview-section {
+      background: var(--color-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preview-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 60% at 90% 50%, rgba(54,90,162,0.3) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 10% 50%, rgba(54,90,162,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .preview-section .section__eyebrow,
+    .preview-section .section__title,
+    .preview-section .section__desc {
+      color: rgba(255,255,255,0.6);
+    }
+
+    .preview-section .section__title {
+      color: var(--color-white);
+    }
+
+    /* -------- كارد السعر / CTA -------- */
+    .cta-section {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #0d2050 50%, var(--color-accent-dark) 100%);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23365aa2' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .cta-section .section__title {
+      color: var(--color-white);
+    }
+
+    .cta-section .section__desc {
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* -------- FAQ -------- */
+    .faq-wrapper {
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    /* -------- Trust bar -------- */
+    .trust-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-6);
+      padding-block: var(--space-6);
+      border-top: 1px solid var(--color-border-light);
+      border-bottom: 1px solid var(--color-border-light);
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text-muted);
+    }
+
+    .trust-item__icon {
+      font-size: 1.25rem;
+    }
+
+    /* -------- Scroll indicator -------- */
+    .scroll-indicator {
+      position: absolute;
+      bottom: var(--space-5);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      color: rgba(255,255,255,0.45);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-indicator { animation: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================================================
+       Hero
+  ============================================================ -->
+  <section class="hero" aria-label="الرئيسية">
+
+    <!-- ديكور A الكبير -->
+    <svg class="hero__deco" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M100 10L180 170H130L100 110L70 170H20L100 10Z" fill="white"/>
+      <path d="M30 180C45 155 155 155 170 180C155 195 45 195 30 180Z" fill="#365aa2"/>
+    </svg>
+
+    <div class="container hero__content">
+      <!-- سيتملأ بـ home-page.js -->
+      <div id="hero-content" class="anim-fade-up"></div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator" aria-hidden="true">
+      <span>اسكرول للأسفل</span>
+      <span>↓</span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Trust Bar
+  ============================================================ -->
+  <div class="trust-bar" aria-label="مميزات المنصة">
+    <div class="trust-item"><span class="trust-item__icon">🎓</span> جامعة EELU رسمية</div>
+    <div class="trust-item"><span class="trust-item__icon">🔒</span> دفع آمن 100%</div>
+    <div class="trust-item"><span class="trust-item__icon">📱</span> شغّال على أي جهاز</div>
+    <div class="trust-item"><span class="trust-item__icon">⚡</span> تفعيل فوري</div>
+    <div class="trust-item"><span class="trust-item__icon">🆓</span> درس مجاني بدون تسجيل</div>
+  </div>
+
+  <!-- ============================================================
+       ليه تذاكر معانا؟ (الميزات)
+  ============================================================ -->
+  <section class="section" aria-labelledby="features-title">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">ليه أحمد مصطفى تك؟</span>
+        <h2 id="features-title" class="section__title">ذاكر بطريقة أسهل وأسرع</h2>
+        <p class="section__desc">مش مجرد فيديوهات — ده نظام مراجعة متكامل مصمم خصيصاً لطلاب EELU.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card anim-fade-up anim-delay-1">
+          <span class="feature-card__emoji">🎯</span>
+          <div class="feature-card__title">مخصوص لـ EELU</div>
+          <p class="feature-card__desc">المراجعات متكيّفة مع مناهج الجامعة المفتوحة بالظبط — مش عام.</p>
+        </div>
+        <div class="feature-card anim-fade-up anim-delay-2">
+          <span class="feature-card__emoji">🎬</span>
+          <div class="feature-card__title">فيديوهات واضحة</div>
+          <p class="feature-card__desc">شرح بالعربي البسيط — تشوفه أكتر من مرة في أي وقت وعلى أي جهاز.</p>
+        </div>
+        <div class="feature-card anim-fade-up anim-delay-3">
+          <span class="feature-card__emoji">💳</span>
+          <div class="feature-card__title">دفع بالراحة</div>
+          <p class="feature-card__desc">فودافون كاش أو إنستاباي — من غير بطاقة ومن غير تعقيد.</p>
+        </div>
+        <div class="feature-card anim-fade-up anim-delay-4">
+          <span class="feature-card__emoji">⚡</span>
+          <div class="feature-card__title">وصول فوري</div>
+          <p class="feature-card__desc">بعد قبول الأدمن للدفع تلاقي كل الفيديوهات متاحة لك على طول.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       المادة المتاحة (Course Card)
+  ============================================================ -->
+  <section class="section section--alt" aria-labelledby="courses-title">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">المتاح دلوقتي</span>
+        <h2 id="courses-title" class="section__title">اشترك وابدأ على طول</h2>
+        <p class="section__desc">مادة واحدة متاحة دلوقتي — وإحنا شغالين على أكتر!</p>
+      </div>
+
+      <!-- سيتملأ بـ home-page.js -->
+      <div id="course-card-container"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       الدرس المجاني
+  ============================================================ -->
+  <section class="section preview-section" id="free-preview" aria-labelledby="preview-title">
+    <div class="container" style="position:relative; z-index:2;">
+      <div class="section__header">
+        <span class="section__eyebrow" style="color:rgba(255,255,255,0.55);">جرّبه مجاناً</span>
+        <h2 id="preview-title" class="section__title" style="color:white;">شوف أسلوب الشرح الأول</h2>
+        <p class="section__desc" style="color:rgba(255,255,255,0.6);">
+          درس كامل مجاناً من غير ما تسجّل أو تدفع — اتأكد إن الأسلوب يناسبك.
+        </p>
+      </div>
+
+      <!-- سيتملأ بـ home-page.js -->
+      <div id="free-preview-container"></div>
+
+      <div style="text-align:center; margin-top:var(--space-7);">
+        <a href="course.html" class="btn btn--accent btn--lg" id="after-preview-cta">
+          عجبك؟ اشترك دلوقتي →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CTA (Call to Action)
+  ============================================================ -->
+  <section class="section cta-section" aria-labelledby="cta-title">
+    <div class="container" style="position:relative; z-index:2;">
+      <div class="section__header" style="max-width:560px;">
+        <h2 id="cta-title" class="section__title" style="font-size:clamp(1.875rem, 4vw, 3rem);">
+          جاهز تبدأ مذاكرتك الصح؟
+        </h2>
+        <p class="section__desc" style="color:rgba(255,255,255,0.7); font-size:1.1rem;">
+          انضم لأكتر من 500 طالب بيذاكروا بطريقة أذكى.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:var(--space-4); justify-content:center; margin-top:var(--space-6);">
+          <a href="course.html" class="btn btn--accent btn--xl" id="cta-main-btn">
+            ابدأ دلوقتي — 120 جنيه بس
+          </a>
+          <a href="#free-preview" class="btn btn--ghost btn--lg">
+            أشوف الدرس المجاني الأول
+          </a>
+        </div>
+        <p style="color:rgba(255,255,255,0.4); font-size:0.8rem; margin-top:var(--space-4);">
+          ✓ بدون اشتراك شهري &nbsp;|&nbsp; ✓ دفع آمن &nbsp;|&nbsp; ✓ وصول لحد آخر الترم
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       أسئلة شائعة (FAQ)
+  ============================================================ -->
+  <section class="section" aria-labelledby="faq-title">
+    <div class="container">
+      <div class="section__header">
+        <span class="section__eyebrow">أسئلة شايفها كتير</span>
+        <h2 id="faq-title" class="section__title">عندك سؤال؟ اتفضل</h2>
+      </div>
+
+      <div class="faq-wrapper">
+        <!-- سيتملأ بـ home-page.js -->
+        <div id="faq-list" class="card" style="padding:var(--space-5) var(--space-6); border-radius:var(--radius-xl);">
+          <div class="skeleton" style="height:20px; margin-bottom:12px;"></div>
+          <div class="skeleton" style="height:20px; margin-bottom:12px; width:80%;"></div>
+          <div class="skeleton" style="height:20px; width:60%;"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:var(--space-6);">
+        <p style="color:var(--color-text-muted); font-size:var(--text-sm);">
+          مش لاقي إجابة؟
+          <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:var(--color-accent); font-weight:700;">
+            كلمنا على واتساب 💬
+          </a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Footer
+  ============================================================ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer__inner">
+      <a href="index.html" class="footer__brand">
+        <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M18 4L30 26H22L18 18L14 26H6L18 4Z" fill="white" opacity="0.8"/>
+          <path d="M8 28C10 23 26 23 28 28C25 31 11 31 8 28Z" fill="#4a72bf"/>
+        </svg>
+        أحمد مصطفى تك
+      </a>
+
+      <div style="display:flex; gap:var(--space-5); flex-wrap:wrap; justify-content:center;">
+        <a href="course.html"  style="color:rgba(255,255,255,0.5); font-size:0.85rem;">المراجعات</a>
+        <a href="login.html"   style="color:rgba(255,255,255,0.5); font-size:0.85rem;">تسجيل الدخول</a>
+        <a href="https://wa.me/201066843568" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5); font-size:0.85rem;">تواصل معنا</a>
+      </div>
+
+      <p class="footer__copy">
+        © 2026 أحمد مصطفى تك · صُنع بـ ❤️ في مصر
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/pages/home-page.js"></script>
+
+</body>
+</html>

@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>الأدمن | Ahmed Mostafa Tech</title>
+  <title>لوحة تحكم الإدارة | أحمد مصطفى تك</title>
   <link rel="icon" href="data:,">
 
+  <!-- خطوط جوجل -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- المسار نسبي للخروج من مجلد admin/ -->
+  <!-- CSS -->
   <link rel="stylesheet" href="../assets/css/base.css">
   <link rel="stylesheet" href="../assets/css/layout.css">
   <link rel="stylesheet" href="../assets/css/components.css">
@@ -20,10 +22,163 @@
     <style>html.guard-pending body { visibility: visible; }</style>
   </noscript>
 </head>
-<body>
-  <p>جاري التحقق من الصلاحيات...</p>
 
-  <!-- المسار نسبي للخروج من مجلد admin/ -->
+<body>
+
+  <div class="admin-app">
+
+    <!-- القائمة الجانبية للأدمن -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+          A
+        </div>
+        <div>
+          <div class="admin-brand-title">أحمد مصطفى تك</div>
+          <div class="admin-brand-sub">لوحة الإدارة والأدمن 👑</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link active">
+          <span>📊 نظرة عامة والداشبورد</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span>📋 إدارة جميع الطلبات</span>
+          <span id="nav-pending-badge" class="badge badge--warning" style="display:none;">0</span>
+        </a>
+        <a href="students.html" class="admin-nav-link">
+          <span>👥 قائمة الطلاب المسجلين</span>
+        </a>
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:var(--space-3) 0;"></div>
+        <a href="../index.html" class="admin-nav-link">
+          <span>🏠 العودة للموقع الرئيسي</span>
+        </a>
+        <a href="../dashboard.html" class="admin-nav-link">
+          <span>🎓 لوحة تحكم الطالب</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="admin-main">
+
+      <!-- الشريط العلوي -->
+      <header class="admin-topbar">
+        <div>
+          <h1 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin:0;">
+            لوحة الإدارة والمتابعة 👋
+          </h1>
+          <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+            متابعة وتأكيد طلبات الطلاب وتفعيل اشتراكات المواد.
+          </p>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+          <button type="button" id="admin-refresh-btn" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs);">
+            🔄 تحديث البيانات
+          </button>
+          <span id="admin-user-name" class="badge badge--accent" style="font-size:var(--text-xs);">
+            أدمن
+          </span>
+        </div>
+      </header>
+
+      <!-- محتوى الصفحة -->
+      <main class="admin-content">
+
+        <!-- تنبيهات سريعة -->
+        <div id="admin-alert" class="alert alert--info" role="alert" hidden style="margin-bottom:var(--space-5);"></div>
+
+        <!-- كروت الإحصائيات -->
+        <section class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div>
+              <div style="font-size:var(--text-xs); color:#64748b; font-weight:700;">طلبات في الانتظار</div>
+              <div class="admin-stat-val" id="stat-pending-orders" style="color:#d97706;">—</div>
+            </div>
+            <div class="admin-stat-icon" style="background:#fef3c7; color:#d97706;">⏳</div>
+          </div>
+
+          <div class="admin-stat-card">
+            <div>
+              <div style="font-size:var(--text-xs); color:#64748b; font-weight:700;">الاشتراكات السارية</div>
+              <div class="admin-stat-val" id="stat-active-subs" style="color:#16a34a;">—</div>
+            </div>
+            <div class="admin-stat-icon" style="background:#dcfce7; color:#16a34a;">✅</div>
+          </div>
+
+          <div class="admin-stat-card">
+            <div>
+              <div style="font-size:var(--text-xs); color:#64748b; font-weight:700;">إجمالي الطلاب</div>
+              <div class="admin-stat-val" id="stat-total-students" style="color:var(--color-primary);">—</div>
+            </div>
+            <div class="admin-stat-icon" style="background:#e0e7ff; color:var(--color-primary);">👥</div>
+          </div>
+        </section>
+
+        <!-- جدول الطلبات المعلقة التي تنتظر الموافقة -->
+        <section class="admin-card">
+          <div class="admin-card-header">
+            <div>
+              <h2 style="font-size:var(--text-base); font-weight:800; color:var(--color-primary); margin:0;">
+                طلبات تنتظر المراجعة والقبول ⚡
+              </h2>
+              <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+                راجع تفاصيل التحويل واضغط قبول لتفعيل اشتراك الطالب فوراً.
+              </p>
+            </div>
+            <a href="orders.html" class="btn btn--secondary btn--sm" style="font-size:var(--text-xs);">
+              عرض جميع الطلبات ↗
+            </a>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>الطالب</th>
+                  <th>رقم الموبايل</th>
+                  <th>المادة</th>
+                  <th>طريقة الدفع</th>
+                  <th>المبلغ</th>
+                  <th>رقم العملية</th>
+                  <th>الإيصال</th>
+                  <th>تاريخ الطلب</th>
+                  <th>الإجراء</th>
+                </tr>
+              </thead>
+              <tbody id="pending-orders-tbody">
+                <tr>
+                  <td colspan="9" style="text-align:center; padding:var(--space-6); color:#64748b;">
+                    جاري تحميل الطلبات...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- نافذة معاينة صورة الإيصال (Modal) -->
+  <div id="receipt-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="receipt-modal-title">
+    <div class="modal-card" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 id="receipt-modal-title" class="modal-title">معاينة إيصال التحويل 🖼️</h3>
+        <button type="button" id="receipt-modal-close" class="modal-close-btn" aria-label="إغلاق">✕</button>
+      </div>
+      <div id="receipt-modal-body" style="text-align:center;">
+        <div class="skeleton" style="height:250px; border-radius:var(--radius-md);"></div>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="../assets/js/pages/admin/admin-home-page.js"></script>
+
 </body>
 </html>

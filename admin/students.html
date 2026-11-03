@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="guard-pending">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>قائمة الطلاب المسجلين | أحمد مصطفى تك</title>
+  <link rel="icon" href="data:,">
+
+  <!-- خطوط جوجل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+
+  <noscript>
+    <style>html.guard-pending body { visibility: visible; }</style>
+  </noscript>
+</head>
+
+<body>
+
+  <div class="admin-app">
+
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div style="width:38px; height:38px; background:linear-gradient(135deg, var(--color-primary), var(--color-accent)); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">
+          A
+        </div>
+        <div>
+          <div class="admin-brand-title">أحمد مصطفى تك</div>
+          <div class="admin-brand-sub">لوحة الإدارة والأدمن 👑</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <a href="index.html" class="admin-nav-link">
+          <span>📊 نظرة عامة والداشبورد</span>
+        </a>
+        <a href="orders.html" class="admin-nav-link">
+          <span>📋 إدارة جميع الطلبات</span>
+        </a>
+        <a href="students.html" class="admin-nav-link active">
+          <span>👥 قائمة الطلاب المسجلين</span>
+        </a>
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:var(--space-3) 0;"></div>
+        <a href="../index.html" class="admin-nav-link">
+          <span>🏠 العودة للموقع الرئيسي</span>
+        </a>
+        <a href="../dashboard.html" class="admin-nav-link">
+          <span>🎓 لوحة تحكم الطالب</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="admin-main">
+
+      <header class="admin-topbar">
+        <div>
+          <h1 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin:0;">
+            الطلاب المسجلين بالمنصة 👥
+          </h1>
+          <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
+            قائمة ببيانات الطلاب، أرقام الموبايل (واتساب)، وتاريخ التسجيل.
+          </p>
+        </div>
+
+        <div>
+          <button type="button" id="refresh-students-btn" class="btn btn--secondary btn--sm">
+            🔄 تحديث
+          </button>
+        </div>
+      </header>
+
+      <main class="admin-content">
+
+        <section class="admin-card">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-3); margin-bottom:var(--space-5);">
+            <div id="students-count-label" style="font-weight:700; color:var(--color-primary); font-size:var(--text-sm);">
+              جاري حساب الطلاب...
+            </div>
+
+            <div style="width:100%; max-width:320px;">
+              <input
+                type="text"
+                id="search-students-input"
+                class="form-input"
+                placeholder="🔍 ابحث بالاسم، الإيميل، أو الموبايل..."
+                style="min-height:38px; font-size:var(--text-xs);"
+              >
+            </div>
+          </div>
+
+          <div class="admin-table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>اسم الطالب</th>
+                  <th>البريد الإلكتروني</th>
+                  <th>رقم الموبايل (واتساب)</th>
+                  <th>الرتبة</th>
+                  <th>الاشتراكات</th>
+                  <th>تاريخ الانضمام</th>
+                </tr>
+              </thead>
+              <tbody id="all-students-tbody">
+                <tr>
+                  <td colspan="6" style="text-align:center; padding:var(--space-6); color:#64748b;">
+                    جاري تحميل الطلاب...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="../assets/js/pages/admin/admin-students-page.js"></script>
+
+</body>
+</html>
