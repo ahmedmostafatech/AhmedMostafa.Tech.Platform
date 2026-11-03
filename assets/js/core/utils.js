@@ -291,7 +291,13 @@ let ERROR_MESSAGES = [
   ['invalid name', 'الاسم يجب ألا يقل عن 3 أحرف.'],
   ['profile incomplete', 'لازم تكمل بيانات حسابك (الاسم ورقم الموبايل) من لوحة التحكم قبل إتمام الشراء.'],
   ['profile not found', 'الملف الشخصي غير موجود، سجل خروج ودخول مرة تانية.'],
-  ['network request failed', 'مشكلة في الاتصال بالإنترنت، اتأكد من الشبكة وجرب تاني.']
+  ['network request failed', 'مشكلة في الاتصال بالإنترنت، اتأكد من الشبكة وجرب تاني.'],
+  ['already registered and paid', 'أنت مسجل بالفعل في هذه المادة وتم تأكيد اشتراكك مسبقاً!'],
+  ['course not found', 'المراجعة المختارة غير متاحة حالياً.'],
+  ['course access period ended', 'انتهت فترة التسجيل المتاحة لهذه المادة.'],
+  ['invalid payment method', 'وسيلة الدفع المختارة غير صحيحة.'],
+  ['invalid email', 'يرجى كتابة بريد إلكتروني صحيح.'],
+  ['invalid branch', 'يرجى اختيار الفرع الجامعي التابع له.']
 ];
 
 export function getErrorMessage(error) {
