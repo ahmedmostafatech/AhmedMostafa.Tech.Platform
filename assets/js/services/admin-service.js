@@ -87,8 +87,6 @@ export async function getRegistrationById(regId) {
     .from('registrations')
     .select(`
       *,
-      receipt_url,
-      proof_path,
       courses ( id, title, price_egp, access_link, access_until )
     `)
     .eq('id', regId)
