@@ -1,7 +1,7 @@
 // ============================================================
 // supabase/functions/notify-telegram/index.ts
 // إرسال إشعار فوري للأدمن على تليجرام عند تقديم طلب دفع جديد
-// مع أزرار Inline (قبول / رفض / واتساب) وصورة الإيصال (sendPhoto) إن وجدت
+// مع أزرار Inline وصورة الإيصال (sendPhoto) إن وجدت
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -50,14 +50,12 @@ Deno.serve(async (req) => {
       return jsonResp({ success: false, simulated: true, message: "Telegram not configured." });
     }
 
-    // استخراج أو توليد رابط الصورة من proof_path أو receipt_url
     let receiptUrl: string | null = record.receipt_url || null;
     const proofPath: string | null = record.proof_path || null;
 
     if (!receiptUrl && proofPath && supabaseUrl && serviceKey) {
       try {
         const supabase = createClient(supabaseUrl, serviceKey);
-        // توليد رابط موقع لمدة 7 أيام أو Public Url
         const { data: signedData } = await supabase.storage
           .from("receipts")
           .createSignedUrl(proofPath, 60 * 60 * 24 * 7);
@@ -89,7 +87,6 @@ Deno.serve(async (req) => {
 ${receiptUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>" : ""}
 `.trim();
 
-    // أزرار Inline (تدعم approve_ و reject_ و review_)
     const inlineKeyboard: any = {
       inline_keyboard: []
     };
@@ -105,7 +102,7 @@ ${receiptUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أ�
     }
 
     if (studentPhone && studentPhone.length >= 10) {
-      let waPhone = studentPhone.startsWith("2") ? studentPhone : "2" + studentPhone.replace(/^0/, "");
+      const waPhone = studentPhone.startsWith("2") ? studentPhone : "2" + studentPhone.replace(/^0/, "");
       inlineKeyboard.inline_keyboard.push([
         { text: "💬 فتح واتساب الطالب", url: `https://wa.me/${waPhone}` },
       ]);

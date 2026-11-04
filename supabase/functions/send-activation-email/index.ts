@@ -167,18 +167,24 @@ Deno.serve(async function (req: Request) {
       return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
     }
 
-    let userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
+    // استدعاء من السيرفر نفسه (بوت تليجرام): التوكن هو مفتاح الخدمة
+    let bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+    let isServiceCall = serviceKey !== '' && bearerToken === serviceKey;
 
-    let { data: userData, error: userError } = await userClient.auth.getUser();
-    if (userError || !userData || !userData.user) {
-      return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
-    }
+    if (!isServiceCall) {
+      let userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
 
-    let { data: isAdmin, error: adminError } = await userClient.rpc('is_admin');
-    if (adminError || isAdmin !== true) {
-      return jsonResponse({ ok: false, error: 'forbidden' }, 403);
+      let { data: userData, error: userError } = await userClient.auth.getUser();
+      if (userError || !userData || !userData.user) {
+        return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
+      }
+
+      let { data: isAdmin, error: adminError } = await userClient.rpc('is_admin');
+      if (adminError || isAdmin !== true) {
+        return jsonResponse({ ok: false, error: 'forbidden' }, 403);
+      }
     }
 
     let body: any = {};
