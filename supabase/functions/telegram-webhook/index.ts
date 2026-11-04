@@ -37,27 +37,42 @@ async function sendTelegramMsg(token: string, chatId: number, text: string, butt
   });
 }
 
-// نداء send-activation-email بالهيدر الداخلي x-internal-secret
+// نداء مباشر لـ send-activation-email بالهيدر السري الداخلي
 async function callSendEmail(regId: string, force: boolean): Promise<{ ok: boolean; error: string }> {
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-  const internalSecret = Deno.env.get("INTERNAL_FUNCTION_SECRET") || "";
-  if (!supabaseUrl || !internalSecret) {
-    return { ok: false, error: "INTERNAL_FUNCTION_SECRET غير مضبوط" };
-  }
+  const baseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+  const internal = Deno.env.get("INTERNAL_FUNCTION_SECRET") || "";
+
+  if (!internal) return { ok: false, error: "INTERNAL_FUNCTION_SECRET غير مضبوط" };
+
   try {
-    const res = await fetch(`${supabaseUrl}/functions/v1/send-activation-email`, {
+    const res = await fetch(`${baseUrl}/functions/v1/send-activation-email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-internal-secret": internalSecret,
+        "Authorization": `Bearer ${serviceKey}`,
+        "x-internal-secret": internal,
       },
       body: JSON.stringify({ registration_id: regId, force: force }),
     });
+
     const raw = await res.text();
-    let parsed: any = {};
-    try { parsed = JSON.parse(raw); } catch (_e) { /* ignore */ }
-    if (res.ok && parsed.ok === true) return { ok: true, error: "" };
-    return { ok: false, error: parsed.details || parsed.error || ("HTTP " + res.status) };
+    let data: any = {};
+    try {
+      data = JSON.parse(raw);
+    } catch (_e) {
+      // الرد مش JSON
+    }
+
+    if (res.ok && data.ok) {
+      if (data.update_error || data.log_error) {
+        console.warn("send-activation-email DB warnings:", data.update_error, data.log_error);
+      }
+      return { ok: true, error: "" };
+    }
+
+    const reason = data.error || data.details || raw.slice(0, 120);
+    return { ok: false, error: `HTTP ${res.status}: ${reason}` };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
@@ -81,7 +96,6 @@ Deno.serve(async (req: Request) => {
       return jsonResp({ ok: false, error: "TELEGRAM_BOT_TOKEN not configured" }, 500);
     }
 
-    // التحقق المرن من السر المشترك
     const webhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET") || "";
     if (webhookSecret) {
       const incomingSecret =
@@ -97,9 +111,7 @@ Deno.serve(async (req: Request) => {
     const payload = await req.json();
     const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    // ========================================================
     // 1. التعامل مع ضغطات الأزرار (Callback Queries)
-    // ========================================================
     if (payload.callback_query) {
       const query = payload.callback_query;
       const callbackId = query.id;
@@ -124,7 +136,6 @@ Deno.serve(async (req: Request) => {
       let statusAlert = false;
       let nextButtons: any[][] = [];
 
-      // جلب بيانات التسجيل
       const { data: reg } = await admin
         .from("registrations")
         .select("id, registration_code, full_name, email, phone, payment_status, email_sent")
@@ -135,24 +146,32 @@ Deno.serve(async (req: Request) => {
 
       // أ) قبول وتأكيد الدفع (approve)
       if (action === "approve") {
-        const { error: approveErr } = await admin.rpc("admin_approve_registration", {
+        const { data: applyRes, error: approveErr } = await admin.rpc("telegram_apply_action", {
           p_reg_id: regId,
-          p_admin_note: "تم القبول وتأكيد الدفع عبر بوت تليجرام",
+          p_action: "approve",
         });
 
-        if (approveErr && !approveErr.message.includes("already approved")) {
-          responseText = "❌ فشل القبول: " + approveErr.message;
+        const applyResult = applyRes?.result;
+
+        if (approveErr) {
+          responseText = "❌ فشل القبول: " + esc(approveErr.message);
+          statusAlert = true;
+        } else if (applyResult === "no_access_link") {
+          responseText = "❌ المادة ملهاش رابط Drive. ضيف الرابط الأول من لوحة الأدمن.";
+          statusAlert = true;
+        } else if (applyResult === "not_found" || applyResult === "not_allowed") {
+          responseText = "❌ تعذر تنفيذ القبول (" + applyResult + ").";
           statusAlert = true;
         } else {
-          // إرسال الإيميل تلقائياً فور نجاح القبول (بالهيدر الداخلي)
-          const mail = await callSendEmail(regId, false);
-          const emailOk = mail.ok;
-          const emailErrorMsg = mail.error;
+          // done أو already: الدفع مؤكد، نكمل بإرسال الإيميل
+          const r = await callSendEmail(regId, false);
+          const emailOk = r.ok;
+          const emailErrorMsg = r.error;
 
           if (emailOk) {
             responseText = "✅ تم القبول وتأكيد الدفع، وتم إرسال إيميل التفعيل وصلاحية Drive للطالب بنجاح! 🎉";
           } else {
-            responseText = `✅ تم تأكيد الدفع بنجاح، لكن تعذر إرسال الإيميل تلقائياً (${emailErrorMsg}).`;
+            responseText = `✅ تم تأكيد الدفع بنجاح، لكن تعذر إرسال الإيميل تلقائياً (${esc(emailErrorMsg)}).`;
           }
 
           nextButtons = [
@@ -165,11 +184,11 @@ Deno.serve(async (req: Request) => {
       }
       // ب) إعادة إرسال الإيميل (resend)
       else if (action === "resend") {
-        const mail = await callSendEmail(regId, true);
-        if (mail.ok) {
+        const r = await callSendEmail(regId, true);
+        if (r.ok) {
           responseText = "📧 تم إرسال إيميل التفعيل ورابط المراجعة للطالب بنجاح!";
         } else {
-          responseText = "⚠️ فشل الإرسال: " + mail.error;
+          responseText = "⚠️ فشل الإرسال: " + esc(r.error);
           statusAlert = true;
         }
 
@@ -189,7 +208,7 @@ Deno.serve(async (req: Request) => {
         }).eq("id", regId);
 
         if (error) {
-          responseText = "❌ فشل نقل الطلب: " + error.message;
+          responseText = "❌ فشل نقل الطلب: " + esc(error.message);
           statusAlert = true;
         } else {
           responseText = "🔍 تم وضع الطلب قيد الفحص والمراجعة.";
@@ -211,7 +230,7 @@ Deno.serve(async (req: Request) => {
         }).eq("id", regId);
 
         if (error) {
-          responseText = "❌ فشل الرفض: " + error.message;
+          responseText = "❌ فشل الرفض: " + esc(error.message);
           statusAlert = true;
         } else {
           responseText = "🚫 تم رفض الطلب.";
@@ -224,20 +243,18 @@ Deno.serve(async (req: Request) => {
         statusAlert = true;
       }
 
-      // إجابة تليجرام لإغلاق التحميل على الزر
       await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           callback_query_id: callbackId,
-          text: responseText.slice(0, 190),
+          text: responseText.replace(/<[^>]*>/g, "").slice(0, 190),
           show_alert: statusAlert,
         }),
       });
 
-      // تعديل نص الرسالة أو الكابشن
       const currentCaption = query.message.caption || query.message.text || "";
-      const updatedText = currentCaption + "\n\n📌 <b>إجراء الأدمن:</b> " + responseText;
+      const updatedText = esc(currentCaption) + "\n\n📌 <b>إجراء الأدمن:</b> " + responseText;
 
       const editMethod = query.message.photo ? "editMessageCaption" : "editMessageText";
       const editBody: any = {
@@ -263,28 +280,29 @@ Deno.serve(async (req: Request) => {
       return jsonResp({ ok: true });
     }
 
-    // ========================================================
-    // 2. معالجة الرسائل والأوامر النصية من الأدمن (/pending, /stats, إلخ)
-    // ========================================================
+    // 2. معالجة الرسائل والأوامر النصية
     if (payload.message && payload.message.text) {
       const msg = payload.message;
       const text = msg.text.trim();
       const chatId = msg.chat.id;
 
       if (text === "/pending") {
-        const { data: pending } = await admin
+        const { data: pending, error: pendingErr } = await admin
           .from("registrations")
-          .select("id, registration_code, full_name, amount, payment_method, proof_path, receipt_url, courses(title)")
+          .select("id, registration_code, full_name, amount, payment_method, receipt_url, courses(title)")
           .in("payment_status", ["pending_payment", "under_review"])
           .order("created_at", { ascending: false })
           .limit(5);
 
-        if (!pending || pending.length === 0) {
+        if (pendingErr) {
+          console.error("pending query failed:", pendingErr.message);
+          await sendTelegramMsg(botToken, chatId, "❌ تعذر جلب الطلبات: " + esc(pendingErr.message));
+        } else if (!pending || pending.length === 0) {
           await sendTelegramMsg(botToken, chatId, "✨ لا توجد أي طلبات معلقة حالياً.");
         } else {
           for (const reg of pending) {
             const courseTitle = (reg as any).courses?.title || "مادة دراسية";
-            const msgText = `📌 <b>طلب معلق:</b>\nالكود: <code>${reg.registration_code}</code>\nالاسم: ${esc(reg.full_name)}\nالمادة: ${esc(courseTitle)}\nالمبلغ: <b>${reg.amount} ج.م</b>`;
+            const msgText = `📌 <b>طلب معلق:</b>\nالكود: <code>${esc(reg.registration_code)}</code>\nالاسم: ${esc(reg.full_name)}\nالمادة: ${esc(courseTitle)}\nالمبلغ: <b>${reg.amount} ج.م</b>`;
             const buttons = [
               [
                 { text: "✅ قبول وتأكيد الدفع", callback_data: "approve_" + reg.id },
@@ -295,33 +313,14 @@ Deno.serve(async (req: Request) => {
           }
         }
         return jsonResp({ ok: true });
-      } else if (text === "/stats") {
+      } else if (text === "/stats" || text === "/summary") {
         const { data: stats } = await admin.rpc("telegram_get_stats_today");
         const s = stats || { total_today: 0, paid_today: 0, revenue_today: 0, total_pending: 0 };
         const msgText = `📊 <b>إحصائيات اليوم:</b>\n• إجمالي التسجيلات: ${s.total_today}\n• المؤكد والمدفوع: ${s.paid_today}\n• الإيرادات: <b>${s.revenue_today} ج.م</b>\n• إجمالي المعلق: ${s.total_pending}`;
         await sendTelegramMsg(botToken, chatId, msgText);
         return jsonResp({ ok: true });
-      } else if (text === "/summary") {
-        const { data: stats } = await admin.rpc("telegram_get_stats_today");
-        const s = stats || { total_today: 0, paid_today: 0, pending_today: 0, revenue_today: 0, total_pending: 0 };
-        const dateCairo = new Intl.DateTimeFormat("ar-EG", { timeZone: "Africa/Cairo", dateStyle: "full" }).format(new Date());
-
-        const summaryMsg = `
-🌙 <b>التقرير اليومي لمنصة أحمد مصطفى تك</b>
-📅 <i>${dateCairo}</i>
-
-📈 <b>إجمالي التسجيلات الجديدة اليوم:</b> ${s.total_today} طالب
-✅ <b>الاشتراكات المكتملة والمؤكدة:</b> ${s.paid_today} اشتراك
-💰 <b>إجمالي الإيرادات المحصلة اليوم:</b> <b>${Number(s.revenue_today).toFixed(2)} ج.م</b>
-⏳ <b>الطلبات المعلقة اليوم:</b> ${s.pending_today} طلب
-⚠️ <b>إجمالي الطلبات المعلقة بالنظام:</b> ${s.total_pending} طلب
-
-<i>أتمنى لك دوام النجاح والتوفيق يا باشمهندس أحمد!</i>
-`.trim();
-        await sendTelegramMsg(botToken, chatId, summaryMsg);
-        return jsonResp({ ok: true });
       } else if (text === "/start" || text === "/help") {
-        await sendTelegramMsg(botToken, chatId, "👋 مرحباً بك في بوت منصة أحمد مصطفى تك!\nالأوامر المتاحة:\n• /pending لعرض الطلبات المعلقة والبت فيها فوراً\n• /stats لإحصائيات اليوم وسجل المبيعات\n• /summary للتقرير اليومي الشامل");
+        await sendTelegramMsg(botToken, chatId, "👋 مرحباً بك في بوت منصة أحمد مصطفى تك!\nالأوامر المتاحة:\n• /pending لعرض الطلبات المعلقة والبت فيها فوراً\n• /stats لإحصائيات اليوم وسجل المبيعات");
         return jsonResp({ ok: true });
       }
 

@@ -5,9 +5,9 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-let CORS_HEADERS = {
+const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-internal-secret',
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
@@ -35,7 +35,7 @@ function buildEmailHtml(data: {
   accessUntil: string;
   accessLink: string;
 }): { html: string; text: string } {
-  let html = `<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -87,16 +87,16 @@ function buildEmailHtml(data: {
 </body>
 </html>`;
 
-  let text = `أهلاً بك ${data.studentName}\nتم تأكيد اشتراكك في ${data.courseTitle}.\nرابط المراجعة على Google Drive:\n${data.accessLink}\nكود التسجيل: ${data.regCode}`;
+  const text = `أهلاً بك ${data.studentName}\nتم تأكيد اشتراكك في ${data.courseTitle}.\nرابط المراجعة على Google Drive:\n${data.accessLink}\nكود التسجيل: ${data.regCode}`;
   return { html, text };
 }
 
 async function sendViaGateway(scriptUrl: string, secret: string, to: string, folderLink: string, mail: any) {
-  let controller = new AbortController();
-  let timer = setTimeout(function () { controller.abort(); }, 40000);
+  const controller = new AbortController();
+  const timer = setTimeout(function () { controller.abort(); }, 40000);
 
   try {
-    let res = await fetch(scriptUrl, {
+    const res = await fetch(scriptUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
@@ -111,15 +111,15 @@ async function sendViaGateway(scriptUrl: string, secret: string, to: string, fol
       signal: controller.signal
     });
 
-    let raw = await res.text();
+    const raw = await res.text();
     try {
-      let parsed = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
       return {
         ok: parsed.ok === true,
         granted: parsed.granted === true,
         error: parsed.error || null
       };
-    } catch (parseErr) {
+    } catch (_parseErr) {
       return { ok: false, granted: false, error: 'unexpected gateway response (' + res.status + ')' };
     }
   } catch (err) {
@@ -131,13 +131,14 @@ async function sendViaGateway(scriptUrl: string, secret: string, to: string, fol
 
 async function logEmail(admin: any, reg: any, status: string, errorMsg: string | null) {
   try {
-    await admin.from('email_logs').insert({
+    const { error } = await admin.from('email_logs').insert({
       registration_id: reg.id,
       recipient_email: reg.email,
       email_type: 'activation',
       status: status,
       error_message: errorMsg
     });
+    if (error) console.error('email_logs insert failed:', error.message);
   } catch (e) {
     console.warn('logEmail failed:', e);
   }
@@ -152,58 +153,66 @@ Deno.serve(async function (req: Request) {
   }
 
   try {
-    let supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-    let anonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
-    let serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    let scriptUrl = Deno.env.get('APPS_SCRIPT_URL') || 'https://script.google.com/macros/s/AKfycbxTpFzucBXi_wH8ze_HW4x-Fl6edYFodM4ZbIuM9MEw6wFXl1jf3jQwJjoQ_1wHUebCfg/exec';
-    let scriptSecret = Deno.env.get('APPS_SCRIPT_SECRET') || 'MySuperSecretKey_2026_AhmedTech_99';
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    const scriptUrl = Deno.env.get('APPS_SCRIPT_URL') || '';
+    const scriptSecret = Deno.env.get('APPS_SCRIPT_SECRET') || '';
 
     if (!scriptUrl || !scriptSecret) {
-      return jsonResponse({ ok: false, error: 'email gateway not configured' }, 500);
+      return jsonResponse({
+        ok: false,
+        error: 'email gateway not configured (APPS_SCRIPT_URL / APPS_SCRIPT_SECRET missing in Secrets)'
+      }, 500);
     }
 
-    let authHeader = req.headers.get('Authorization') || '';
-    if (!authHeader) {
-      return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
-    }
+    // ---------- المصادقة ----------
+    // 1) نداء داخلي من فنكشن تانية (تليجرام): هيدر x-internal-secret
+    // 2) نداء بمفتاح الخدمة
+    // 3) نداء من أدمن مسجل دخول (لوحة الأدمن)
+    const internalSecret = Deno.env.get('INTERNAL_FUNCTION_SECRET') || '';
+    const sentSecret = req.headers.get('x-internal-secret') || '';
+    const hasInternalSecret = internalSecret !== '' && sentSecret === internalSecret;
 
-    // استدعاء من السيرفر نفسه (بوت تليجرام): التوكن هو مفتاح الخدمة
-    let bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim();
-    let isServiceCall = serviceKey !== '' && bearerToken === serviceKey;
+    const authHeader = req.headers.get('Authorization') || '';
+    const bearerToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+    const isServiceCall = serviceKey !== '' && bearerToken === serviceKey;
 
-    if (!isServiceCall) {
-      let userClient = createClient(supabaseUrl, anonKey, {
+    if (!hasInternalSecret && !isServiceCall) {
+      if (!authHeader) {
+        return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
+      }
+      const userClient = createClient(supabaseUrl, anonKey, {
         global: { headers: { Authorization: authHeader } }
       });
-
-      let { data: userData, error: userError } = await userClient.auth.getUser();
+      const { data: userData, error: userError } = await userClient.auth.getUser();
       if (userError || !userData || !userData.user) {
         return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
       }
-
-      let { data: isAdmin, error: adminError } = await userClient.rpc('is_admin');
+      const { data: isAdmin, error: adminError } = await userClient.rpc('is_admin');
       if (adminError || isAdmin !== true) {
         return jsonResponse({ ok: false, error: 'forbidden' }, 403);
       }
     }
 
+    // ---------- قراءة الطلب ----------
     let body: any = {};
     try {
       body = await req.json();
-    } catch (parseErr) {
+    } catch (_parseErr) {
       body = {};
     }
 
-    let regId = String(body.registration_id || '');
-    let force = body.force === true;
+    const regId = String(body.registration_id || '');
+    const force = body.force === true;
 
     if (!/^[0-9a-f-]{36}$/i.test(regId)) {
       return jsonResponse({ ok: false, error: 'invalid registration id' }, 400);
     }
 
-    let admin = createClient(supabaseUrl, serviceKey);
+    const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    let { data: reg, error: regError } = await admin
+    const { data: reg, error: regError } = await admin
       .from('registrations')
       .select('id, registration_code, full_name, email, payment_status, email_sent, access_status, course_id')
       .eq('id', regId)
@@ -221,7 +230,7 @@ Deno.serve(async function (req: Request) {
       return jsonResponse({ ok: true, skipped: true, message: 'email already sent' });
     }
 
-    let { data: course, error: courseError } = await admin
+    const { data: course, error: courseError } = await admin
       .from('courses')
       .select('title, access_link, access_until')
       .eq('id', reg.course_id)
@@ -231,7 +240,7 @@ Deno.serve(async function (req: Request) {
       return jsonResponse({ ok: false, error: 'access link not set' }, 400);
     }
 
-    let emailContent = buildEmailHtml({
+    const emailContent = buildEmailHtml({
       studentName: reg.full_name || 'طالبنا العزيز',
       regCode: reg.registration_code || '',
       courseTitle: course.title || 'المادة الدراسية',
@@ -239,32 +248,46 @@ Deno.serve(async function (req: Request) {
       accessLink: course.access_link
     });
 
-    let mail = {
+    const mail = {
       subject: `تم تأكيد اشتراكك في ${course.title} — Ahmed Mostafa Tech`,
       html: emailContent.html,
       text: emailContent.text
     };
 
-    let result = await sendViaGateway(scriptUrl, scriptSecret, reg.email, course.access_link, mail);
-    let nowIso = new Date().toISOString();
+    const result = await sendViaGateway(scriptUrl, scriptSecret, reg.email, course.access_link, mail);
+    const nowIso = new Date().toISOString();
 
+    // ---------- نجاح الإرسال ----------
     if (result.ok) {
-      await admin.from('registrations')
-        .update({
-          email_sent: true,
-          access_status: 'granted',
-          access_granted_at: nowIso,
-          access_revoked_at: null,
-          revoke_reason: null,
-          access_error: null,
-          updated_at: nowIso
-        })
-        .eq('id', regId);
-      await logEmail(admin, reg, 'sent', null);
-      return jsonResponse({ ok: true });
+      const { error: updErr } = await admin.from('registrations').update({
+        email_sent: true,
+        access_status: 'granted',
+        access_granted_at: nowIso,
+        access_revoked_at: null,
+        revoke_reason: null,
+        access_error: null,
+        updated_at: nowIso
+      }).eq('id', regId);
+      if (updErr) console.error('registration update failed:', updErr.message);
+
+      const { error: logErr } = await admin.from('email_logs').insert({
+        registration_id: reg.id,
+        recipient_email: reg.email,
+        email_type: 'activation',
+        status: 'sent',
+        error_message: null
+      });
+      if (logErr) console.error('email_logs insert failed:', logErr.message);
+
+      return jsonResponse({
+        ok: true,
+        update_error: updErr ? updErr.message : null,
+        log_error: logErr ? logErr.message : null
+      });
     }
 
-    let failUpdate: Record<string, unknown> = { updated_at: nowIso };
+    // ---------- فشل الإرسال ----------
+    const failUpdate: Record<string, unknown> = { updated_at: nowIso };
     if (!force) {
       failUpdate.email_sent = false;
     }
@@ -275,13 +298,14 @@ Deno.serve(async function (req: Request) {
       failUpdate.revoke_reason = null;
       failUpdate.access_error = null;
     }
-    await admin.from('registrations').update(failUpdate).eq('id', regId);
+    const { error: failUpdErr } = await admin.from('registrations').update(failUpdate).eq('id', regId);
+    if (failUpdErr) console.error('failure update failed:', failUpdErr.message);
 
     await logEmail(admin, reg, 'failed', result.error);
     return jsonResponse({ ok: false, error: 'email delivery failed', details: result.error }, 500);
 
   } catch (err) {
     console.error('send-activation-email crashed:', err);
-    return jsonResponse({ ok: false, error: 'internal error' }, 500);
+    return jsonResponse({ ok: false, error: 'internal error', details: String(err) }, 500);
   }
 });
