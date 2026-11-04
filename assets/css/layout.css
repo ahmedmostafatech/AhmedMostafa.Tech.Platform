@@ -15,7 +15,9 @@
 }
 
 @media (max-width: 640px) {
-  .container { padding-inline: var(--space-4); }
+  .container {
+    padding-inline: var(--space-4);
+  }
 }
 
 /* ============================================================
@@ -90,7 +92,8 @@
   transition: all var(--transition-fast);
 }
 
-.navbar__link:hover, .navbar__link--active {
+.navbar__link:hover,
+.navbar__link--active {
   color: var(--color-white);
   background: rgba(255, 255, 255, 0.1);
 }
@@ -128,9 +131,97 @@
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-@media (max-width: 640px) {
-  .navbar__nav { display: none; }
-  .navbar__brand-name { font-size: var(--text-base); }
+/* زر فتح قائمة الموبايل */
+.navbar__mobile-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  transition: all var(--transition-fast);
+}
+
+.navbar__mobile-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* قائمة الموبايل المنسدلة */
+.navbar__mobile-drawer {
+  display: none;
+  max-height: 0;
+  overflow: hidden;
+  background: #060e20;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar__mobile-drawer.is-open {
+  max-height: 520px;
+}
+
+.navbar__mobile-menu {
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.navbar__mobile-link,
+.navbar__mobile-menu .navbar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.navbar__mobile-link:hover,
+.navbar__mobile-menu .navbar__link:hover,
+.navbar__mobile-menu .navbar__link--active {
+  background: rgba(54, 90, 162, 0.25);
+  border-color: rgba(54, 90, 162, 0.45);
+  color: #ffffff;
+}
+
+@media (max-width: 820px) {
+  .navbar__nav {
+    display: none !important;
+  }
+
+  .navbar__mobile-toggle {
+    display: inline-flex;
+  }
+
+  .navbar__mobile-drawer {
+    display: block;
+  }
+
+  .nav-admin-badge-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .nav-cta-book-btn {
+    display: none !important;
+  }
+
+  .navbar__brand-name {
+    font-size: var(--text-base);
+  }
 }
 
 /* ============================================================
@@ -272,7 +363,8 @@
   font-weight: 600;
 }
 
-.auth-divider::before, .auth-divider::after {
+.auth-divider::before,
+.auth-divider::after {
   content: '';
   flex: 1;
   height: 1px;
@@ -326,9 +418,9 @@
   position: absolute;
   inset: 0;
   background-image:
-    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.12) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 20%, rgba(54,90,162,0.4) 0%, transparent 100%);
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 20%, rgba(54, 90, 162, 0.4) 0%, transparent 100%);
   pointer-events: none;
 }
 
@@ -673,15 +765,33 @@
    Utilities
    ============================================================ */
 
-.text-center { text-align: center; }
-.text-start  { text-align: start; }
+.text-center {
+  text-align: center;
+}
 
-.mt-auto  { margin-top: auto; }
-.mb-auto  { margin-bottom: auto; }
+.text-start {
+  text-align: start;
+}
 
-.gap-sm   { gap: var(--space-2); }
-.gap-md   { gap: var(--space-4); }
-.gap-lg   { gap: var(--space-6); }
+.mt-auto {
+  margin-top: auto;
+}
+
+.mb-auto {
+  margin-bottom: auto;
+}
+
+.gap-sm {
+  gap: var(--space-2);
+}
+
+.gap-md {
+  gap: var(--space-4);
+}
+
+.gap-lg {
+  gap: var(--space-6);
+}
 
 /* ============================================================
    Responsive

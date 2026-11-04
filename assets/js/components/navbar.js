@@ -33,7 +33,7 @@ function buildNavHTML(opts) {
             <span class="navbar__brand-name">أحمد مصطفى <span>تك</span></span>
           </a>
 
-          <!-- روابط التنقل الأساسية -->
+          <!-- روابط التنقل الأساسية (ديسكتوب) -->
           <div class="navbar__nav" role="list">
             ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
             ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
@@ -44,19 +44,51 @@ function buildNavHTML(opts) {
             </a>
           </div>
 
-          <!-- الأزرار التفاعلية -->
+          <!-- الأزرار التفاعلية والهمبرجر -->
           <div class="navbar__actions">
             ${isAdmin ? `
-              <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="btn btn--secondary btn--sm" style="color:#fcd34d; border-color:rgba(252,211,77,0.4); font-size:0.8rem; min-height:36px; padding:0 12px; gap:6px; display:inline-flex; align-items:center;">
+              <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="btn btn--secondary btn--sm nav-admin-badge-btn" style="color:#fcd34d; border-color:rgba(252,211,77,0.4); font-size:0.8rem; min-height:36px; padding:0 12px; gap:6px; display:inline-flex; align-items:center;">
                 <i class="fa-solid fa-crown"></i> لوحة الأدمن
               </a>
             ` : ''}
 
-            <a href="${escapeHtml(sitePath(ROUTES.REVISIONS))}" class="btn btn--accent btn--sm" style="font-size:0.875rem; min-height:38px; font-weight:700;">
-              احجز مراجعتك الآن
+            <a href="${escapeHtml(sitePath(ROUTES.REVISIONS))}" class="btn btn--accent btn--sm nav-cta-book-btn" style="font-size:0.875rem; min-height:38px; font-weight:700;">
+              احجز مراجعتك
             </a>
+
+            <!-- زر فتح قائمة الموبايل -->
+            <button type="button" class="navbar__mobile-toggle" id="navbar-mobile-toggle" aria-label="فتح القائمة الرئيسية" aria-expanded="false">
+              <i class="fa-solid fa-bars"></i>
+            </button>
           </div>
 
+        </div>
+      </div>
+
+      <!-- قائمة الموبايل المنسدلة (Mobile Drawer) -->
+      <div class="navbar__mobile-drawer" id="navbar-mobile-drawer">
+        <div class="navbar__mobile-menu">
+          ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
+          ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
+          ${navLink(ROUTES.TRACK, 'متابعة طلبي واستلام الوصول', 'track')}
+          <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__mobile-link">كيفية الاشتراك</a>
+          <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__mobile-link" style="color:#25d366;">
+            <i class="fa-brands fa-whatsapp"></i> تواصل واتساب فوري
+          </a>
+          <a href="https://chat.whatsapp.com/BdKGIHxS8hv6cJugkr5HMg" target="_blank" rel="noopener" class="navbar__mobile-link">
+            <i class="fa-solid fa-users"></i> جروب واتساب المنصة
+          </a>
+          <a href="https://www.youtube.com/@ahmedmostafatech" target="_blank" rel="noopener" class="navbar__mobile-link">
+            <i class="fa-brands fa-youtube" style="color:#ef4444;"></i> قناة يوتيوب
+          </a>
+          <a href="https://www.linkedin.com/in/ahmed-mostafatech/" target="_blank" rel="noopener" class="navbar__mobile-link">
+            <i class="fa-brands fa-linkedin" style="color:#0a66c2;"></i> لينكد إن
+          </a>
+          ${isAdmin ? `
+            <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="navbar__mobile-link" style="color:#fcd34d;">
+              <i class="fa-solid fa-crown"></i> لوحة الأدمن
+            </a>
+          ` : ''}
         </div>
       </div>
     </nav>
@@ -81,5 +113,36 @@ export async function initNavbar(opts) {
   let mount = document.getElementById('site-header');
   if (mount) {
     mount.innerHTML = buildNavHTML({ session, profile, activePage });
+
+    // تفعيل تفاعل زر الهامبرجر للقائمة في الموبايل
+    const toggleBtn = document.getElementById('navbar-mobile-toggle');
+    const drawer = document.getElementById('navbar-mobile-drawer');
+
+    if (toggleBtn && drawer) {
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = drawer.classList.toggle('is-open');
+        toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        toggleBtn.innerHTML = isOpen ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+      });
+
+      // إغلاق عند النقر على أي رابط داخل القائمة
+      drawer.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          drawer.classList.remove('is-open');
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        });
+      });
+
+      // إغلاق عند النقر في أي مكان خارج القائمة
+      document.addEventListener('click', (e) => {
+        if (!drawer.contains(e.target) && !toggleBtn.contains(e.target)) {
+          drawer.classList.remove('is-open');
+          toggleBtn.setAttribute('aria-expanded', 'false');
+          toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        }
+      });
+    }
   }
 }

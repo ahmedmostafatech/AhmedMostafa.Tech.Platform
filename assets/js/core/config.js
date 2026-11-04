@@ -18,8 +18,8 @@ export let APP_CONFIG = Object.freeze({
   LOCALE: 'ar-EG-u-nu-latn',
   TIMEZONE: 'Africa/Cairo',
   CURRENCY: 'EGP',
-  WHATSAPP_PHONE: '01066843568',
-  WHATSAPP_INTL: '201066843568',
+  WHATSAPP_PHONE: '01558905710',
+  WHATSAPP_INTL: '201558905710',
   AUTH_STORAGE_KEY: 'amt-auth',
   ADMIN_NEXT_PATH_KEY: 'amt-admin-next-path'
 });
@@ -45,7 +45,7 @@ export let ROUTES = Object.freeze({
 export let PAYMENT_ACCOUNTS = Object.freeze({
   vodafone_cash: {
     label: 'فودافون كاش',
-    account: '01066843568',
+    account: '01558905710',
     instructions: 'حول المبلغ المحدد للمحفظة عبر تطبيق أنا فودافون أو كود *9*7*الرقم*المبلغ#'
   },
   instapay: {
