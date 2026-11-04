@@ -282,3 +282,70 @@ export async function deleteRegistration(regId) {
   }
   return true;
 }
+
+// 13. جلب جميع أكواد الخصم
+export async function getAllCoupons() {
+  let { data, error } = await supabase
+    .from('discount_codes')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('getAllCoupons failed:', error.message);
+    throw error;
+  }
+  return data || [];
+}
+
+// 14. إنشاء كود خصم جديد
+export async function createCoupon({ code, discount_type, discount_value, max_uses, min_amount, expires_at }) {
+  let { data, error } = await supabase
+    .from('discount_codes')
+    .insert([{
+      code: code.trim().toUpperCase(),
+      discount_type: discount_type || 'percentage',
+      discount_value: Number(discount_value),
+      max_uses: max_uses ? parseInt(max_uses, 10) : null,
+      min_amount: min_amount ? Number(min_amount) : 0,
+      expires_at: expires_at || null,
+      is_active: true
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('createCoupon failed:', error.message);
+    throw error;
+  }
+  return data;
+}
+
+// 15. تفعيل أو تعطيل كود خصم
+export async function toggleCouponStatus(id, isActive) {
+  let { data, error } = await supabase
+    .from('discount_codes')
+    .update({ is_active: isActive, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('toggleCouponStatus failed:', error.message);
+    throw error;
+  }
+  return data;
+}
+
+// 16. حذف كود خصم
+export async function deleteCoupon(id) {
+  let { error } = await supabase
+    .from('discount_codes')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('deleteCoupon failed:', error.message);
+    throw error;
+  }
+  return true;
+}

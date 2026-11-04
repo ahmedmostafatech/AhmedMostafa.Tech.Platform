@@ -43,7 +43,24 @@ export async function getRevisionById(courseId) {
 }
 
 // تسجيل طالب جديد في مراجعة عبر الدالة الآمنة (RPC)
-export async function registerStudent({ courseId, fullName, branch, phone, email, paymentMethod }) {
+export async function registerStudent({ courseId, fullName, branch, phone, email, paymentMethod, discountCode = null }) {
+  // محاولة استخدام الدالة المحدثة مع دعم الكوبون
+  try {
+    let { data, error } = await supabase.rpc('register_student_with_coupon', {
+      p_course_id: courseId,
+      p_full_name: fullName,
+      p_branch: branch,
+      p_phone: phone,
+      p_email: email,
+      p_payment_method: paymentMethod,
+      p_discount_code: discountCode || null
+    });
+    if (!error) return data;
+    console.warn('register_student_with_coupon not found, falling back to register_student');
+  } catch (e) {
+    // fallback
+  }
+
   let { data, error } = await supabase.rpc('register_student', {
     p_course_id: courseId,
     p_full_name: fullName,
@@ -58,6 +75,32 @@ export async function registerStudent({ courseId, fullName, branch, phone, email
     throw error;
   }
 
+  return data;
+}
+
+// فحص كود الخصم عبر RPC
+export async function validateCoupon(code, totalAmount) {
+  let { data, error } = await supabase.rpc('validate_discount_code', {
+    p_code: code,
+    p_total_amount: totalAmount
+  });
+
+  if (error) {
+    throw error;
+  }
+  return data;
+}
+
+// تتبع حالة التسجيل للطلاب
+export async function trackStudentRegistration(code, phoneSuffix) {
+  let { data, error } = await supabase.rpc('track_registration', {
+    p_code: code,
+    p_phone_suffix: phoneSuffix
+  });
+
+  if (error) {
+    throw error;
+  }
   return data;
 }
 

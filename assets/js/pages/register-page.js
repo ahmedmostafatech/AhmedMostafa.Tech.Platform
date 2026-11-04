@@ -4,7 +4,7 @@
 // ============================================================
 
 import { initNavbar } from '../components/navbar.js';
-import { getPublishedRevisions, registerStudent } from '../services/revisions-service.js';
+import { getPublishedRevisions, registerStudent, validateCoupon } from '../services/revisions-service.js';
 import {
   getQueryParam,
   formatPrice,
@@ -18,6 +18,7 @@ import {
 let availableRevisions = [];
 let selectedCourseIds = new Set();
 let selectedPaymentMethod = 'vodafone_cash';
+let appliedCouponData = null;
 
 function setupPaymentMethodRadios() {
   let cards = document.querySelectorAll('.method-radio-card');
@@ -48,8 +49,24 @@ function updateSummaryPill() {
     return sum + Number(r.price_egp || 120);
   }, 0);
 
+  let finalAmount = totalAmount;
+  if (appliedCouponData) {
+    let disc = appliedCouponData.discount_type === 'percentage'
+      ? Math.round(totalAmount * (appliedCouponData.discount_value / 100))
+      : appliedCouponData.discount_value;
+    if (disc > totalAmount) disc = totalAmount;
+    finalAmount = totalAmount - disc;
+  }
+
   if (countEl) countEl.textContent = `${selectedList.length} مراجعة`;
-  if (priceEl) priceEl.textContent = formatPrice(totalAmount);
+  if (priceEl) {
+    if (appliedCouponData && finalAmount < totalAmount) {
+      priceEl.innerHTML = `<span style="text-decoration:line-through; font-size:14px; color:#94a3b8; margin-left:6px;">${formatPrice(totalAmount)}</span> <span style="color:#16a34a;">${formatPrice(finalAmount)}</span>`;
+    } else {
+      priceEl.textContent = formatPrice(totalAmount);
+    }
+  }
+  
 
   if (titlesEl) {
     if (selectedList.length === 0) {
@@ -127,6 +144,57 @@ function renderRevisionsPicker() {
 async function initRegisterPage() {
   await initNavbar({ activePage: 'revisions' });
   setupPaymentMethodRadios();
+
+  // إعداد زر كود الخصم
+  let couponInput = document.getElementById('reg-coupon');
+  let couponBtn = document.getElementById('btn-apply-coupon');
+  let couponStatusEl = document.getElementById('coupon-status-msg');
+
+  if (couponBtn && couponInput) {
+    couponBtn.addEventListener('click', async function () {
+      let code = couponInput.value.trim().toUpperCase();
+      if (!code) {
+        if (couponStatusEl) {
+          couponStatusEl.textContent = 'يرجى كتابة كود الخصم أولاً.';
+          couponStatusEl.style.color = '#ef4444';
+          couponStatusEl.hidden = false;
+        }
+        return;
+      }
+
+      let selectedList = availableRevisions.filter(function (r) {
+        return selectedCourseIds.has(r.id);
+      });
+      let currentTotal = selectedList.reduce(function (sum, r) {
+        return sum + Number(r.price_egp || 120);
+      }, 0);
+
+      setButtonLoading(couponBtn, true, 'جاري الفحص...');
+
+      try {
+        let res = await validateCoupon(code, currentTotal);
+        appliedCouponData = res;
+        if (couponStatusEl) {
+          let discVal = res.discount_type === 'percentage' ? (res.discount_value + '%') : (res.discount_amount + ' ج.م');
+          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم تطبيق الكود (${res.code}) بنجاح! خصم ${discVal}`;
+          couponStatusEl.style.color = '#16a34a';
+          couponStatusEl.hidden = false;
+        }
+        updateSummaryPill();
+      } catch (err) {
+        appliedCouponData = null;
+        if (couponStatusEl) {
+          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${err.message || 'كود الخصم غير صحيح أو منتهي'}`;
+          couponStatusEl.style.color = '#ef4444';
+          couponStatusEl.hidden = false;
+        }
+        updateSummaryPill();
+      } finally {
+        setButtonLoading(couponBtn, false);
+      }
+    });
+  }
+
 
   let paramId = getQueryParam('id') || getQueryParam('course_id');
   let errorEl = document.getElementById('register-error');
@@ -266,7 +334,8 @@ async function initRegisterPage() {
             branch: branchVal,
             phone: phoneCheck.normalized,
             email: emailCheck.normalized,
-            paymentMethod: selectedPaymentMethod
+            paymentMethod: selectedPaymentMethod,
+            discountCode: appliedCouponData ? appliedCouponData.code : null
           });
 
           if (result && result.registration_id) {

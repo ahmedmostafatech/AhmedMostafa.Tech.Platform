@@ -31,11 +31,13 @@ export let ROUTES = Object.freeze({
   REVISION: '/revision.html',
   REGISTER: '/register.html',
   PAYMENT: '/payment.html',
+  TRACK: '/track.html',
   // مسارات لوحة الأدمن
   ADMIN_LOGIN: '/admin/login.html',
   ADMIN_HOME: '/admin/index.html',
   ADMIN_REGISTRATIONS: '/admin/registrations.html',
   ADMIN_REVISIONS: '/admin/revisions.html',
+  ADMIN_DISCOUNTS: '/admin/discounts.html',
   ADMIN_REPORTS: '/admin/reports.html'
 });
 

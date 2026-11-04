@@ -214,24 +214,86 @@
               </p>
             </div>
 
-            <!-- صندوق الواتساب لإرسال الإيصال -->
-            <div class="whatsapp-box spotlight-card" style="border-radius:20px; padding:24px;">
+            <!-- خيارات إرسال الإيصال وتأكيد الدفع -->
+            <div style="margin-top:var(--space-6);">
               <h3
-                style="font-size:var(--text-md); font-weight:800; color:#128c7e; margin:0 0 var(--space-2) 0; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class="fa-brands fa-whatsapp"></i> الخطوة الأخيرة: إرسال صورة إيصال التحويل
+                style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin-bottom:var(--space-2); text-align:center;">
+                <i class="fa-solid fa-receipt"></i> الخطوة الأخيرة: تأكيد التحويل
               </h3>
               <p
-                style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:var(--space-4);">
-                بعد إتمام التحويل، اضغط على الزر بالأسفل لفتح محادثة واتساب مجهزة ببياناتك وكود تسجيلك، ثم قم بإرفاق
-                لقطة شاشة الإيصال داخل المحادثة.
+                style="font-size:var(--text-xs); color:var(--color-text-muted); text-align:center; margin-bottom:var(--space-4);">
+                اختر الطريقة الأنسب لك لتأكيد التحويل واستلام رابط المراجعة فوراً:
               </p>
-              <a id="whatsapp-send-btn" href="#" target="_blank" rel="noopener"
-                class="btn btn--whatsapp btn--block btn--lg btn-interactive"
-                style="font-size:var(--text-md); min-height:52px; display:inline-flex; align-items:center; justify-content:center; gap:12px;">
-                <span class="btn-dot"></span>
-                <span>إرسال صورة الإيصال عبر واتساب الآن</span>
-                <i class="fa-brands fa-whatsapp"></i>
-              </a>
+
+              <!-- الخيار الأول: رفع صورة الإيصال مباشرة بالموقع -->
+              <div class="spotlight-card"
+                style="background:var(--color-surface); border:1.5px solid var(--color-border); border-radius:20px; padding:24px; margin-bottom:var(--space-4);">
+                <div
+                  style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                  <strong
+                    style="color:var(--color-primary); font-size:var(--text-md); display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="color:var(--color-accent);"></i> الخيار 1: رفع صورة
+                    الإيصال من هنا مباشرة (الأسرع)
+                  </strong>
+                  <span class="badge badge--success" style="font-size:11px;">تأكيد فوري</span>
+                </div>
+                <p
+                  style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:16px;">
+                  التقط سكرين شوت لإشعار التحويل وارفعها هنا مباشرة، وسيصل إشعار فوري للمهندس لمراجعتها وتفعيل حسابك
+                  تلقائياً دون الحاجة لفتح واتساب.
+                </p>
+
+                <div id="receipt-upload-container">
+                  <input type="file" id="receipt-file-input" accept="image/*" style="display:none;">
+                  <div id="receipt-dropzone"
+                    style="border:2px dashed #cbd5e1; border-radius:14px; padding:24px; text-align:center; cursor:pointer; background:#fff; transition:all .2s ease;">
+                    <i class="fa-solid fa-image" style="font-size:32px; color:#94a3b8; margin-bottom:8px;"></i>
+                    <div
+                      style="font-weight:700; color:var(--color-primary); font-size:var(--text-sm); margin-bottom:4px;">
+                      اضغط هنا لاختيار صورة الإيصال</div>
+                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">أو اسحب الصورة وأفلتها هنا
+                      (PNG, JPG, WEBP)</div>
+                  </div>
+
+                  <!-- معاينة الصورة بعد الاختيار -->
+                  <div id="receipt-preview-box" hidden style="margin-top:14px; text-align:center;">
+                    <img id="receipt-preview-img" src="" alt="معاينة الإيصال"
+                      style="max-height:220px; max-width:100%; border-radius:10px; border:1px solid #e2e8f0; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="display:flex; justify-content:center; gap:10px;">
+                      <button type="button" id="btn-upload-receipt" class="btn btn--primary"
+                        style="padding:10px 24px; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-paper-plane"></i> تأكيد ورفع الإيصال
+                      </button>
+                      <button type="button" id="btn-cancel-receipt" class="btn btn--secondary"
+                        style="padding:10px 16px;">
+                        تغيير الصورة
+                      </button>
+                    </div>
+                  </div>
+
+                  <div id="receipt-upload-alert" class="alert" hidden
+                    style="margin-top:12px; font-size:var(--text-xs);"></div>
+                </div>
+              </div>
+
+              <!-- الخيار الثاني: إرسال الإيصال عبر واتساب -->
+              <div class="whatsapp-box spotlight-card" style="border-radius:20px; padding:20px;">
+                <h4
+                  style="font-size:var(--text-sm); font-weight:800; color:#128c7e; margin:0 0 6px 0; display:flex; align-items:center; justify-content:center; gap:8px;">
+                  <i class="fa-brands fa-whatsapp"></i> الخيار 2: أو إرسال صورة الإيصال عبر واتساب
+                </h4>
+                <p
+                  style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.5; margin-bottom:14px;">
+                  إذا كنت تفضل التواصل شات، اضغط بالأسفل لفتح المحادثة وإرفاق الإيصال هناك:
+                </p>
+                <a id="whatsapp-send-btn" href="#" target="_blank" rel="noopener"
+                  class="btn btn--whatsapp btn--block btn-interactive"
+                  style="font-size:var(--text-sm); min-height:46px; display:inline-flex; align-items:center; justify-content:center; gap:10px;">
+                  <span class="btn-dot"></span>
+                  <span>فتح محادثة واتساب الآن</span>
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+              </div>
             </div>
 
           </div>

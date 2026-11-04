@@ -37,6 +37,7 @@ function buildNavHTML(opts) {
           <div class="navbar__nav" role="list">
             ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
             ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
+            ${navLink(ROUTES.TRACK, 'متابعة طلبي', 'track')}
             <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__link">كيفية الاشتراك</a>
             <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__link" style="color:#25d366; display:inline-flex; align-items:center; gap:6px;">
               <i class="fa-brands fa-whatsapp"></i> تواصل واتساب

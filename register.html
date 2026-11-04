@@ -515,7 +515,28 @@
             <span class="form-field-error" id="email-error">من فضلك اكتب بريد إلكتروني صحيح</span>
           </div>
 
-          <!-- 5. وسيلة الدفع المفضلة -->
+          <!-- 5. كود الخصم (اختياري) -->
+          <div class="field-group">
+            <label class="clean-label" for="reg-coupon">
+              <span class="label-title-row">
+                <span>كود الخصم (إن وجد)</span>
+                <span class="badge badge--accent" style="font-size:10px; padding:2px 8px; margin-right:6px;">تخفيض
+                  إضافي</span>
+              </span>
+              <span class="label-sub-hint">اكتب الكود واضغط تطبيق للحصول على خصم مباشر على إجمالي الفاتورة</span>
+            </label>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="text" id="reg-coupon" name="coupon" class="form-input" placeholder="مثال: OFF20 أو EELU"
+                dir="ltr" style="text-align:right; text-transform:uppercase; font-family:monospace; font-weight:700;">
+              <button type="button" id="btn-apply-coupon" class="btn btn--secondary"
+                style="white-space:nowrap; padding:12px 20px; font-weight:700;">
+                <i class="fa-solid fa-tag"></i> تطبيق الكود
+              </button>
+            </div>
+            <div id="coupon-status-msg" style="font-size:var(--text-xs); margin-top:6px; font-weight:700;" hidden></div>
+          </div>
+
+          <!-- 6. وسيلة الدفع المفضلة -->
           <div class="field-group" style="margin-bottom:var(--space-6);">
             <label class="clean-label">
               <span class="label-title-row">
