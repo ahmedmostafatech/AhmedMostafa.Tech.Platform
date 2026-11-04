@@ -40,6 +40,8 @@ export async function getAllRegistrations(filters = {}) {
       access_revoked_at,
       revoke_reason,
       access_error,
+      receipt_url,
+      proof_path,
       created_at,
       courses ( id, title, access_link )
     `)
@@ -86,6 +88,8 @@ export async function getRegistrationById(regId) {
     .from('registrations')
     .select(`
       *,
+      receipt_url,
+      proof_path,
       courses ( id, title, price_egp, access_link, access_until )
     `)
     .eq('id', regId)

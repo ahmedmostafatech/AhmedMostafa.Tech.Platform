@@ -5,6 +5,7 @@
 
 import { requireAdmin } from '../../core/guard.js';
 import { signOut } from '../../core/auth.js';
+import { supabase } from '../../core/supabase-client.js';
 import {
   getAllRegistrations,
   getAllRevisions,
@@ -377,6 +378,60 @@ function openReviewModal(regId) {
       (reg.rejection_reason
         ? '<div style="color:#ef4444;"><strong>سبب الرفض السابق:</strong> ' + escapeHtml(reg.rejection_reason) + '</div>'
         : '');
+  }
+
+  // عرض كارت معاينة صورة إيصال التحويل المرفوع
+  let receiptBox = byId('modal-receipt-container');
+  if (receiptBox) {
+    let finalReceiptUrl = reg.receipt_url || null;
+    let proofPath = reg.proof_path || null;
+
+    if (!finalReceiptUrl && proofPath) {
+      try {
+        let { data: pubData } = supabase.storage.from('receipts').getPublicUrl(proofPath);
+        if (pubData && pubData.publicUrl) {
+          finalReceiptUrl = pubData.publicUrl;
+        }
+      } catch (err) {
+        console.warn('Error fetching public url for receipt:', err);
+      }
+    }
+
+    if (finalReceiptUrl) {
+      receiptBox.innerHTML = `
+        <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:14px; padding:14px; box-shadow:0 2px 6px rgba(0,0,0,0.03);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong style="color:#0f172a; font-size:13px; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-receipt" style="color:#2563eb;"></i>
+              صورة إيصال التحويل المرفوعة
+            </strong>
+            <a href="${escapeHtml(finalReceiptUrl)}" target="_blank" rel="noopener" class="btn btn--secondary btn--sm" style="font-size:11px; padding:4px 10px; border-radius:8px;">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح بالحجم الكامل
+            </a>
+          </div>
+          <div style="text-align:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px; overflow:hidden;">
+            <a href="${escapeHtml(finalReceiptUrl)}" target="_blank" rel="noopener">
+              <img src="${escapeHtml(finalReceiptUrl)}" alt="إيصال التحويل" style="max-height:220px; max-width:100%; border-radius:8px; object-fit:contain; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            </a>
+          </div>
+          <span style="display:block; font-size:11px; color:#64748b; margin-top:6px; text-align:center;">
+            💡 اضغط على الصورة لفتحها في تبويب مستقل لتكبيرها وفحص أرقام العملية والمبلغ.
+          </span>
+        </div>
+      `;
+    } else {
+      receiptBox.innerHTML = `
+        <div style="background:#f8fafc; border:1px dashed #cbd5e1; border-radius:12px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; color:#64748b; font-size:12px;">
+            <i class="fa-solid fa-image-slash" style="font-size:16px;"></i>
+            <span>لم يتم رفع صورة إيصال من الموقع — مراجعة الإيصال عبر الواتساب.</span>
+          </div>
+          <a href="${waLink}" target="_blank" rel="noopener" style="color:#16a34a; font-weight:700; font-size:12px; text-decoration:none; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+            <i class="fa-brands fa-whatsapp"></i> فتح المحادثة
+          </a>
+        </div>
+      `;
+    }
   }
 
   updateModalButtons(reg);

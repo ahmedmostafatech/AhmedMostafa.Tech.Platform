@@ -245,10 +245,20 @@ async function initPaymentPage() {
 
           // 2. ربط رابط الإيصال بجميع التسجيلات التابعة لهذا الطلب
           for (let i = 0; i < regIds.length; i++) {
-            await supabase.rpc('submit_registration_receipt', {
-              p_reg_id: regIds[i],
-              p_receipt_url: receiptUrl
-            });
+            try {
+              await supabase.rpc('submit_registration_receipt', {
+                p_reg_id: regIds[i],
+                p_receipt_url: receiptUrl
+              });
+            } catch (rpcErr) {
+              // fallback مباشر لحفظ proof_path و receipt_url
+              await supabase.from('registrations').update({
+                receipt_url: receiptUrl,
+                proof_path: fileName,
+                payment_status: 'under_review',
+                updated_at: new Date().toISOString()
+              }).eq('id', regIds[i]);
+            }
           }
 
           // 3. إرسال إشعار فوري لتليجرام بالصورة لتمكين الأدمن من القبول بنقرة واحدة
@@ -263,7 +273,8 @@ async function initPaymentPage() {
                 course_title: combinedCourses,
                 amount: totalAmount,
                 payment_method: first.payment_method,
-                receipt_url: receiptUrl
+                receipt_url: receiptUrl,
+                proof_path: fileName
               }
             });
           } catch (tgErr) {

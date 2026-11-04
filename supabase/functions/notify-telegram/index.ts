@@ -1,8 +1,10 @@
 // ============================================================
 // supabase/functions/notify-telegram/index.ts
 // إرسال إشعار فوري للأدمن على تليجرام عند تقديم طلب دفع جديد
-// مع أزرار Inline (قبول / رفض / واتساب) وصورة الإيصال إن وجدت
+// مع أزرار Inline (قبول / رفض / واتساب) وصورة الإيصال (sendPhoto) إن وجدت
 // ============================================================
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -37,14 +39,40 @@ Deno.serve(async (req) => {
     const txRef = esc(record.tx_reference || "—");
     const regId = String(record.registration_id || record.id || "");
     const regCode = esc(record.registration_code || record.code || "—");
-    const receiptUrl = record.receipt_url || null;
 
     const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
     const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
     if (!botToken || !chatId) {
       console.warn("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID");
       return jsonResp({ success: false, simulated: true, message: "Telegram not configured." });
+    }
+
+    // استخراج أو توليد رابط الصورة من proof_path أو receipt_url
+    let receiptUrl: string | null = record.receipt_url || null;
+    const proofPath: string | null = record.proof_path || null;
+
+    if (!receiptUrl && proofPath && supabaseUrl && serviceKey) {
+      try {
+        const supabase = createClient(supabaseUrl, serviceKey);
+        // توليد رابط موقع لمدة 7 أيام أو Public Url
+        const { data: signedData } = await supabase.storage
+          .from("receipts")
+          .createSignedUrl(proofPath, 60 * 60 * 24 * 7);
+
+        if (signedData?.signedUrl) {
+          receiptUrl = signedData.signedUrl;
+        } else {
+          const { data: pubData } = supabase.storage
+            .from("receipts")
+            .getPublicUrl(proofPath);
+          if (pubData?.publicUrl) receiptUrl = pubData.publicUrl;
+        }
+      } catch (err) {
+        console.warn("Could not generate signed url for proof_path:", err);
+      }
     }
 
     const message = `
@@ -61,18 +89,18 @@ Deno.serve(async (req) => {
 ${receiptUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>" : ""}
 `.trim();
 
-    // أزرار Inline
+    // أزرار Inline (تدعم approve_ و reject_ و review_)
     const inlineKeyboard: any = {
       inline_keyboard: []
     };
 
     if (regId) {
       inlineKeyboard.inline_keyboard.push([
-        { text: "✅ قبول وتفعيل الاشتراك", callback_data: `approve:${regId}` },
-        { text: "❌ رفض الطلب", callback_data: `reject:${regId}` },
+        { text: "✅ قبول وتأكيد الدفع", callback_data: `approve_${regId}` },
+        { text: "❌ رفض الطلب", callback_data: `reject_${regId}` },
       ]);
       inlineKeyboard.inline_keyboard.push([
-        { text: "🔍 وضع قيد الفحص", callback_data: `review:${regId}` },
+        { text: "🔍 وضع قيد الفحص", callback_data: `review_${regId}` },
       ]);
     }
 
