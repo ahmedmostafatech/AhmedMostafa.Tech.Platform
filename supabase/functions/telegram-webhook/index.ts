@@ -13,7 +13,7 @@ const CORS_HEADERS = {
 
 function esc(text: string | null | undefined): string {
   if (!text) return "";
-  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace/>/g, "&gt;");
+  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 function jsonResp(body: unknown, status = 200): Response {
@@ -35,6 +35,32 @@ async function sendTelegramMsg(token: string, chatId: number, text: string, butt
       reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
     }),
   });
+}
+
+// نداء send-activation-email بالهيدر الداخلي x-internal-secret
+async function callSendEmail(regId: string, force: boolean): Promise<{ ok: boolean; error: string }> {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  const internalSecret = Deno.env.get("INTERNAL_FUNCTION_SECRET") || "";
+  if (!supabaseUrl || !internalSecret) {
+    return { ok: false, error: "INTERNAL_FUNCTION_SECRET غير مضبوط" };
+  }
+  try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-activation-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-internal-secret": internalSecret,
+      },
+      body: JSON.stringify({ registration_id: regId, force: force }),
+    });
+    const raw = await res.text();
+    let parsed: any = {};
+    try { parsed = JSON.parse(raw); } catch (_e) { /* ignore */ }
+    if (res.ok && parsed.ok === true) return { ok: true, error: "" };
+    return { ok: false, error: parsed.details || parsed.error || ("HTTP " + res.status) };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -118,25 +144,10 @@ Deno.serve(async (req: Request) => {
           responseText = "❌ فشل القبول: " + approveErr.message;
           statusAlert = true;
         } else {
-          // استدعاء إرسال الإيميل تلقائياً فور نجاح القبول
-          let emailOk = false;
-          let emailErrorMsg = "";
-
-          try {
-            const { data: mailRes, error: mailErr } = await admin.functions.invoke("send-activation-email", {
-              body: { registration_id: regId, force: false },
-            });
-
-            if (mailErr) {
-              emailErrorMsg = mailErr.message;
-            } else if (mailRes && mailRes.ok) {
-              emailOk = true;
-            } else {
-              emailErrorMsg = mailRes?.error || "رد غير متوقع من بوابة الإيميل";
-            }
-          } catch (e) {
-            emailErrorMsg = (e as Error).message;
-          }
+          // إرسال الإيميل تلقائياً فور نجاح القبول (بالهيدر الداخلي)
+          const mail = await callSendEmail(regId, false);
+          const emailOk = mail.ok;
+          const emailErrorMsg = mail.error;
 
           if (emailOk) {
             responseText = "✅ تم القبول وتأكيد الدفع، وتم إرسال إيميل التفعيل وصلاحية Drive للطالب بنجاح! 🎉";
@@ -154,22 +165,11 @@ Deno.serve(async (req: Request) => {
       }
       // ب) إعادة إرسال الإيميل (resend)
       else if (action === "resend") {
-        try {
-          const { data: mailRes, error: mailErr } = await admin.functions.invoke("send-activation-email", {
-            body: { registration_id: regId, force: true },
-          });
-
-          if (mailErr) {
-            responseText = "❌ فشل إرسال الإيميل: " + mailErr.message;
-            statusAlert = true;
-          } else if (mailRes && mailRes.ok) {
-            responseText = "📧 تم إرسال إيميل التفعيل ورابط المراجعة للطالب بنجاح!";
-          } else {
-            responseText = "⚠️ فشل الإرسال: " + (mailRes?.error || "خطأ غير متوقع");
-            statusAlert = true;
-          }
-        } catch (e) {
-          responseText = "❌ حدث خطأ أثناء إرسال الإيميل: " + (e as Error).message;
+        const mail = await callSendEmail(regId, true);
+        if (mail.ok) {
+          responseText = "📧 تم إرسال إيميل التفعيل ورابط المراجعة للطالب بنجاح!";
+        } else {
+          responseText = "⚠️ فشل الإرسال: " + mail.error;
           statusAlert = true;
         }
 
