@@ -28,49 +28,59 @@ function renderCouponRow(coupon) {
   let isPercentage = coupon.discount_type === 'percentage';
   let valText = isPercentage ? `${coupon.discount_value}%` : `${coupon.discount_value} ج.م`;
   let typeBadge = isPercentage
-    ? '<span class="badge badge--accent" style="font-size:11px;">نسبة مئوية</span>'
-    : '<span class="badge badge--primary" style="font-size:11px;">مبلغ ثابت</span>';
+    ? '<span class="badge badge--accent" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-percent" style="margin-left:4px;"></i> نسبة</span>'
+    : '<span class="badge badge--primary" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-coins" style="margin-left:4px;"></i> مبلغ ثابت</span>';
 
+  let usesPercent = coupon.max_uses ? Math.min(100, Math.round((coupon.used_count / coupon.max_uses) * 100)) : 0;
   let usesText = coupon.max_uses
-    ? `<span style="font-weight:700;">${coupon.used_count}</span> / ${coupon.max_uses}`
-    : `<span style="font-weight:700;">${coupon.used_count}</span> (غير محدود)`;
+    ? `<div style="display:flex; flex-direction:column; gap:4px;">
+         <span style="font-weight:800; font-size:13px;">${coupon.used_count} <span style="font-weight:400; color:#64748b;">/ ${coupon.max_uses}</span></span>
+         <div style="width:70px; height:5px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
+           <div style="width:${usesPercent}%; height:100%; background:#3b82f6;"></div>
+         </div>
+       </div>`
+    : `<span style="font-weight:800; color:#1e293b;">${coupon.used_count}</span> <span style="font-size:11px; color:#64748b;">(مفتوح)</span>`;
 
-  let minAmountText = coupon.min_amount > 0 ? `${coupon.min_amount} ج.م` : 'بدون حد';
+  let minAmountText = coupon.min_amount > 0 ? `<span style="font-weight:700;">${coupon.min_amount} ج.م</span>` : '<span style="color:#94a3b8;">بدون حد</span>';
 
   let isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date();
-  let expiryText = coupon.expires_at ? formatDateTime(coupon.expires_at) : 'دائم';
+  let expiryText = coupon.expires_at ? formatDateTime(coupon.expires_at) : '<span style="color:#16a34a; font-weight:700;">دائم</span>';
 
   let statusBadge = '';
   if (isExpired) {
-    statusBadge = '<span class="badge badge--danger" style="font-size:11px;">منتهي</span>';
+    statusBadge = '<span class="badge badge--danger" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-clock-rotate-left"></i> منتهي</span>';
   } else if (coupon.is_active) {
-    statusBadge = '<span class="badge badge--success" style="font-size:11px;">مفعّل</span>';
+    statusBadge = '<span class="badge badge--success" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-circle-check"></i> مفعّل</span>';
   } else {
-    statusBadge = '<span class="badge badge--muted" style="font-size:11px;">معطّل</span>';
+    statusBadge = '<span class="badge badge--muted" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-pause"></i> معطّل</span>';
   }
 
-  let toggleBtnText = coupon.is_active ? 'تعطيل' : 'تفعيل';
+  let toggleBtnText = coupon.is_active ? 'تعطيل الكود' : 'تفعيل الكود';
   let toggleBtnClass = coupon.is_active ? 'btn--secondary' : 'btn--primary';
 
   return `
-    <tr>
-      <td style="font-weight:900; font-family:monospace; font-size:14px; color:#ec4899;">
-        <i class="fa-solid fa-tag" style="margin-left:4px; font-size:12px;"></i>
-        ${escapeHtml(coupon.code)}
+    <tr style="border-bottom:1px solid #f1f5f9; transition:background .15s;">
+      <td style="padding:14px 16px;">
+        <div style="display:inline-flex; align-items:center; gap:6px; background:#fdf2f8; border:1px dashed #f472b6; padding:6px 12px; border-radius:8px;">
+          <i class="fa-solid fa-tag" style="color:#ec4899; font-size:13px;"></i>
+          <span style="font-weight:900; font-family:monospace; font-size:15px; color:#be185d; letter-spacing:0.5px;">${escapeHtml(coupon.code)}</span>
+        </div>
       </td>
-      <td>${typeBadge}</td>
-      <td style="font-weight:800; color:#16a34a;">${escapeHtml(valText)}</td>
-      <td>${usesText}</td>
-      <td>${escapeHtml(minAmountText)}</td>
-      <td style="font-size:11px; color:#64748b;">${escapeHtml(expiryText)}</td>
-      <td>${statusBadge}</td>
-      <td style="text-align:center; white-space:nowrap;">
-        <button type="button" class="btn ${toggleBtnClass} btn--sm btn-toggle-coupon" data-id="${escapeHtml(coupon.id)}" data-active="${coupon.is_active}" style="padding:4px 10px; font-size:11px; border-radius:6px; margin-left:4px;">
-          ${toggleBtnText}
-        </button>
-        <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" style="padding:4px 10px; font-size:11px; border-radius:6px; color:#ef4444; border-color:rgba(239,68,68,0.3);">
-          <i class="fa-solid fa-trash"></i>
-        </button>
+      <td style="padding:14px 16px;">${typeBadge}</td>
+      <td style="padding:14px 16px; font-weight:900; font-size:15px; color:#0f172a;">${escapeHtml(valText)}</td>
+      <td style="padding:14px 16px;">${usesText}</td>
+      <td style="padding:14px 16px; font-size:13px;">${minAmountText}</td>
+      <td style="padding:14px 16px; font-size:12px; color:#475569;">${expiryText}</td>
+      <td style="padding:14px 16px;">${statusBadge}</td>
+      <td style="padding:14px 16px; text-align:center; white-space:nowrap;">
+        <div style="display:inline-flex; gap:6px;">
+          <button type="button" class="btn ${toggleBtnClass} btn--sm btn-toggle-coupon" data-id="${escapeHtml(coupon.id)}" data-active="${coupon.is_active}" style="min-height:32px; padding:0 12px; font-size:12px; border-radius:8px; font-weight:700;">
+            ${toggleBtnText}
+          </button>
+          <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" title="حذف الكود" style="min-height:32px; width:34px; padding:0; border-radius:8px; color:#ef4444; border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; justify-content:center;">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
       </td>
     </tr>
   `;

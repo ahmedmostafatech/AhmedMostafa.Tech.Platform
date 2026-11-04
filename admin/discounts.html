@@ -31,7 +31,9 @@
 
     <!-- القائمة الجانبية -->
     <aside class="admin-sidebar">
-      <div class="admin-brand">
+      <div id="admin-3d-bg" class="admin-3d-canvas-wrap"
+        style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;"></div>
+      <div class="admin-brand" style="position:relative;z-index:1;">
         <div class="admin-brand-icon">
           <i class="fa-solid fa-graduation-cap"></i>
         </div>
@@ -143,7 +145,8 @@
 
       <!-- جدول الأكواد -->
       <div class="table-container spotlight-card" style="border-radius:18px;">
-        <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+        <div
+          style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
           <strong style="color:var(--admin-text-main); font-size:14px;">قائمة أكواد الخصم النشطة والسابقة</strong>
           <button type="button" id="refresh-coupons-btn" class="btn btn--secondary btn--sm" style="border-radius:8px;">
             <i class="fa-solid fa-rotate-right"></i> تحديث
@@ -181,19 +184,22 @@
   <!-- مودال إنشاء كود خصم جديد -->
   <div id="create-coupon-modal" class="modal-backdrop" hidden>
     <div class="modal-card spotlight-card" style="max-width:520px; border-radius:22px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #e2e8f0; padding-bottom:14px;">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #e2e8f0; padding-bottom:14px;">
         <h3 style="margin:0; font-size:18px; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-tag" style="color:#ec4899;"></i>
           <span>إنشاء كود خصم جديد</span>
         </h3>
-        <button type="button" id="modal-close-btn" class="btn btn--secondary btn--sm" style="border-radius:50%; width:32px; height:32px; padding:0;">
+        <button type="button" id="modal-close-btn" class="btn btn--secondary btn--sm"
+          style="border-radius:50%; width:32px; height:32px; padding:0;">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <form id="create-coupon-form">
         <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">كود الخصم (Promo Code) *</label>
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">كود الخصم (Promo Code)
+            *</label>
           <input type="text" id="coupon-code-input" class="form-input" placeholder="مثال: EELU2026 أو OFF30" required
             dir="ltr" style="text-align:right; text-transform:uppercase; font-family:monospace; font-weight:700;">
         </div>
@@ -208,29 +214,36 @@
           </div>
           <div>
             <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">قيمة الخصم *</label>
-            <input type="number" id="coupon-value-input" class="form-input" placeholder="مثال: 20 أو 50" min="1" required>
+            <input type="number" id="coupon-value-input" class="form-input" placeholder="مثال: 20 أو 50" min="1"
+              required>
           </div>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأقصى للاستخدام</label>
-            <input type="number" id="coupon-max-uses-input" class="form-input" placeholder="اتركه فارغاً لغير محدود" min="1">
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأقصى
+              للاستخدام</label>
+            <input type="number" id="coupon-max-uses-input" class="form-input" placeholder="اتركه فارغاً لغير محدود"
+              min="1">
           </div>
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأدنى للطلب (ج.م)</label>
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأدنى للطلب
+              (ج.م)</label>
             <input type="number" id="coupon-min-amount-input" class="form-input" placeholder="0" min="0" value="0">
           </div>
         </div>
 
         <div style="margin-bottom:20px;">
-          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">تاريخ انتهاء الصلاحية (اختياري)</label>
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">تاريخ انتهاء الصلاحية
+            (اختياري)</label>
           <input type="datetime-local" id="coupon-expires-input" class="form-input">
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:16px;">
-          <button type="button" id="modal-cancel-btn" class="btn btn--secondary" style="border-radius:10px;">إلغاء</button>
-          <button type="submit" id="modal-submit-btn" class="btn btn--primary" style="border-radius:10px; padding:10px 24px; font-weight:700;">
+          <button type="button" id="modal-cancel-btn" class="btn btn--secondary"
+            style="border-radius:10px;">إلغاء</button>
+          <button type="submit" id="modal-submit-btn" class="btn btn--primary"
+            style="border-radius:10px; padding:10px 24px; font-weight:700;">
             <i class="fa-solid fa-check"></i> حفظ الكود
           </button>
         </div>
@@ -238,9 +251,10 @@
     </div>
   </div>
 
+  <script src="../assets/js/components/admin-nav.js"></script>
+  <script src="../assets/js/components/admin-3d-bg.js"></script>
   <script type="module" src="../assets/js/pages/admin/admin-discounts-page.js"></script>
 
 </body>
 
 </html>
-
