@@ -35,6 +35,11 @@ export async function getAllRegistrations(filters = {}) {
       rejection_reason,
       approved_at,
       email_sent,
+      access_status,
+      access_granted_at,
+      access_revoked_at,
+      revoke_reason,
+      access_error,
       created_at,
       courses ( id, title, access_link )
     `)
@@ -241,4 +246,39 @@ export async function sendActivationEmail(regId, force) {
   }
 
   return data;
+}
+
+// 11. سحب صلاحية Drive من طالب
+export async function revokeAccess(regId, reason) {
+  let { data, error } = await supabase.functions.invoke('revoke-access', {
+    body: { registration_id: regId, reason: reason || '' }
+  });
+  if (error) {
+    let realMessage = error.message;
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        let body = await error.context.json();
+        realMessage = body.details ? (body.error + ': ' + body.details) : (body.error || body.message || realMessage);
+      }
+    } catch (parseErr) {}
+    console.error('revoke-access failed:', realMessage);
+    throw new Error(realMessage);
+  }
+  if (!data || data.ok !== true) {
+    let failMessage = data && (data.details || data.error) ? (data.error + ': ' + (data.details || '')) : 'unexpected function response';
+    throw new Error(failMessage);
+  }
+  return data;
+}
+
+// 12. حذف تسجيل طالب نهائياً
+export async function deleteRegistration(regId) {
+  let { data, error } = await supabase.rpc('admin_delete_registration', {
+    p_reg_id: regId
+  });
+  if (error) {
+    console.error('admin_delete_registration failed:', error.message);
+    throw error;
+  }
+  return true;
 }

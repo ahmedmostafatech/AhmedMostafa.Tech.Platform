@@ -1,7 +1,6 @@
 // ============================================================
 // send-activation-email
-// إرسال إيميل تفعيل الاشتراك بعد قبول الدفع (للأدمن فقط)
-// بتاخد registration_id بس، وبتقرا كل حاجة تانية من الداتابيز
+// إرسال إيميل التفعيل ومنح صلاحية Google Drive للطالب
 // ============================================================
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -12,11 +11,6 @@ let CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
-let METHOD_LABELS: Record<string, string> = {
-  vodafone_cash: 'فودافون كاش',
-  instapay: 'إنستاباي'
-};
-
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status: status,
@@ -24,8 +18,9 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-function escapeHtml(value: unknown): string {
-  return String(value === null || value === undefined ? '' : value)
+function escapeHtml(text: string | null | undefined): string {
+  if (!text) return '';
+  return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -33,63 +28,72 @@ function escapeHtml(value: unknown): string {
     .replace(/'/g, '&#39;');
 }
 
-// تاريخ بالعربي وأرقام لاتينية بتوقيت القاهرة
-function formatDateAr(dateOnly: string | null): string {
-  if (!dateOnly) return '';
-  let date = new Date(dateOnly + 'T12:00:00Z');
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
-    timeZone: 'Africa/Cairo',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
+function buildEmailHtml(data: {
+  studentName: string;
+  regCode: string;
+  courseTitle: string;
+  accessUntil: string;
+  accessLink: string;
+}): { html: string; text: string } {
+  let html = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b; direction: rtl; text-align: right; }
+    .email-container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .header { background: linear-gradient(135deg, #071022 0%, #365aa2 100%); padding: 32px 24px; text-align: center; color: white; }
+    .content { padding: 32px 28px; line-height: 1.8; }
+    .badge-success { background: #dcfce7; color: #16a34a; font-weight: bold; padding: 6px 14px; border-radius: 99px; display: inline-block; font-size: 13px; margin-bottom: 16px; }
+    .details-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0; }
+    .detail-row { margin-bottom: 10px; font-size: 14px; }
+    .detail-label { font-weight: 700; color: #334155; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #365aa2 0%, #204080 100%); color: #ffffff !important; text-decoration: none; padding: 14px 32px; border-radius: 99px; font-weight: bold; font-size: 16px; margin: 20px 0 10px; box-shadow: 0 4px 12px rgba(54,90,162,0.3); }
+    .footer { text-align: center; padding: 20px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; background: #f8fafc; }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h1 style="margin:0; font-size:24px; font-weight:900;">أحمد مصطفى تك</h1>
+      <p style="margin:6px 0 0; opacity:0.85; font-size:13px;">تأكيد الاشتراك وتفعيل صلاحية المراجعة</p>
+    </div>
+    <div class="content">
+      <div class="badge-success">تم استلام التحويل وتفعيل الوصول بنجاح</div>
+      <h2 style="font-size:20px; color:#071022; margin-top:0;">أهلاً بك يا ${escapeHtml(data.studentName)}</h2>
+      <p style="font-size:15px; color:#475569;">
+        تمت مراجعة عملية التحويل وتأكيد اشتراكك في <strong>${escapeHtml(data.courseTitle)}</strong>، وتمت إضافة بريدك الإلكتروني كصلاحية مشاهدة مباشرة على مجلد Google Drive.
+      </p>
+      <div class="details-box">
+        <div class="detail-row"><span class="detail-label">كود التسجيل:</span> ${escapeHtml(data.regCode)}</div>
+        <div class="detail-row"><span class="detail-label">المراجعة المفعلة:</span> ${escapeHtml(data.courseTitle)}</div>
+        <div class="detail-row"><span class="detail-label">فترة الإتاحة:</span> حتى ${escapeHtml(data.accessUntil)}</div>
+        <div class="detail-row">
+          <span class="detail-label">الرابط المباشر للمحتوى:</span><br>
+          <a href="${escapeHtml(data.accessLink)}" target="_blank" style="color:#365aa2; font-weight:bold; word-break:break-all;">${escapeHtml(data.accessLink)}</a>
+        </div>
+      </div>
+      <div style="text-align:center;">
+        <a href="${escapeHtml(data.accessLink)}" target="_blank" class="cta-btn">فتح مجلد المراجعة والبدء في المذاكرة 🚀</a>
+      </div>
+      <p style="font-size:13px; color:#64748b; margin-top:24px;">
+        💡 يرجى التأكد من تسجيل الدخول بحساب Google هذا للوصول إلى المجلد. للتواصل والدعم على واتساب: <strong>01066843568</strong>
+      </p>
+    </div>
+    <div class="footer">
+      Ahmed Mostafa Tech &copy; 2026. نتمنى لك دوام التوفيق والامتياز.
+    </div>
+  </div>
+</body>
+</html>`;
+
+  let text = `أهلاً بك ${data.studentName}\nتم تأكيد اشتراكك في ${data.courseTitle}.\nرابط المراجعة على Google Drive:\n${data.accessLink}\nكود التسجيل: ${data.regCode}`;
+  return { html, text };
 }
 
-// بناء نص الإيميل
-function buildEmail(reg: any, course: any) {
-  let subject = 'تم تأكيد اشتراكك — Ahmed Mostafa Tech';
-  let untilText = formatDateAr(course.access_until);
-  let amount = Number(reg.amount).toFixed(2);
-  let methodLabel = METHOD_LABELS[reg.payment_method] || reg.payment_method;
-
-  let untilRow = untilText
-    ? '<tr><td style="padding:6px 0;color:#64748b;">صلاحية الوصول حتى</td><td style="padding:6px 0;font-weight:700;">' + escapeHtml(untilText) + '</td></tr>'
-    : '';
-
-  let html =
-    '<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;background:#f1f5f9;padding:24px;">' +
-    '<div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">' +
-    '<div style="background:#0b1d3a;color:#ffffff;padding:20px 24px;font-size:18px;font-weight:700;">Ahmed Mostafa Tech</div>' +
-    '<div style="padding:24px;color:#0f172a;line-height:1.9;font-size:15px;">' +
-    '<p style="margin:0 0 12px;">أهلًا ' + escapeHtml(reg.full_name) + '،</p>' +
-    '<p style="margin:0 0 16px;">تم تأكيد دفعك واشتراكك في <strong>' + escapeHtml(course.title) + '</strong>. تقدر تفتح المراجعة من الزرار اللي تحت.</p>' +
-    '<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px;">' +
-    '<tr><td style="padding:6px 0;color:#64748b;">رقم التسجيل</td><td style="padding:6px 0;font-weight:700;" dir="ltr">' + escapeHtml(reg.registration_code) + '</td></tr>' +
-    '<tr><td style="padding:6px 0;color:#64748b;">المبلغ</td><td style="padding:6px 0;font-weight:700;">' + escapeHtml(amount) + ' جنيه (' + escapeHtml(methodLabel) + ')</td></tr>' +
-    untilRow +
-    '</table>' +
-    '<p style="text-align:center;margin:24px 0;"><a href="' + escapeHtml(course.access_link) + '" style="background:#1d4ed8;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:999px;font-weight:700;display:inline-block;">فتح المراجعة</a></p>' +
-    '<p style="margin:0 0 8px;font-size:13px;color:#475569;">لو الزرار ما اشتغلش، انسخ اللينك ده وافتحه في المتصفح:</p>' +
-    '<p style="margin:0 0 16px;font-size:12px;word-break:break-all;color:#475569;" dir="ltr">' + escapeHtml(course.access_link) + '</p>' +
-    '<p style="margin:0;font-size:13px;color:#475569;">اللينك خاص بيك، يُفضل ما تشاركوش مع حد. وأي استفسار كلمنا على واتساب.</p>' +
-    '</div></div></div>';
-
-  let text =
-    'أهلًا ' + reg.full_name + '،\n\n' +
-    'تم تأكيد اشتراكك في ' + course.title + '.\n' +
-    'رقم التسجيل: ' + reg.registration_code + '\n' +
-    'رابط المراجعة: ' + course.access_link + '\n' +
-    (untilText ? 'صلاحية الوصول حتى: ' + untilText + '\n' : '') +
-    '\nAhmed Mostafa Tech';
-
-  return { subject: subject, html: html, text: text };
-}
-
-// الإرسال عبر بوابة Apps Script
-async function sendViaGateway(scriptUrl: string, secret: string, to: string, mail: any) {
+async function sendViaGateway(scriptUrl: string, secret: string, to: string, folderLink: string, mail: any) {
   let controller = new AbortController();
-  let timer = setTimeout(function () { controller.abort(); }, 25000);
+  let timer = setTimeout(function () { controller.abort(); }, 40000);
 
   try {
     let res = await fetch(scriptUrl, {
@@ -98,6 +102,7 @@ async function sendViaGateway(scriptUrl: string, secret: string, to: string, mai
       body: JSON.stringify({
         secret: secret,
         to: to,
+        folder_link: folderLink,
         subject: mail.subject,
         html: mail.html,
         text: mail.text
@@ -109,33 +114,32 @@ async function sendViaGateway(scriptUrl: string, secret: string, to: string, mai
     let raw = await res.text();
     try {
       let parsed = JSON.parse(raw);
-      return { ok: parsed.ok === true, error: parsed.error || null };
+      return {
+        ok: parsed.ok === true,
+        granted: parsed.granted === true,
+        error: parsed.error || null
+      };
     } catch (parseErr) {
-      return { ok: false, error: 'unexpected gateway response (' + res.status + ')' };
+      return { ok: false, granted: false, error: 'unexpected gateway response (' + res.status + ')' };
     }
   } catch (err) {
-    return { ok: false, error: String(err) };
+    return { ok: false, granted: false, error: String(err) };
   } finally {
     clearTimeout(timer);
   }
 }
 
-// تسجيل محاولة الإرسال في email_logs
-async function logEmail(admin: any, reg: any, status: string, errorMessage: string | null) {
+async function logEmail(admin: any, reg: any, status: string, errorMsg: string | null) {
   try {
-    let { error } = await admin.from('email_logs').insert({
+    await admin.from('email_logs').insert({
       registration_id: reg.id,
       recipient_email: reg.email,
       email_type: 'activation',
       status: status,
-      error_message: errorMessage,
-      sent_at: status === 'sent' ? new Date().toISOString() : null
+      error_message: errorMsg
     });
-    if (error) {
-      console.error('email_logs insert failed:', error.message);
-    }
-  } catch (err) {
-    console.error('email_logs insert exception:', err);
+  } catch (e) {
+    console.warn('logEmail failed:', e);
   }
 }
 
@@ -151,14 +155,13 @@ Deno.serve(async function (req: Request) {
     let supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     let anonKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
     let serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-    let scriptUrl = Deno.env.get('APPS_SCRIPT_URL') || '';
-    let scriptSecret = Deno.env.get('APPS_SCRIPT_SECRET') || '';
+    let scriptUrl = Deno.env.get('APPS_SCRIPT_URL') || 'https://script.google.com/macros/s/AKfycbxTpFzucBXi_wH8ze_HW4x-Fl6edYFodM4ZbIuM9MEw6wFXl1jf3jQwJjoQ_1wHUebCfg/exec';
+    let scriptSecret = Deno.env.get('APPS_SCRIPT_SECRET') || 'MySuperSecretKey_2026_AhmedTech_99';
 
     if (!scriptUrl || !scriptSecret) {
       return jsonResponse({ ok: false, error: 'email gateway not configured' }, 500);
     }
 
-    // 1) التأكد إن اللي بينادي أدمن
     let authHeader = req.headers.get('Authorization') || '';
     if (!authHeader) {
       return jsonResponse({ ok: false, error: 'not authenticated' }, 401);
@@ -178,7 +181,6 @@ Deno.serve(async function (req: Request) {
       return jsonResponse({ ok: false, error: 'forbidden' }, 403);
     }
 
-    // 2) قراءة الطلب
     let body: any = {};
     try {
       body = await req.json();
@@ -188,16 +190,16 @@ Deno.serve(async function (req: Request) {
 
     let regId = String(body.registration_id || '');
     let force = body.force === true;
+
     if (!/^[0-9a-f-]{36}$/i.test(regId)) {
       return jsonResponse({ ok: false, error: 'invalid registration id' }, 400);
     }
 
-    // 3) قراءة التسجيل والمادة بصلاحية السيرفر
     let admin = createClient(supabaseUrl, serviceKey);
 
     let { data: reg, error: regError } = await admin
       .from('registrations')
-      .select('id, registration_code, full_name, email, amount, payment_method, payment_status, email_sent, course_id')
+      .select('id, registration_code, full_name, email, payment_status, email_sent, access_status, course_id')
       .eq('id', regId)
       .maybeSingle();
 
@@ -205,57 +207,73 @@ Deno.serve(async function (req: Request) {
       return jsonResponse({ ok: false, error: 'registration not found' }, 404);
     }
 
-    // ممنوع إرسال لينك الدخول قبل قبول الدفع
     if (reg.payment_status !== 'paid') {
       return jsonResponse({ ok: false, error: 'registration not paid' }, 400);
     }
 
-    let { data: course } = await admin
+    if (reg.email_sent && !force) {
+      return jsonResponse({ ok: true, skipped: true, message: 'email already sent' });
+    }
+
+    let { data: course, error: courseError } = await admin
       .from('courses')
       .select('title, access_link, access_until')
       .eq('id', reg.course_id)
       .maybeSingle();
 
-    if (!course || !course.access_link || !/^https?:\/\//i.test(course.access_link)) {
+    if (courseError || !course || !course.access_link) {
       return jsonResponse({ ok: false, error: 'access link not set' }, 400);
     }
 
-    // 4) منع الإرسال المكرر: نحجز الإرسال بشكل ذري (إلا لو إعادة إرسال متعمدة)
-    if (!force) {
-      let { data: claimed } = await admin
-        .from('registrations')
-        .update({ email_sent: true, updated_at: new Date().toISOString() })
-        .eq('id', regId)
-        .or('email_sent.is.null,email_sent.eq.false')
-        .select('id');
+    let emailContent = buildEmailHtml({
+      studentName: reg.full_name || 'طالبنا العزيز',
+      regCode: reg.registration_code || '',
+      courseTitle: course.title || 'المادة الدراسية',
+      accessUntil: course.access_until || 'نهاية امتحانات الفصل الدراسي',
+      accessLink: course.access_link
+    });
 
-      if (!claimed || claimed.length === 0) {
-        return jsonResponse({ ok: true, skipped: true });
-      }
-    }
+    let mail = {
+      subject: `تم تأكيد اشتراكك في ${course.title} — Ahmed Mostafa Tech`,
+      html: emailContent.html,
+      text: emailContent.text
+    };
 
-    // 5) الإرسال
-    let mail = buildEmail(reg, course);
-    let result = await sendViaGateway(scriptUrl, scriptSecret, reg.email, mail);
+    let result = await sendViaGateway(scriptUrl, scriptSecret, reg.email, course.access_link, mail);
+    let nowIso = new Date().toISOString();
 
     if (result.ok) {
-      if (force) {
-        await admin.from('registrations')
-          .update({ email_sent: true, updated_at: new Date().toISOString() })
-          .eq('id', regId);
-      }
+      await admin.from('registrations')
+        .update({
+          email_sent: true,
+          access_status: 'granted',
+          access_granted_at: nowIso,
+          access_revoked_at: null,
+          revoke_reason: null,
+          access_error: null,
+          updated_at: nowIso
+        })
+        .eq('id', regId);
       await logEmail(admin, reg, 'sent', null);
       return jsonResponse({ ok: true });
     }
 
-    // فشل: نرجّع الحجز عشان زر إعادة الإرسال يشتغل
+    let failUpdate: Record<string, unknown> = { updated_at: nowIso };
     if (!force) {
-      await admin.from('registrations')
-        .update({ email_sent: false, updated_at: new Date().toISOString() })
-        .eq('id', regId);
+      failUpdate.email_sent = false;
     }
+    if (result.granted) {
+      failUpdate.access_status = 'granted';
+      failUpdate.access_granted_at = nowIso;
+      failUpdate.access_revoked_at = null;
+      failUpdate.revoke_reason = null;
+      failUpdate.access_error = null;
+    }
+    await admin.from('registrations').update(failUpdate).eq('id', regId);
+
     await logEmail(admin, reg, 'failed', result.error);
-    return jsonResponse({ ok: false, error: 'email delivery failed', details: result.error });
+    return jsonResponse({ ok: false, error: 'email delivery failed', details: result.error }, 500);
+
   } catch (err) {
     console.error('send-activation-email crashed:', err);
     return jsonResponse({ ok: false, error: 'internal error' }, 500);
