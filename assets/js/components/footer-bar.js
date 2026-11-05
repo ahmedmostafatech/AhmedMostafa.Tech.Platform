@@ -1,6 +1,8 @@
 // ============================================================
 // footer-bar.js — الفوتر الكريتيف المشترك + مزامنة الستارة
 // الاستخدام: <footer id="site-footer"></footer> ثم السكربت
+// البانر (CTA) بيتغير تلقائياً حسب الصفحة.
+// اختياري: data-cta="off" أو data-cta="<variant>" على الـ <footer> لتغييره يدوياً.
 // ============================================================
 (function () {
   var mount = document.getElementById('site-footer');
@@ -10,6 +12,26 @@
   var WA_GROUP = 'https://chat.whatsapp.com/BdKGIHxS8hv6cJugkr5HMg';
   var year = new Date().getFullYear();
 
+  // ── ستايل إضافي صغير (للأيقونات في وسائل الدفع) ──
+  if (!document.getElementById('cf-extra-style')) {
+    var st = document.createElement('style');
+    st.id = 'cf-extra-style';
+    st.textContent =
+      '.cf-pay span::before{display:none !important;}' +
+      '.cf-pay span svg{width:18px;height:18px;flex-shrink:0;display:block;}';
+    document.head.appendChild(st);
+  }
+
+  // ── أيقونات الدفع ──
+  var ICON_VODAFONE =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<path d="M12 0A12 12 0 0 0 0 12A12 12 0 0 0 12 24A12 12 0 0 0 24 12A12 12 0 0 0 12 0M16.25 1.12C16.57 1.12 16.9 1.15 17.11 1.22C14.94 1.67 13.21 3.69 13.22 6C13.22 6.05 13.22 6.11 13.23 6.17C16.87 7.06 18.5 9.25 18.5 12.28C18.54 15.31 16.14 18.64 12.09 18.65C8.82 18.66 5.41 15.86 5.39 11.37C5.38 8.4 7 5.54 9.04 3.85C11.04 2.19 13.77 1.13 16.25 1.12Z" fill="#E60000"></path></svg>';
+
+  var ICON_INSTAPAY =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" aria-hidden="true" style="color:#c084fc">' +
+    '<path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="m21.36 15.869l4.546 7.887l-9.278 8.322m-1.874-16.21l4.547 7.888l-9.278 8.322m21.099-14.913h8.13c2.81 0 4.669 1.96 4.166 4.397c-.504 2.436-3.173 4.397-5.984 4.397h-9.762l-1.896 6.173M9.383 16.016l-.936 3.087m-.995 3.287L4.5 32.132"/></svg>';
+
+  // ── الشريط المائل ──
   var stripItems = [
     'تسجيل فوري وسريع', 'دفع آمن ومعتمد', 'رابط مباشر بجودة Full HD',
     'شرح عملي ليلة الامتحان', 'دعم متواصل على مدار اليوم', 'فودافون كاش',
@@ -18,6 +40,91 @@
   var stripHtml = stripItems.concat(stripItems).map(function (t) {
     return '<span class="cf-strip-item">' + t + '</span>';
   }).join('');
+
+  // ── تعريف أزرار جاهزة ──
+  var BTN = {
+    revisions: { href: 'revisions.html', cls: 'cf-btn--solid', icon: 'fa-solid fa-graduation-cap', label: 'احجز مراجعتك' },
+    browse:    { href: 'revisions.html', cls: 'cf-btn--solid', icon: 'fa-solid fa-book-open', label: 'تصفح المراجعات' },
+    track:     { href: 'track.html', cls: 'cf-btn--solid', icon: 'fa-solid fa-magnifying-glass', label: 'متابعة طلبي' },
+    wa:        { href: WA, ext: true, cls: 'cf-btn--wa', icon: 'fa-brands fa-whatsapp', label: 'تواصل واتساب' },
+    waHelp:    { href: WA, ext: true, cls: 'cf-btn--wa', icon: 'fa-brands fa-whatsapp', label: 'كلمنا واتساب' },
+    group:     { href: WA_GROUP, ext: true, cls: 'cf-btn--solid', icon: 'fa-solid fa-users', label: 'جروب الطلاب' }
+  };
+
+  // ── أنواع البانر (CTA) ──
+  var CTA = {
+    default: {
+      badge: 'جاهز تبدأ؟',
+      title: 'ابدأ مراجعتك <span>دلوقتي</span> واضمن النجاح',
+      text: 'سجّل في دقيقة، حوّل، واستلم رابط المراجعة على طول. انضم لمئات الطلاب اللي اجتازوا امتحاناتهم.',
+      btns: [BTN.revisions, BTN.wa]
+    },
+    browse: {
+      badge: 'محتار؟',
+      title: 'مش لاقي <span>مادتك</span>؟',
+      text: 'كلمنا على واتساب وهنساعدك تختار المراجعة المناسبة لمادتك وفرعك.',
+      btns: [BTN.waHelp, BTN.group]
+    },
+    details: {
+      badge: 'عندك سؤال؟',
+      title: 'لسه <span>محتار</span> قبل ما تشترك؟',
+      text: 'اسأل أي حاجة عن المراجعة أو طريقة الاشتراك، وهنرد عليك في أسرع وقت.',
+      btns: [BTN.waHelp, BTN.browse]
+    },
+    payment: {
+      badge: 'محتاج مساعدة؟',
+      title: 'واجهتك مشكلة في <span>الدفع</span>؟',
+      text: 'ابعتلنا على واتساب ومعاك كود التسجيل وهنساعدك فوراً.',
+      btns: [BTN.waHelp]
+    },
+    track: {
+      badge: 'محتاج مساعدة؟',
+      title: 'محتاج مساعدة في <span>طلبك</span>؟',
+      text: 'لو طلبك اتأخر في المراجعة أو عندك أي استفسار، كلمنا على واتساب ومعاك كود التسجيل.',
+      btns: [BTN.waHelp, BTN.group]
+    }
+  };
+
+  // ── تحديد الصفحة الحالية ──
+  var file = (location.pathname.split('/').pop() || 'index').replace(/\.html?$/i, '').toLowerCase();
+  if (!file) file = 'index';
+
+  // خريطة الصفحة ← نوع البانر (null = بدون بانر)
+  var PAGE_CTA = {
+    index: 'default',
+    revisions: 'browse',
+    revision: 'details',
+    course: 'details',
+    payment: 'payment',
+    track: 'track',
+    register: null
+  };
+
+  var override = mount.getAttribute('data-cta');
+  var ctaKey;
+  if (override === 'off') ctaKey = null;
+  else if (override && CTA[override]) ctaKey = override;
+  else ctaKey = Object.prototype.hasOwnProperty.call(PAGE_CTA, file) ? PAGE_CTA[file] : 'default';
+
+  var ctaHtml = '';
+  if (ctaKey && CTA[ctaKey]) {
+    var c = CTA[ctaKey];
+    var btnsHtml = c.btns.map(function (b) {
+      var ext = b.ext ? ' target="_blank" rel="noopener"' : '';
+      return '<a href="' + b.href + '"' + ext + ' class="cf-btn ' + b.cls + ' magnetic-btn">' +
+        '<i class="' + b.icon + '"></i> ' + b.label + '</a>';
+    }).join('');
+
+    ctaHtml =
+      '<div class="cf-cta">' +
+        '<div>' +
+          '<span class="cf-badge"><i class="fa-solid fa-sparkles"></i> ' + c.badge + '</span>' +
+          '<h2>' + c.title + '</h2>' +
+          '<p>' + c.text + '</p>' +
+        '</div>' +
+        '<div class="cf-cta-btns">' + btnsHtml + '</div>' +
+      '</div>';
+  }
 
   mount.className = 'cf';
   mount.innerHTML = `
@@ -31,21 +138,7 @@
 
     <div class="container cf-inner">
 
-      <div class="cf-cta">
-        <div>
-          <span class="cf-badge"><i class="fa-solid fa-sparkles"></i> جاهز تبدأ؟</span>
-          <h2>ابدأ مراجعتك <span>دلوقتي</span> واضمن النجاح</h2>
-          <p>سجّل في دقيقة، حوّل، واستلم رابط المراجعة على طول. انضم لمئات الطلاب اللي اجتازوا امتحاناتهم.</p>
-        </div>
-        <div class="cf-cta-btns">
-          <a href="revisions.html" class="cf-btn cf-btn--solid magnetic-btn">
-            <i class="fa-solid fa-graduation-cap"></i> احجز مراجعتك
-          </a>
-          <a href="${WA}" target="_blank" rel="noopener" class="cf-btn cf-btn--wa magnetic-btn">
-            <i class="fa-brands fa-whatsapp"></i> تواصل واتساب
-          </a>
-        </div>
-      </div>
+      ${ctaHtml}
 
       <div class="cf-grid">
 
@@ -85,8 +178,8 @@
             <span><strong>جروب الطلاب</strong><small>انضم وناقش مع زمايلك</small></span>
           </a>
           <div class="cf-pay">
-            <span style="--d:#ef4444">فودافون كاش</span>
-            <span style="--d:#a855f7">إنستاباي</span>
+            <span>${ICON_VODAFONE} فودافون كاش</span>
+            <span>${ICON_INSTAPAY} إنستاباي</span>
           </div>
         </div>
 
