@@ -8,17 +8,14 @@
   <title>إدارة أكواد الخصم والعروض | أحمد مصطفى تك</title>
   <link rel="icon" href="data:,">
 
-  <!-- الخطوط الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
 
-  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- CSS -->
   <link rel="stylesheet" href="../assets/css/base.css">
   <link rel="stylesheet" href="../assets/css/layout.css">
   <link rel="stylesheet" href="../assets/css/components.css">
@@ -31,9 +28,7 @@
 
     <!-- القائمة الجانبية -->
     <aside class="admin-sidebar">
-      <div id="admin-3d-bg" class="admin-3d-canvas-wrap"
-        style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;"></div>
-      <div class="admin-brand" style="position:relative;z-index:1;">
+      <div class="admin-brand">
         <div class="admin-brand-icon">
           <i class="fa-solid fa-graduation-cap"></i>
         </div>
@@ -71,6 +66,7 @@
             <span>أكواد الخصم</span>
           </div>
         </a>
+
         <a href="reviews.html" class="admin-nav-link">
           <div class="admin-nav-item-inner">
             <i class="fa-solid fa-star" style="color:#f59e0b;"></i>
@@ -107,72 +103,97 @@
     <!-- المحتوى الرئيسي -->
     <main class="admin-main">
 
-      <!-- الشريط العلوي -->
       <header class="admin-topbar">
         <div>
-          <h1 class="admin-page-title">
-            <i class="fa-solid fa-tags" style="color:#ec4899; margin-left:6px;"></i>
+          <h1
+            style="margin:0; font-size:18px; font-weight:900; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-tags" style="color:#ec4899;"></i>
             إدارة أكواد الخصم والعروض
           </h1>
-          <p class="admin-page-desc">إنشاء ومتابعة كوبونات الخصم للطلاب والمجموعات والدفعات الجامعية</p>
+          <span style="font-size:12px; color:var(--admin-text-muted);">إنشاء ومتابعة كوبونات الخصم للطلاب
+            والمجموعات</span>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button type="button" id="open-create-modal-btn" class="btn btn--primary"
-            style="border-radius:12px; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button type="button" id="open-create-modal-btn" class="btn btn--accent btn--sm"
+            style="min-height:38px; padding:0 18px; font-size:13px; border-radius:10px; font-weight:700;">
             <i class="fa-solid fa-plus"></i>
-            <span>إنشاء كود خصم جديد</span>
+            <span>كود خصم جديد</span>
           </button>
         </div>
       </header>
 
-      <!-- بطاقات إحصائيات سريعة للأكواد -->
-      <div class="stat-grid" style="margin-bottom:24px;">
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">إجمالي الأكواد</div>
-          <div class="stat-val" id="stat-total-coupons">0</div>
-          <div class="stat-sub">جميع الأكواد المسجلة</div>
-        </div>
+      <div style="padding:28px 32px; overflow-y:auto; flex:1;">
 
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">الأكواد المفعّلة</div>
-          <div class="stat-val" id="stat-active-coupons" style="color:#16a34a;">0</div>
-          <div class="stat-sub">جاهزة للاستخدام حالياً</div>
-        </div>
+        <div id="discounts-alert" class="alert alert--error" hidden role="alert" style="margin-bottom:20px;"></div>
 
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">إجمالي مرات الاستخدام</div>
-          <div class="stat-val" id="stat-total-uses" style="color:#3b82f6;">0</div>
-          <div class="stat-sub">طالب استفاد من الخصومات</div>
-        </div>
-      </div>
+        <!-- كروت الإحصائيات -->
+        <div class="dashboard-stats-grid">
 
-      <!-- تنبيهات الصفحة -->
-      <div id="discounts-alert" class="alert alert--error" hidden style="margin-bottom:20px;"></div>
-
-      <!-- حاوية كروت أكواد الخصم العصرية -->
-      <div class="spotlight-card"
-        style="border-radius:24px; padding:24px; background:#ffffff; border:1px solid #e2e8f0; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
-        <div
-          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
-          <div>
-            <h2 style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0;">أكواد الخصم النشطة
-              والسابقة</h2>
-            <p style="font-size:12px; color:var(--admin-text-muted); margin:4px 0 0;">يمكنك تفعيل أو إيقاف أي كود أو
-              مسحه بضغطة واحدة</p>
+          <div class="dash-stat-card">
+            <div class="dash-stat-header">
+              <span style="font-size:13px; font-weight:700;">إجمالي الأكواد</span>
+              <div class="dash-stat-icon-wrap" style="background:#fdf2f8; color:#ec4899;">
+                <i class="fa-solid fa-tags"></i>
+              </div>
+            </div>
+            <div id="stat-total-coupons" class="dash-stat-value">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">جميع الأكواد المسجلة</div>
           </div>
-          <button type="button" id="refresh-coupons-btn" class="btn btn--secondary btn--sm"
-            style="border-radius:10px; font-weight:700;">
-            <i class="fa-solid fa-rotate-right"></i> تحديث القائمة
-          </button>
+
+          <div class="dash-stat-card">
+            <div class="dash-stat-header">
+              <span style="font-size:13px; font-weight:700;">الأكواد المفعّلة</span>
+              <div class="dash-stat-icon-wrap" style="background:#f0fdf4; color:#16a34a;">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+            </div>
+            <div id="stat-active-coupons" class="dash-stat-value" style="color:#16a34a !important;">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">جاهزة للاستخدام حالياً</div>
+          </div>
+
+          <div class="dash-stat-card">
+            <div class="dash-stat-header">
+              <span style="font-size:13px; font-weight:700;">مرات الاستخدام</span>
+              <div class="dash-stat-icon-wrap" style="background:#eff6ff; color:#2563eb;">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+            <div id="stat-total-uses" class="dash-stat-value" style="color:#2563eb !important;">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">طالب استفاد من الخصومات</div>
+          </div>
+
         </div>
 
-        <div id="coupons-cards-container" class="coupons-grid-cards"
-          style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:20px;">
-          <div style="grid-column:1/-1; text-align:center; padding:60px 20px; color:#94a3b8;">
-            <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-            <p style="margin-top:12px; font-size:14px; font-weight:700;">جاري تحميل أكواد الخصم...</p>
+        <!-- قائمة الأكواد -->
+        <div class="table-container-card">
+          <div
+            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2
+                style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0 0 4px; display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-ticket" style="color:#ec4899;"></i>
+                أكواد الخصم
+              </h2>
+              <span style="font-size:12px; color:var(--admin-text-muted);">فعّل أو أوقف أي كود، أو احذفه بضغطة
+                واحدة</span>
+            </div>
+            <button type="button" id="refresh-coupons-btn" class="btn btn--secondary btn--sm"
+              style="border-radius:10px; font-weight:700; font-size:12px;">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span>تحديث القائمة</span>
+            </button>
+          </div>
+
+          <div id="coupons-cards-container"
+            style="display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap:18px;">
+            <div style="grid-column:1/-1; text-align:center; padding:50px 20px; color:#94a3b8;">
+              <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+              <p style="margin-top:12px; font-size:14px; font-weight:700;">جاري تحميل أكواد الخصم...</p>
+            </div>
           </div>
         </div>
+
       </div>
 
     </main>
@@ -180,68 +201,75 @@
 
   <!-- مودال إنشاء كود خصم جديد -->
   <div id="create-coupon-modal" class="modal-backdrop" hidden>
-    <div class="modal-card spotlight-card" style="max-width:520px; border-radius:22px;">
+    <div class="modal-card" style="max-width:520px;">
       <div
-        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #e2e8f0; padding-bottom:14px;">
-        <h3 style="margin:0; font-size:18px; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:14px; margin-bottom:18px;">
+        <h3
+          style="margin:0; font-size:17px; font-weight:800; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-tag" style="color:#ec4899;"></i>
-          <span>إنشاء كود خصم جديد</span>
+          إنشاء كود خصم جديد
         </h3>
-        <button type="button" id="modal-close-btn" class="btn btn--secondary btn--sm"
-          style="border-radius:50%; width:32px; height:32px; padding:0;">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+        <button type="button" id="modal-close-btn" class="modal-close-btn">&times;</button>
       </div>
 
       <form id="create-coupon-form">
         <div style="margin-bottom:14px;">
-          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">كود الخصم (Promo Code)
-            *</label>
-          <input type="text" id="coupon-code-input" class="form-input" placeholder="مثال: EELU2026 أو OFF30" required
-            dir="ltr" style="text-align:right; text-transform:uppercase; font-family:monospace; font-weight:700;">
+          <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">
+            كود الخصم <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="text" id="coupon-code-input" class="dark-form-input" placeholder="مثال: EELU2026 أو OFF30"
+            required dir="ltr"
+            style="width:100%; box-sizing:border-box; text-align:right; text-transform:uppercase; font-family:monospace; font-weight:700;">
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">نوع الخصم *</label>
-            <select id="coupon-type-select" class="form-input" style="padding:10px;">
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">
+              نوع الخصم <span style="color:#ef4444;">*</span>
+            </label>
+            <select id="coupon-type-select" class="dark-form-input" style="width:100%; box-sizing:border-box;">
               <option value="percentage">نسبة مئوية (%)</option>
               <option value="fixed">مبلغ ثابت (ج.م)</option>
             </select>
           </div>
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">قيمة الخصم *</label>
-            <input type="number" id="coupon-value-input" class="form-input" placeholder="مثال: 20 أو 50" min="1"
-              required>
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">
+              قيمة الخصم <span style="color:#ef4444;">*</span>
+            </label>
+            <input type="number" id="coupon-value-input" class="dark-form-input" placeholder="20 أو 50" min="1" required
+              style="width:100%; box-sizing:border-box;">
           </div>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأقصى
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">الحد الأقصى
               للاستخدام</label>
-            <input type="number" id="coupon-max-uses-input" class="form-input" placeholder="اتركه فارغاً لغير محدود"
-              min="1">
+            <input type="number" id="coupon-max-uses-input" class="dark-form-input" placeholder="فارغ = غير محدود"
+              min="1" style="width:100%; box-sizing:border-box;">
           </div>
           <div>
-            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الحد الأدنى للطلب
+            <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">الحد الأدنى للطلب
               (ج.م)</label>
-            <input type="number" id="coupon-min-amount-input" class="form-input" placeholder="0" min="0" value="0">
+            <input type="number" id="coupon-min-amount-input" class="dark-form-input" placeholder="0" min="0" value="0"
+              style="width:100%; box-sizing:border-box;">
           </div>
         </div>
 
-        <div style="margin-bottom:20px;">
-          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">تاريخ انتهاء الصلاحية
+        <div style="margin-bottom:22px;">
+          <label style="display:block; font-size:12px; font-weight:700; margin-bottom:6px;">تاريخ انتهاء الصلاحية
             (اختياري)</label>
-          <input type="datetime-local" id="coupon-expires-input" class="form-input">
+          <input type="datetime-local" id="coupon-expires-input" class="dark-form-input"
+            style="width:100%; box-sizing:border-box;">
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid #e2e8f0; padding-top:16px;">
-          <button type="button" id="modal-cancel-btn" class="btn btn--secondary"
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" id="modal-cancel-btn" class="btn btn--secondary btn--sm"
             style="border-radius:10px;">إلغاء</button>
-          <button type="submit" id="modal-submit-btn" class="btn btn--primary"
-            style="border-radius:10px; padding:10px 24px; font-weight:700;">
-            <i class="fa-solid fa-check"></i> حفظ الكود
+          <button type="submit" id="modal-submit-btn" class="btn btn--accent btn--sm"
+            style="font-weight:800; border-radius:10px;">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>حفظ الكود</span>
           </button>
         </div>
       </form>
@@ -249,7 +277,6 @@
   </div>
 
   <script src="../assets/js/components/admin-nav.js"></script>
-  <script src="../assets/js/components/admin-3d-bg.js"></script>
   <script type="module" src="../assets/js/pages/admin/admin-discounts-page.js"></script>
 
 </body>
