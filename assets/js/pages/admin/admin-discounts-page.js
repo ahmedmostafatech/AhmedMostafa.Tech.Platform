@@ -54,48 +54,50 @@ function renderCouponCard(coupon) {
   let toggleBtnClass = coupon.is_active ? 'btn--secondary' : 'btn--primary';
 
   return `
-    <div class="coupon-modern-card" style="background:#ffffff; border:1.5px solid ${coupon.is_active && !isExpired ? '#cbd5e1' : '#e2e8f0'}; border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 16px rgba(15,23,42,0.04); transition:all .25s ease; position:relative; overflow:hidden;">
+    <div class="coupon-modern-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 16px rgba(15,23,42,0.04); position:relative; overflow:hidden; min-width:0;">
       <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${coupon.is_active && !isExpired ? 'linear-gradient(90deg, #ec4899, #3b82f6)' : '#94a3b8'};"></div>
       
-      <div>
+      <div style="min-width:0;">
         <!-- رأس الكارت -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:8px;">
-          <div style="display:inline-flex; align-items:center; gap:8px; background:#fdf2f8; border:1px dashed #f472b6; padding:6px 14px; border-radius:10px;">
-            <i class="fa-solid fa-tag" style="color:#ec4899; font-size:14px;"></i>
-            <span style="font-weight:900; font-family:monospace; font-size:16px; color:#be185d; letter-spacing:1px;">${escapeHtml(coupon.code)}</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:8px; flex-wrap:wrap;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:#fdf2f8; border:1px dashed #f472b6; padding:6px 12px; border-radius:10px; max-width:100%; overflow:hidden;">
+            <i class="fa-solid fa-tag" style="color:#ec4899; font-size:14px; flex-shrink:0;"></i>
+            <span style="font-weight:900; font-family:monospace; font-size:16px; color:#be185d; letter-spacing:1px; word-break:break-all;">${escapeHtml(coupon.code)}</span>
           </div>
-          <div>${statusBadge}</div>
+          <div style="flex-shrink:0;">${statusBadge}</div>
         </div>
 
         <!-- قيمة الخصم ونوعه -->
-        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; background:#f8fafc; padding:12px 14px; border-radius:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; background:#f8fafc; padding:12px 14px; border-radius:12px; gap:8px; flex-wrap:wrap;">
           <div>
-            <span style="font-size:11px; color:#64748b; display:block;">قيمة التوفير:</span>
-            <span style="font-size:20px; font-weight:900; color:#0f172a;">${escapeHtml(valText)}</span>
+            <span style="font-size:11px; color:#64748b; display:block; margin-bottom:2px;">قيمة التوفير:</span>
+            <span style="font-size:18px; font-weight:900; color:#0f172a; white-space:nowrap;">${escapeHtml(valText)}</span>
           </div>
-          <div>${typeBadge}</div>
+          <div style="flex-shrink:0;">${typeBadge}</div>
         </div>
 
         <!-- إحصائيات الاستخدام والحدود -->
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; font-size:12px; color:#475569;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span><i class="fa-solid fa-users" style="color:#3b82f6; width:16px;"></i> مرات الاستخدام:</span>
-            <span style="font-weight:700; color:#0f172a;">${usesText}</span>
-          </div>
-          ${coupon.max_uses ? `
-            <div style="width:100%; height:6px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
-              <div style="width:${usesPercent}%; height:100%; background:#3b82f6; border-radius:99px;"></div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px; font-size:12px; color:#475569;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; gap:6px;">
+              <span><i class="fa-solid fa-users" style="color:#3b82f6; width:16px;"></i> مرات الاستخدام:</span>
+              <span style="font-weight:700; color:#0f172a;">${usesText}</span>
             </div>
-          ` : ''}
+            ${coupon.max_uses ? `
+              <div style="width:100%; height:6px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
+                <div style="width:${usesPercent}%; height:100%; background:#3b82f6; border-radius:99px;"></div>
+              </div>
+            ` : ''}
+          </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
             <span><i class="fa-solid fa-cart-shopping" style="color:#10b981; width:16px;"></i> الحد الأدنى:</span>
             <span style="font-weight:700; color:#0f172a;">${minAmountText}</span>
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
             <span><i class="fa-solid fa-calendar-days" style="color:#f59e0b; width:16px;"></i> الصلاحية:</span>
-            <span style="font-weight:600; color:#64748b;">${expiryText}</span>
+            <span style="font-weight:600; color:#64748b; font-size:11px;">${expiryText}</span>
           </div>
         </div>
       </div>
@@ -105,7 +107,7 @@ function renderCouponCard(coupon) {
         <button type="button" class="btn ${toggleBtnClass} btn--sm btn-toggle-coupon" data-id="${escapeHtml(coupon.id)}" data-active="${coupon.is_active}" style="flex:1; border-radius:10px; font-weight:800; min-height:38px;">
           ${toggleBtnText}
         </button>
-        <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" title="حذف الكود نهائياً" style="width:40px; padding:0; border-radius:10px; color:#ef4444; border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; justify-content:center; min-height:38px;">
+        <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" title="حذف الكود نهائياً" style="width:40px; padding:0; border-radius:10px; color:#ef4444; border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; justify-content:center; min-height:38px; flex-shrink:0;">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>

@@ -104,6 +104,46 @@ export async function trackStudentRegistration(code, phoneSuffix) {
   return data;
 }
 
+// جلب ملخص التسجيل لصفحة الدفع بأمان
+export async function getRegistrationSummary(regId) {
+  if (!regId) {
+    return null;
+  }
+
+  let { data, error } = await supabase.rpc('get_registration_summary', {
+    p_reg_id: regId
+  });
+
+  if (error) {
+    console.warn('get_registration_summary RPC failed, trying fallback select:', error.message);
+    // Fallback direct query if RPC has issue
+    let fallback = await supabase
+      .from('registrations')
+      .select('id, registration_code, full_name, email, phone, branch, amount, payment_method, payment_status, created_at, courses(id, title)')
+      .eq('id', regId)
+      .maybeSingle();
+
+    if (fallback.error) {
+      console.error('getRegistrationSummary fallback error:', fallback.error.message);
+      throw error;
+    }
+    if (fallback.data) {
+      return {
+        id: fallback.data.id,
+        code: fallback.data.registration_code,
+        student_name: fallback.data.full_name,
+        course_title: fallback.data.courses ? fallback.data.courses.title : 'مراجعة دراسية',
+        amount: fallback.data.amount,
+        payment_method: fallback.data.payment_method,
+        payment_status: fallback.data.payment_status,
+        created_at: fallback.data.created_at
+      };
+    }
+  }
+
+  return data;
+}
+
 // جلب الآراء المعتمدة للصفحة الرئيسية
 export async function getApprovedReviews() {
   try {
