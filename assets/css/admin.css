@@ -449,3 +449,11 @@ body.admin-body {
     grid-template-columns: 1fr !important;
   }
 }
+
+.admin-sidebar-overlay {
+  pointer-events: none;
+}
+
+.admin-sidebar-overlay.visible {
+  pointer-events: auto;
+}
