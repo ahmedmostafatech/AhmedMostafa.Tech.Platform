@@ -965,9 +965,11 @@
       -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
     }
 
-    .tilted-grid {
+.tilted-grid {
   display: grid;
   grid-template-columns: repeat(4, 300px);
+  grid-template-rows: 720px;      /* جديد: ارتفاع ثابت بدل ارتفاع الأعمدة الطويل */
+  align-items: start;             /* جديد: الأعمدة تبدأ من فوق وتطلع بره الشبكة عادي */
   gap: 22px;
   justify-content: center;
   transform: rotateX(24deg) rotateZ(-14deg) skewX(5deg) scale(0.95);
@@ -1005,6 +1007,7 @@
     transform: none !important;
     transform-style: flat !important;
     margin: 0 auto;
+        grid-template-rows: none;
   }
 
   .marquee-col { min-width: 0; }
