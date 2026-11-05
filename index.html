@@ -966,51 +966,58 @@
     }
 
     .tilted-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 300px);
-      gap: 22px;
-      justify-content: center;
-      transform: rotateX(24deg) rotateZ(-14deg) skewX(5deg) scale(0.95);
-      transform-style: preserve-3d;
-      width: max-content;
-      margin: -100px auto 0;
-    }
+  display: grid;
+  grid-template-columns: repeat(4, 300px);
+  gap: 22px;
+  justify-content: center;
+  transform: rotateX(24deg) rotateZ(-14deg) skewX(5deg) scale(0.95);
+  transform-style: preserve-3d;
+  width: max-content;
+  margin: -100px auto 0;
+}
 
-    @media (max-width: 1024px) {
-      .tilted-grid {
-        grid-template-columns: repeat(3, 280px);
-      }
-    }
+.marquee-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0;                       /* بدل gap: عشان اللفة متنطش */
+  will-change: transform;
+}
+.marquee-col:empty { display: none; }
 
-    @media (max-width: 768px) {
-      .tilted-grid {
-        grid-template-columns: repeat(2, 260px);
-        transform: none !important;
-        transform-style: flat !important;
-        margin: 0 auto;
-      }
+@media (hover: hover) {
+  .perspective-stage:hover .marquee-col { animation-play-state: paused !important; }
+}
 
-      .perspective-stage {
-        perspective: none !important;
-        height: 520px;
-      }
+@media (max-width: 1024px) {
+  .tilted-grid { grid-template-columns: repeat(3, 280px); }
+}
 
-      .hero-particles {
-        display: none !important;
-      }
+@media (max-width: 768px) {
+  .perspective-stage { perspective: none !important; height: 560px; }
 
-      .aurora {
-        filter: blur(40px) !important;
-        opacity: 0.5 !important;
-      }
-    }
+  .tilted-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: 520px;
+    gap: 12px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    transform: none !important;
+    transform-style: flat !important;
+    margin: 0 auto;
+  }
 
-    .marquee-col {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      will-change: transform;
-    }
+  .marquee-col { min-width: 0; }
+  .t-card-3d { padding: 14px 12px; border-radius: 14px; margin-bottom: 12px !important; }
+  .t-card-3d:hover { transform: none; }
+  .t-handle, .t-country { display: none; }
+  .t-avatar { width: 34px; height: 34px; font-size: 11px; }
+  .t-user-row { margin-bottom: 10px; gap: 8px; }
+  .t-text { font-size: 12.5px; line-height: 1.6; -webkit-line-clamp: 8; }
+
+  .hero-particles { display: none !important; }
+  .aurora { filter: blur(40px) !important; opacity: 0.5 !important; }
+}
 
     .col-up-1 {
       animation: scroll-up 32s linear infinite;
@@ -1061,6 +1068,7 @@
       transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: default;
       position: relative;
+      margin-bottom: 20px;
     }
 
     .t-card-3d:hover {
@@ -1121,6 +1129,10 @@
       border-radius: 6px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+        max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
     }
 
     .t-text {
@@ -1129,6 +1141,10 @@
       line-height: 1.68;
       margin: 0;
       font-weight: 500;
+      display: -webkit-box;         /* الأسطر الـ 3 دول جداد: بيقصوا الرأي الطويل */
+      -webkit-line-clamp: 7;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     /* ── 6. كارت الدعوة (CTA) ── */
@@ -1175,6 +1191,10 @@
       margin: 0 auto var(--space-6) auto;
       line-height: 1.75;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+  .marquee-col { animation: none !important; }
+}
 
     
   </style>

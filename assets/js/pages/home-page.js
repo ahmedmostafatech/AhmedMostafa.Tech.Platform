@@ -86,52 +86,95 @@ function setupReviewModal() {
   }
 }
 
-// دمج الريفيوز الحية القادمة من قاعدة البيانات مع الكروت الافتراضية
+// ── آراء الطلاب (Marquee) ──
+let allReviewCards = [];
+let lastColsCount = 0;
+
+function reviewColumnCount() {
+  const w = window.innerWidth;
+  return w <= 768 ? 2 : (w <= 1024 ? 3 : 4);
+}
+
+function buildReviewCard(item) {
+  return '<div class="t-card-3d">' +
+    '<div class="t-user-row">' +
+      '<div class="t-avatar">' + item.av + '</div>' +
+      '<div class="t-meta">' +
+        '<div class="t-name">' + escapeHtml(item.n) + '</div>' +
+        '<div class="t-handle">' + escapeHtml(item.h) + '</div>' +
+      '</div>' +
+      '<div class="t-country">' + escapeHtml(item.c) + '</div>' +
+    '</div>' +
+    '<p class="t-text">"' + escapeHtml(item.q) + '"</p>' +
+  '</div>';
+}
+
+function renderReviewColumns() {
+  if (!allReviewCards.length) return;
+
+  const colsCount = reviewColumnCount();
+  lastColsCount = colsCount;
+
+  // توزيع الآراء على الأعمدة بالتناوب
+  const buckets = Array.from({ length: colsCount }, () => []);
+  allReviewCards.forEach((item, i) => buckets[i % colsCount].push(item));
+
+  for (let col = 1; col <= 4; col++) {
+    const el = document.getElementById('t-col-' + col);
+    if (!el) continue;
+
+    if (col > colsCount) { el.innerHTML = ''; continue; }
+
+    // لو عدد الآراء قليل نكررها لحد ما العمود يتملي
+    const base = buckets[col - 1].length
+      ? buckets[col - 1]
+      : [allReviewCards[(col - 1) % allReviewCards.length]];
+    let list = base.slice();
+    while (list.length < 6) list = list.concat(base);
+
+    // نكرر المحتوى مرتين عشان لفة -50% تبقى سلسة من غير فراغ
+    const html = list.map(buildReviewCard).join('');
+    el.innerHTML = html + html;
+
+    // السرعة ثابتة تقريباً مهما كان عدد الكروت
+    el.style.animationDuration = Math.max(30, list.length * 7) + 's';
+  }
+}
+
 async function loadDynamicReviews() {
+  const stage = document.querySelector('.perspective-stage');
   try {
     const liveReviews = await getApprovedReviews();
-    if (!liveReviews || liveReviews.length === 0) return;
+    if (!liveReviews || liveReviews.length === 0) {
+      if (stage) stage.style.display = 'none';
+      return;
+    }
 
-    // تحويل ريفيو قاعدة البيانات لشكل كارت التستيمونيال
-    const mapped = liveReviews.map(r => {
-      const name = r.is_anonymous || !r.student_name ? 'طالب (اسم مخفي للخصوصية)' : r.student_name;
-      const initials = r.is_anonymous || !r.student_name ? '🔒' : name.substring(0, 2);
+    allReviewCards = liveReviews.slice(0, 40).map(function (r) {
+      const hidden = r.is_anonymous || !r.student_name;
+      const name = hidden ? 'طالب (اسم مخفي للخصوصية)' : r.student_name;
       return {
         q: r.review_text,
         n: name,
-        h: '@' + (r.is_anonymous ? 'verified_student' : 'student'),
+        h: '@' + (hidden ? 'verified_student' : 'student'),
         c: r.branch || 'جامعة EELU',
-        av: initials
+        av: hidden ? '<i class="fa-solid fa-lock"></i>' : escapeHtml(name.substring(0, 2))
       };
     });
 
-    function buildCard(item) {
-      return '<div class="t-card-3d">' +
-        '<div class="t-user-row">' +
-        '<div class="t-avatar">' + item.av + '</div>' +
-        '<div class="t-meta">' +
-        '<div class="t-name">' + item.n + '</div>' +
-        '<div class="t-handle">' + item.h + '</div>' +
-        '</div>' +
-        '<div class="t-country">' + item.c + '</div>' +
-        '</div>' +
-        '<p class="t-text">"' + item.q + '"</p>' +
-        '</div>';
-    }
+    renderReviewColumns();
 
-    // إدراجهم في أعمدة الماركيه
-    for (let col = 1; col <= 4; col++) {
-      const el = document.getElementById('t-col-' + col);
-      if (el) {
-        const subset = mapped.slice((col - 1) * 2, col * 2);
-        if (subset.length > 0) {
-          const cardsHtml = subset.map(buildCard).join('');
-          el.insertAdjacentHTML('afterbegin', cardsHtml);
-        }
-      }
-    }
+    // إعادة التوزيع لو عدد الأعمدة اتغير (تدوير الشاشة / تغيير الحجم)
+    let t;
+    window.addEventListener('resize', function () {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        if (reviewColumnCount() !== lastColsCount) renderReviewColumns();
+      }, 200);
+    });
   } catch (err) {
     console.warn('Could not load dynamic reviews:', err);
+    if (stage) stage.style.display = 'none';
   }
 }
 
