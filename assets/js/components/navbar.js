@@ -61,7 +61,7 @@ html { scroll-padding-top: 96px; }
 
 .navbar__logo { height: 38px; width: auto; display: block; flex-shrink: 0; transition: height .35s ease; }
 .navbar__link { white-space: nowrap; border-radius: 999px; }
-.navbar__link--active { background: rgba(54, 90, 162, 0.35) !important; }
+.navbar__link--active { background: transparent !important; }
 
 /* بعد النزول: يصغر ويبقى أغمق مع حدود مضيئة */
 .navbar.is-scrolled {
@@ -100,54 +100,46 @@ html { scroll-padding-top: 96px; }
   }
 }
 
-/* ── Hover: خط متعرج ── */
+/* ── Sliding pill ── */
+.navbar__nav { position: relative; }
+
+.nb-pill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 36px;
+  margin-top: -18px;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(54, 90, 162, .6), rgba(74, 114, 191, .32));
+  border: 1px solid rgba(121, 165, 239, .38);
+  box-shadow: 0 4px 18px rgba(54, 90, 162, .38), inset 0 1px 0 rgba(255, 255, 255, .12);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform .4s cubic-bezier(.34, 1.3, .64, 1),
+              width .4s cubic-bezier(.34, 1.3, .64, 1),
+              background .3s ease, border-color .3s ease, box-shadow .3s ease, opacity .25s ease;
+}
+
+.nb-pill.is-wa {
+  background: linear-gradient(135deg, rgba(37, 211, 102, .30), rgba(37, 211, 102, .12));
+  border-color: rgba(37, 211, 102, .5);
+  box-shadow: 0 4px 18px rgba(37, 211, 102, .25);
+}
+
 .navbar__nav .navbar__link {
   position: relative;
-  transition: color .25s ease, transform .25s ease;
-}
-
-.navbar__nav .navbar__link:hover {
+  z-index: 1;
   background: transparent !important;
-  color: #ffffff;
-  transform: translateY(-1px);
+  transition: color .25s ease;
 }
-
-.navbar__nav .navbar__link::after {
-  content: '';
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 2px;
-  height: 6px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M0 3Q3 0 6 3T12 3' fill='none' stroke='%23ffd154' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-size: 12px 6px;
-  clip-path: inset(0 0 0 100%);                 /* مخفي */
-  transition: clip-path .4s cubic-bezier(.16, 1, .3, 1);
-  pointer-events: none;
-}
-
-.navbar__nav .navbar__link:hover::after,
-.navbar__nav .navbar__link--active::after {
-  clip-path: inset(0 0 0 0);                    /* بيترسم من اليمين */
-}
-
-.navbar__nav .navbar__link:hover::after {
-  animation: nb-wave 1s linear infinite;
-}
-
-@keyframes nb-wave {
-  to { background-position-x: -12px; }
-}
-
-/* واتساب: خط أخضر */
-.navbar__nav .navbar__link[href*="wa.me"]::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M0 3Q3 0 6 3T12 3' fill='none' stroke='%2325d366' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
-}
+.navbar__nav .navbar__link:hover,
+.navbar__nav .navbar__link--active { color: #ffffff; }
 .navbar__nav .navbar__link[href*="wa.me"]:hover { color: #25d366; }
 
 @media (prefers-reduced-motion: reduce) {
-  .navbar, .navbar__inner, .navbar__logo { transition: none !important; }
+  .navbar, .navbar__inner, .navbar__logo,.nb-pill { transition: none !important; }
 }
 `;
 
@@ -237,6 +229,53 @@ function buildNavHTML(opts) {
   `;
 }
 
+// ── Sliding pill ──
+function initSlidingPill() {
+  const nav = document.querySelector('#main-navbar .navbar__nav');
+  if (!nav) return;
+
+  const pill = document.createElement('span');
+  pill.className = 'nb-pill';
+  pill.setAttribute('aria-hidden', 'true');
+  nav.prepend(pill);
+
+  const links = nav.querySelectorAll('.navbar__link');
+  const active = nav.querySelector('.navbar__link--active');
+  let current = active;
+  let first = true;
+
+  function moveTo(el) {
+    current = el;
+    if (!el || !el.offsetWidth) { pill.style.opacity = '0'; return; }
+
+    if (first) pill.style.transition = 'none';   // أول ظهور من غير انزلاق
+    pill.style.width = el.offsetWidth + 'px';
+    pill.style.transform = 'translateX(' + el.offsetLeft + 'px)';
+    pill.style.opacity = '1';
+    pill.classList.toggle('is-wa', /wa\.me/.test(el.getAttribute('href') || ''));
+
+    if (first) {
+      void pill.offsetWidth;
+      pill.style.transition = '';
+      first = false;
+    }
+  }
+
+  links.forEach(function (a) {
+    a.addEventListener('mouseenter', function () { moveTo(a); });
+    a.addEventListener('focus', function () { moveTo(a); });
+  });
+  nav.addEventListener('mouseleave', function () { moveTo(active); });
+  nav.addEventListener('focusout', function () { moveTo(active); });
+
+  // إعادة الحساب لو المقاسات اتغيرت (الشرينك عند النزول / تحميل الخط / تغيير الشاشة)
+  if (window.ResizeObserver) new ResizeObserver(function () { moveTo(current); }).observe(nav);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { moveTo(current); });
+  window.addEventListener('resize', function () { moveTo(current); });
+
+  moveTo(active);
+}
+
 // ── تأثير الـ Shrink عند النزول ──
 function initScrollShrink() {
   const nav = document.getElementById('main-navbar');
@@ -282,6 +321,7 @@ export async function initNavbar(opts) {
     }
 
     initScrollShrink();
+    initSlidingPill();
 
     // تفعيل تفاعل زر الهامبرجر للقائمة في الموبايل
     const toggleBtn = document.getElementById('navbar-mobile-toggle');
