@@ -5,25 +5,18 @@
 .ub {
   position: relative;
   z-index: 4;
-  background: rgba(2, 4, 9, 0.65);
+  background: rgba(2, 4, 9, 0.55);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.65);
   font-family: var(--font-primary);
-  padding-top: 24px;
+  padding-top: 48px;
 }
 
 .ub-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 32px;
-  padding-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.ub-brand-col {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 36px;
 }
 
 .ub-logo {
@@ -31,10 +24,10 @@
   align-items: center;
   gap: 10px;
   color: #ffffff;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 900;
   text-decoration: none;
-  margin: 0;
+  margin-bottom: 12px;
 }
 
 .ub-logo:hover {
@@ -46,62 +39,65 @@
 }
 
 .ub-logo-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #1e3a8a, #3b82f6);
   color: #ffd154;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
+}
+
+.ub-about {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  max-width: 340px;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .ub-col h4 {
-  margin: 0 0 8px;
-  font-size: 12px;
+  margin: 0 0 14px;
+  font-size: 13px;
   font-weight: 800;
   color: #ffffff;
   letter-spacing: 0.04em;
 }
 
-.ub-links-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
 .ub-col a.ub-link {
-  display: inline-block;
-  padding: 3px 0;
-  font-size: 12.5px;
+  display: block;
+  padding: 5px 0;
+  font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.55);
   text-decoration: none;
   transition: color 0.2s, transform 0.2s;
 }
 
 .ub-col a.ub-link:hover {
-  color: #ffd154;
+  color: #ffffff;
+  transform: translateX(-3px);
 }
 
 .ub-social {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .ub-social a {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.75);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   text-decoration: none;
   transition: all 0.25s ease;
 }
@@ -110,7 +106,7 @@
   background: #365aa2;
   border-color: #365aa2;
   color: #ffffff;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 .ub-bottom {
@@ -118,15 +114,15 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 12px 0;
+  padding: 18px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
-  font-size: 11.5px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.4);
 }
 
 .ub-top-btn {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(54, 90, 162, 0.2);
   border: 1px solid rgba(54, 90, 162, 0.4);
@@ -141,25 +137,18 @@
 .ub-top-btn:hover {
   background: #365aa2;
   color: #ffffff;
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
 @media (max-width: 768px) {
-  .ub {
-    padding-top: 20px;
-  }
-
   .ub-top {
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
+    grid-template-columns: 1fr;
+    gap: 28px;
     text-align: center;
-    padding-bottom: 16px;
   }
 
-  .ub-links-grid {
-    justify-content: center;
-    gap: 12px;
+  .ub-about {
+    margin-inline: auto;
   }
 
   .ub-social {
@@ -169,7 +158,5 @@
   .ub-bottom {
     flex-direction: column-reverse;
     text-align: center;
-    gap: 10px;
-    padding: 10px 0 16px;
   }
 }

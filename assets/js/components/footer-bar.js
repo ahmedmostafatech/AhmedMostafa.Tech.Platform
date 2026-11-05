@@ -6,20 +6,19 @@
   mount.innerHTML =
     '<div class="container">' +
     '<div class="ub-top">' +
-    '<div class="ub-brand-col">' +
+    '<div>' +
     '<a class="ub-logo" href="index.html">' +
     '<span class="ub-logo-icon"><i class="fa-solid fa-graduation-cap"></i></span>' +
     '<span>أحمد مصطفى <b>تك</b></span>' +
     '</a>' +
+    '<p class="ub-about">مراجعات مسجلة مكثفة لطلاب الحاسبات والمعلومات، تسجيل سريع بدون تعقيد ودعم مباشر.</p>' +
     '</div>' +
     '<nav class="ub-col">' +
     '<h4>روابط سريعة</h4>' +
-    '<div class="ub-links-grid">' +
     '<a class="ub-link" href="revisions.html">المراجعات</a>' +
     '<a class="ub-link" href="register.html">التسجيل</a>' +
     '<a class="ub-link" href="track.html">تتبع طلبك</a>' +
     '<a class="ub-link" href="index.html#how-it-works">كيفية الاشتراك</a>' +
-    '</div>' +
     '</nav>' +
     '<div class="ub-col">' +
     '<h4>تواصل معنا</h4>' +
@@ -32,7 +31,7 @@
     '</div>' +
     '</div>' +
     '<div class="ub-bottom">' +
-    '<span>© 2026 Ahmed Mostafa Tech — جميع الحقوق محفوظة</span>' +
+    '<span>© 2026 Ahmed Mostaf Tech — جميع الحقوق محفوظة</span>' +
     '<button type="button" class="ub-top-btn" id="ub-top-btn" title="الرجوع للأعلى"><i class="fa-solid fa-arrow-up"></i></button>' +
     '</div>' +
     '</div>';
@@ -42,10 +41,5 @@
     topBtn.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-  }
-
-  // مزامنة الستارة فور بناء الفوتر
-  if (typeof syncCurtainFooter === 'function') {
-    syncCurtainFooter();
   }
 })();
