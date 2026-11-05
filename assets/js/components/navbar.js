@@ -8,6 +8,12 @@ import { getSession, getMyProfile } from '../core/auth.js';
 import { escapeHtml, sitePath } from '../core/utils.js';
 import { ROUTES, APP_CONFIG } from '../core/config.js';
 
+const LOGO_SVG =
+  '<svg class="navbar__logo" xmlns="http://www.w3.org/2000/svg" viewBox="395 350 250 400" aria-hidden="true">' +
+  '<path fill="#ffffff" d="M603.7,589.26c-19.66,0.07-38.85,2.04-57.41,5.71l-21.55-52.49l-26.43,66.27c-28.68,10.93-55.13,26.14-78.51,44.82l73.77-184.99l0,0l60.49-0.22l0.12,0.3L603.7,589.26z"/>' +
+  '<path fill="#365aa2" d="M638.42,673.8c0.37,0.89-0.5,1.78-1.4,1.44c-17.03-6.31-35.45-9.75-54.67-9.75c-2.36,0-4.7,0.05-7.03,0.16c-45.12,1.98-85.31,22.97-112.75,55.16c-1.14,1.34-2.79,2.13-4.55,2.13l-5.26,0.02l-56.92,0.2c-1.49,0.01-2.48-1.57-1.8-2.9c20.69-40.44,54.88-73.26,96.87-92.94c18.99-8.91,39.57-15.13,61.22-18.14c9.86-1.38,19.94-2.09,30.2-2.09c9.6,0,19.04,0.62,28.29,1.83c0.75,0.1,1.4,0.6,1.68,1.3L638.42,673.8z"/>' +
+  '</svg>';
+
 function buildNavHTML(opts) {
   let profile = opts && opts.profile;
   let activePage = opts && opts.activePage;
@@ -25,11 +31,8 @@ function buildNavHTML(opts) {
         <div class="navbar__inner">
 
           <!-- البراند والشعار -->
-          <a href="${escapeHtml(sitePath(ROUTES.HOME))}" class="navbar__brand" aria-label="الصفحة الرئيسية">
-            <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M18 4L30 26H22L18 18L14 26H6L18 4Z" fill="white" opacity="0.9"/>
-              <path d="M8 28C10 23 26 23 28 28C25 31 11 31 8 28Z" fill="#4a72bf"/>
-            </svg>
+            <a href="${escapeHtml(sitePath(ROUTES.HOME))}" class="navbar__brand" aria-label="الصفحة الرئيسية">
+            ${LOGO_SVG}
             <span class="navbar__brand-name">أحمد مصطفى <span>تك</span></span>
           </a>
 
