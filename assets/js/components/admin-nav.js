@@ -63,7 +63,7 @@
       // Close when clicking any nav link on mobile
       sidebar.querySelectorAll('.admin-nav-link').forEach(function (link) {
         link.addEventListener('click', function () {
-          if (window.innerWidth <= 768) {
+          if (window.innerWidth <= 900) {
             closeSidebar();
           }
         });

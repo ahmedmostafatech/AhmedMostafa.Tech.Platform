@@ -350,3 +350,80 @@ export async function deleteCoupon(id) {
   }
   return true;
 }
+
+// 17. جلب جميع الآراء والتقييمات للوحة الأدمن
+export async function getAllReviews() {
+  let { data, error } = await supabase
+    .from('reviews')
+    .select('id, student_name, is_anonymous, branch, review_text, rating, status, created_at, approved_at')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('getAllReviews failed:', error.message);
+    throw error;
+  }
+  return data || [];
+}
+
+// 18. تغيير حالة الريفيو (approved / rejected)
+export async function updateReviewStatus(id, newStatus) {
+  let updatePayload = {
+    status: newStatus
+  };
+  if (newStatus === 'approved') {
+    updatePayload.approved_at = new Date().toISOString();
+  }
+
+  let { data, error } = await supabase
+    .from('reviews')
+    .update(updatePayload)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('updateReviewStatus failed:', error.message);
+    throw error;
+  }
+  return data;
+}
+
+// 19. حذف ريفيو نهائياً
+export async function deleteReview(id) {
+  let { error } = await supabase
+    .from('reviews')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('deleteReview failed:', error.message);
+    throw error;
+  }
+  return true;
+}
+
+// 20. إضافة ريفيو يدوياً بواسطة الأدمن
+export async function createAdminReview({ studentName, isAnonymous, branch, reviewText, rating = 5, status = 'approved' }) {
+  let { data, error } = await supabase
+    .from('reviews')
+    .insert([
+      {
+        student_name: isAnonymous ? null : (studentName || null),
+        is_anonymous: Boolean(isAnonymous),
+        branch: branch.trim(),
+        review_text: reviewText.trim(),
+        rating: Number(rating) || 5,
+        status: status,
+        approved_at: status === 'approved' ? new Date().toISOString() : null
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('createAdminReview failed:', error.message);
+    throw error;
+  }
+  return data;
+}
+

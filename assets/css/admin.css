@@ -51,7 +51,19 @@ body.admin-body {
 
 @media (max-width: 900px) {
   .admin-sidebar {
-    display: none;
+    position: fixed !important;
+    top: 0;
+    right: -280px;
+    width: 280px !important;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1000;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .admin-sidebar.open {
+    right: 0 !important;
   }
 }
 

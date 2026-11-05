@@ -1494,9 +1494,7 @@
         <div class="hero-particles" id="hero-particles"></div>
 
         <div class="hero-inner container" id="hero-inner">
-          <div class="hero-badge" id="hero-badge">
-            <i class="fa-solid fa-bolt"></i> مراجعات مكثفة وعملية لطلاب الحاسبات وتكنولوجيا المعلومات
-          </div>
+
 
           <h1 class="hero-title" id="hero-title">
             مش مجمّع المادة؟<br>
@@ -1756,6 +1754,14 @@
             <div class="marquee-col col-down-2" id="t-col-4"></div>
           </div>
         </div>
+
+        <!-- زر إضافة تجربة وتقييم الطالب -->
+        <div style="text-align:center; margin-top:40px; position:relative; z-index:15;">
+          <button type="button" id="open-review-modal-btn" class="btn btn--accent btn--lg" style="border-radius:99px; font-weight:800; font-size:1rem; padding:0 36px; box-shadow:0 12px 30px rgba(54,90,162,0.35); display:inline-flex; align-items:center; gap:12px;">
+            <i class="fa-solid fa-pen-nib" style="color:#ffd154;"></i>
+            <span>لو استفدت من المراجعة، شاركنا رأيك بكل صدق</span>
+          </button>
+        </div>
       </section>
 
       <!-- ══════════════════════════════════════════════
@@ -1840,6 +1846,63 @@
       </div>
     </div>
   </footer>
+
+  <!-- مودال كتابة رأي / تقييم جديد من الطالب -->
+  <div id="submit-review-modal" class="modal-backdrop" hidden style="position:fixed; inset:0; background:rgba(7,16,34,0.75); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-card" style="background:#ffffff; width:100%; max-width:520px; border-radius:24px; padding:28px 24px; box-shadow:0 25px 60px rgba(0,0,0,0.3); border:1px solid #e2e8f0; position:relative; overflow:hidden;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #f1f5f9; padding-bottom:12px;">
+        <h3 style="margin:0; font-size:18px; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-star" style="color:#ffd154;"></i>
+          <span>شاركنا تجربتك في المراجعة</span>
+        </h3>
+        <button type="button" id="close-review-modal-btn" class="btn btn--secondary btn--sm" style="border-radius:50%; width:34px; height:34px; padding:0; display:inline-flex; align-items:center; justify-content:center;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="review-modal-alert" class="alert" hidden style="margin-bottom:14px; font-size:13px;"></div>
+
+      <form id="submit-review-form">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
+            الاسم (اختياري)
+          </label>
+          <input type="text" id="review-student-name" class="form-input" placeholder="مثال: أحمد مصطفى أو اتركه فارغاً" style="width:100%; border-radius:12px;">
+        </div>
+
+        <div style="margin-bottom:14px; display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="review-is-anonymous" style="width:18px; height:18px; accent-color:#365aa2; cursor:pointer;">
+          <label for="review-is-anonymous" style="font-size:13px; font-weight:700; color:#475569; cursor:pointer;">
+            إخفاء اسمي ونشره كـ (طالب مجهول للخصوصية) 🔒
+          </label>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
+            الفرع الجامعي أو المحافظة <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="text" id="review-branch" class="form-input" placeholder="مثال: القاهرة / فرع الإسكندرية / المنوفية" required style="width:100%; border-radius:12px;">
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
+            رأيك في الشرح والمراجعة <span style="color:#ef4444;">*</span>
+          </label>
+          <textarea id="review-text" class="form-input" rows="4" placeholder="اكتب تجربتك بكل صدق وأمانة وكيف ساعدتك المراجعة في التحضير..." required style="width:100%; border-radius:12px; resize:vertical; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" id="cancel-review-modal-btn" class="btn btn--secondary btn--sm" style="border-radius:10px; font-weight:700; min-height:42px; padding:0 20px;">
+            إلغاء
+          </button>
+          <button type="submit" id="submit-review-btn" class="btn btn--accent btn--sm" style="border-radius:10px; font-weight:800; min-height:42px; padding:0 24px; display:inline-flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>إرسال الرأي</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- سكربت إدارة المراجعات وNavbar من Supabase -->
   <script type="module" src="assets/js/pages/home-page.js"></script>

@@ -72,17 +72,11 @@ function buildNavHTML(opts) {
           ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
           ${navLink(ROUTES.TRACK, 'متابعة طلبي واستلام الوصول', 'track')}
           <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__mobile-link">كيفية الاشتراك</a>
-          <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__mobile-link" style="color:#25d366;">
-            <i class="fa-brands fa-whatsapp"></i> تواصل واتساب فوري
+          <a href="https://chat.whatsapp.com/BdKGIHxS8hv6cJugkr5HMg" target="_blank" rel="noopener" class="navbar__mobile-link" style="color:#25d366;">
+            <i class="fa-brands fa-whatsapp"></i> جروب واتساب المنصة
           </a>
-          <a href="https://chat.whatsapp.com/BdKGIHxS8hv6cJugkr5HMg" target="_blank" rel="noopener" class="navbar__mobile-link">
-            <i class="fa-solid fa-users"></i> جروب واتساب المنصة
-          </a>
-          <a href="https://www.youtube.com/@ahmedmostafatech" target="_blank" rel="noopener" class="navbar__mobile-link">
-            <i class="fa-brands fa-youtube" style="color:#ef4444;"></i> قناة يوتيوب
-          </a>
-          <a href="https://www.linkedin.com/in/ahmed-mostafatech/" target="_blank" rel="noopener" class="navbar__mobile-link">
-            <i class="fa-brands fa-linkedin" style="color:#0a66c2;"></i> لينكد إن
+          <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__mobile-link">
+            <i class="fa-solid fa-headset"></i> تواصل مع الدعم الفني
           </a>
           ${isAdmin ? `
             <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="navbar__mobile-link" style="color:#fcd34d;">

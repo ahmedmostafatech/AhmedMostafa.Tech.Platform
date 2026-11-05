@@ -104,21 +104,48 @@ export async function trackStudentRegistration(code, phoneSuffix) {
   return data;
 }
 
-// جلب ملخص التسجيل لصفحة الدفع بأمان
-export async function getRegistrationSummary(regId) {
-  if (!regId) {
-    return null;
-  }
+// جلب الآراء المعتمدة للصفحة الرئيسية
+export async function getApprovedReviews() {
+  try {
+    let { data, error } = await supabase
+      .from('reviews')
+      .select('id, student_name, is_anonymous, branch, review_text, rating, created_at')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(24);
 
-  let { data, error } = await supabase.rpc('get_registration_summary', {
-    p_reg_id: regId
-  });
+    if (error) {
+      console.warn('getApprovedReviews failed or table not created yet:', error.message);
+      return [];
+    }
+    return data || [];
+  } catch (err) {
+    console.warn('getApprovedReviews fallback:', err);
+    return [];
+  }
+}
+
+// إرسال ريفيو جديد من الطالب (بانتظار موافقة الأدمن)
+export async function submitStudentReview({ studentName, isAnonymous, branch, reviewText, rating = 5 }) {
+  let { data, error } = await supabase
+    .from('reviews')
+    .insert([
+      {
+        student_name: isAnonymous ? null : (studentName || null),
+        is_anonymous: Boolean(isAnonymous),
+        branch: branch.trim(),
+        review_text: reviewText.trim(),
+        rating: Number(rating) || 5,
+        status: 'pending'
+      }
+    ])
+    .select();
 
   if (error) {
-    console.error('get_registration_summary failed:', error.message);
+    console.error('submitStudentReview failed:', error.message);
     throw error;
   }
-
   return data;
 }
+
 

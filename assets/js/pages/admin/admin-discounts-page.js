@@ -24,70 +24,97 @@ function byId(id) {
   return document.getElementById(id);
 }
 
-function renderCouponRow(coupon) {
+function renderCouponCard(coupon) {
   let isPercentage = coupon.discount_type === 'percentage';
   let valText = isPercentage ? `${coupon.discount_value}%` : `${coupon.discount_value} ج.م`;
   let typeBadge = isPercentage
-    ? '<span class="badge badge--accent" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-percent" style="margin-left:4px;"></i> نسبة</span>'
-    : '<span class="badge badge--primary" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-coins" style="margin-left:4px;"></i> مبلغ ثابت</span>';
+    ? '<span class="badge badge--accent" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-percent" style="margin-left:4px;"></i> خصم نسبة</span>'
+    : '<span class="badge badge--primary" style="font-size:12px; padding:4px 10px; font-weight:700;"><i class="fa-solid fa-coins" style="margin-left:4px;"></i> خصم نقدي</span>';
 
   let usesPercent = coupon.max_uses ? Math.min(100, Math.round((coupon.used_count / coupon.max_uses) * 100)) : 0;
   let usesText = coupon.max_uses
-    ? `<div style="display:flex; flex-direction:column; gap:4px;">
-         <span style="font-weight:800; font-size:13px;">${coupon.used_count} <span style="font-weight:400; color:#64748b;">/ ${coupon.max_uses}</span></span>
-         <div style="width:70px; height:5px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
-           <div style="width:${usesPercent}%; height:100%; background:#3b82f6;"></div>
-         </div>
-       </div>`
-    : `<span style="font-weight:800; color:#1e293b;">${coupon.used_count}</span> <span style="font-size:11px; color:#64748b;">(مفتوح)</span>`;
+    ? `${coupon.used_count} من أصل ${coupon.max_uses}`
+    : `${coupon.used_count} (غير محدود)`;
 
-  let minAmountText = coupon.min_amount > 0 ? `<span style="font-weight:700;">${coupon.min_amount} ج.م</span>` : '<span style="color:#94a3b8;">بدون حد</span>';
+  let minAmountText = coupon.min_amount > 0 ? `${coupon.min_amount} ج.م` : 'بدون حد أدنى';
 
   let isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date();
-  let expiryText = coupon.expires_at ? formatDateTime(coupon.expires_at) : '<span style="color:#16a34a; font-weight:700;">دائم</span>';
+  let expiryText = coupon.expires_at ? formatDateTime(coupon.expires_at) : 'صالح بشكل دائم';
 
   let statusBadge = '';
   if (isExpired) {
-    statusBadge = '<span class="badge badge--danger" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-clock-rotate-left"></i> منتهي</span>';
+    statusBadge = '<span class="badge badge--danger" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-clock-rotate-left"></i> منتهي الصلاحية</span>';
   } else if (coupon.is_active) {
-    statusBadge = '<span class="badge badge--success" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-circle-check"></i> مفعّل</span>';
+    statusBadge = '<span class="badge badge--success" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-circle-check"></i> شغال ومفعّل</span>';
   } else {
-    statusBadge = '<span class="badge badge--muted" style="font-size:11px; padding:4px 8px;"><i class="fa-solid fa-pause"></i> معطّل</span>';
+    statusBadge = '<span class="badge badge--muted" style="font-size:11px; padding:4px 10px;"><i class="fa-solid fa-pause"></i> متوقف مؤقتاً</span>';
   }
 
   let toggleBtnText = coupon.is_active ? 'تعطيل الكود' : 'تفعيل الكود';
   let toggleBtnClass = coupon.is_active ? 'btn--secondary' : 'btn--primary';
 
   return `
-    <tr style="border-bottom:1px solid #f1f5f9; transition:background .15s;">
-      <td style="padding:14px 16px;">
-        <div style="display:inline-flex; align-items:center; gap:6px; background:#fdf2f8; border:1px dashed #f472b6; padding:6px 12px; border-radius:8px;">
-          <i class="fa-solid fa-tag" style="color:#ec4899; font-size:13px;"></i>
-          <span style="font-weight:900; font-family:monospace; font-size:15px; color:#be185d; letter-spacing:0.5px;">${escapeHtml(coupon.code)}</span>
+    <div class="coupon-modern-card" style="background:#ffffff; border:1.5px solid ${coupon.is_active && !isExpired ? '#cbd5e1' : '#e2e8f0'}; border-radius:18px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 4px 16px rgba(15,23,42,0.04); transition:all .25s ease; position:relative; overflow:hidden;">
+      <div style="position:absolute; top:0; left:0; right:0; height:4px; background:${coupon.is_active && !isExpired ? 'linear-gradient(90deg, #ec4899, #3b82f6)' : '#94a3b8'};"></div>
+      
+      <div>
+        <!-- رأس الكارت -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:8px;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:#fdf2f8; border:1px dashed #f472b6; padding:6px 14px; border-radius:10px;">
+            <i class="fa-solid fa-tag" style="color:#ec4899; font-size:14px;"></i>
+            <span style="font-weight:900; font-family:monospace; font-size:16px; color:#be185d; letter-spacing:1px;">${escapeHtml(coupon.code)}</span>
+          </div>
+          <div>${statusBadge}</div>
         </div>
-      </td>
-      <td style="padding:14px 16px;">${typeBadge}</td>
-      <td style="padding:14px 16px; font-weight:900; font-size:15px; color:#0f172a;">${escapeHtml(valText)}</td>
-      <td style="padding:14px 16px;">${usesText}</td>
-      <td style="padding:14px 16px; font-size:13px;">${minAmountText}</td>
-      <td style="padding:14px 16px; font-size:12px; color:#475569;">${expiryText}</td>
-      <td style="padding:14px 16px;">${statusBadge}</td>
-      <td style="padding:14px 16px; text-align:center; white-space:nowrap;">
-        <div style="display:inline-flex; gap:6px;">
-          <button type="button" class="btn ${toggleBtnClass} btn--sm btn-toggle-coupon" data-id="${escapeHtml(coupon.id)}" data-active="${coupon.is_active}" style="min-height:32px; padding:0 12px; font-size:12px; border-radius:8px; font-weight:700;">
-            ${toggleBtnText}
-          </button>
-          <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" title="حذف الكود" style="min-height:32px; width:34px; padding:0; border-radius:8px; color:#ef4444; border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; justify-content:center;">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+
+        <!-- قيمة الخصم ونوعه -->
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:14px; background:#f8fafc; padding:12px 14px; border-radius:12px;">
+          <div>
+            <span style="font-size:11px; color:#64748b; display:block;">قيمة التوفير:</span>
+            <span style="font-size:20px; font-weight:900; color:#0f172a;">${escapeHtml(valText)}</span>
+          </div>
+          <div>${typeBadge}</div>
         </div>
-      </td>
-    </tr>
+
+        <!-- إحصائيات الاستخدام والحدود -->
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px; font-size:12px; color:#475569;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-users" style="color:#3b82f6; width:16px;"></i> مرات الاستخدام:</span>
+            <span style="font-weight:700; color:#0f172a;">${usesText}</span>
+          </div>
+          ${coupon.max_uses ? `
+            <div style="width:100%; height:6px; background:#e2e8f0; border-radius:99px; overflow:hidden;">
+              <div style="width:${usesPercent}%; height:100%; background:#3b82f6; border-radius:99px;"></div>
+            </div>
+          ` : ''}
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-cart-shopping" style="color:#10b981; width:16px;"></i> الحد الأدنى:</span>
+            <span style="font-weight:700; color:#0f172a;">${minAmountText}</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-calendar-days" style="color:#f59e0b; width:16px;"></i> الصلاحية:</span>
+            <span style="font-weight:600; color:#64748b;">${expiryText}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- أزرار الإجراءات -->
+      <div style="display:flex; gap:8px; border-top:1px solid #f1f5f9; padding-top:14px; margin-top:6px;">
+        <button type="button" class="btn ${toggleBtnClass} btn--sm btn-toggle-coupon" data-id="${escapeHtml(coupon.id)}" data-active="${coupon.is_active}" style="flex:1; border-radius:10px; font-weight:800; min-height:38px;">
+          ${toggleBtnText}
+        </button>
+        <button type="button" class="btn btn--secondary btn--sm btn-delete-coupon" data-id="${escapeHtml(coupon.id)}" data-code="${escapeHtml(coupon.code)}" title="حذف الكود نهائياً" style="width:40px; padding:0; border-radius:10px; color:#ef4444; border-color:rgba(239,68,68,0.3); display:inline-flex; align-items:center; justify-content:center; min-height:38px;">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
   `;
 }
 
 async function loadCoupons() {
-  let tbody = byId('coupons-tbody');
+  let container = byId('coupons-cards-container');
   let alertEl = byId('discounts-alert');
 
   if (alertEl) alertEl.hidden = true;
@@ -103,20 +130,20 @@ async function loadCoupons() {
     if (byId('stat-active-coupons')) byId('stat-active-coupons').textContent = activeCount;
     if (byId('stat-total-uses')) byId('stat-total-uses').textContent = totalUses;
 
-    if (!tbody) return;
+    if (!container) return;
 
     if (couponsList.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center" style="padding:40px; color:#94a3b8;">
-            لا توجد أكواد خصم حالياً. اضغط "إنشاء كود خصم جديد" لإضافة أول كود.
-          </td>
-        </tr>
+      container.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:60px 20px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:18px;">
+          <i class="fa-solid fa-tags fa-2x" style="color:#94a3b8; margin-bottom:12px;"></i>
+          <h3 style="font-size:16px; font-weight:800; color:#0f172a; margin:0 0 6px;">لا توجد أكواد خصم حالياً</h3>
+          <p style="font-size:13px; color:#64748b; margin:0;">اضغط على زر "إنشاء كود خصم جديد" بالأعلى لإضافة أول كود للطلاب</p>
+        </div>
       `;
       return;
     }
 
-    tbody.innerHTML = couponsList.map(renderCouponRow).join('');
+    container.innerHTML = couponsList.map(renderCouponCard).join('');
     initSpotlightCards();
 
   } catch (err) {
