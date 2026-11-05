@@ -100,6 +100,52 @@ html { scroll-padding-top: 96px; }
   }
 }
 
+/* ── Hover: خط متعرج ── */
+.navbar__nav .navbar__link {
+  position: relative;
+  transition: color .25s ease, transform .25s ease;
+}
+
+.navbar__nav .navbar__link:hover {
+  background: transparent !important;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.navbar__nav .navbar__link::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 2px;
+  height: 6px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M0 3Q3 0 6 3T12 3' fill='none' stroke='%23ffd154' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 12px 6px;
+  clip-path: inset(0 0 0 100%);                 /* مخفي */
+  transition: clip-path .4s cubic-bezier(.16, 1, .3, 1);
+  pointer-events: none;
+}
+
+.navbar__nav .navbar__link:hover::after,
+.navbar__nav .navbar__link--active::after {
+  clip-path: inset(0 0 0 0);                    /* بيترسم من اليمين */
+}
+
+.navbar__nav .navbar__link:hover::after {
+  animation: nb-wave 1s linear infinite;
+}
+
+@keyframes nb-wave {
+  to { background-position-x: -12px; }
+}
+
+/* واتساب: خط أخضر */
+.navbar__nav .navbar__link[href*="wa.me"]::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M0 3Q3 0 6 3T12 3' fill='none' stroke='%2325d366' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.navbar__nav .navbar__link[href*="wa.me"]:hover { color: #25d366; }
+
 @media (prefers-reduced-motion: reduce) {
   .navbar, .navbar__inner, .navbar__logo { transition: none !important; }
 }
