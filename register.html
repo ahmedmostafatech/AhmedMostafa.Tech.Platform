@@ -22,7 +22,6 @@
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/layout.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/footer-bar.css">
 
   <style>
     /* ============================================================
@@ -626,11 +625,26 @@
   </main>
 
   <!-- الفوتر -->
-  <footer class="ub-wrap"><div id="footer-bar"></div></footer>
+  <footer class="site-footer"
+    style="background:#060e20; border-top:1px solid rgba(255,255,255,0.08); padding:var(--space-6) 0; font-size:var(--text-sm); color:rgba(255,255,255,0.5);">
+    <div class="container"
+      style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
+      <div>
+        Ahmed Mostafa Tech &copy; 2026 — حماية تامة لبيانات الطلاب
+      </div>
+      <div style="display:flex; gap:16px;">
+        <a href="index.html" style="color:#9cbff7; text-decoration:none;">الرئيسية</a>
+        <a href="revisions.html" style="color:#9cbff7; text-decoration:none;">المراجعات</a>
+        <a href="https://wa.me/201558905710" target="_blank" rel="noopener"
+          style="color:#25d366; font-weight:700; text-decoration:none;">
+          <i class="fa-brands fa-whatsapp"></i> دعم واتساب
+        </a>
+      </div>
+    </div>
+  </footer>
 
   <script type="module" src="assets/js/pages/register-page.js"></script>
 
-  <script src="assets/js/components/footer-bar.js"></script>
 </body>
 
 </html>
