@@ -267,37 +267,36 @@ export function validatePassword(password) {
 
 // المفتاح = جزء من رسالة الخطأ الإنجليزية (من دوال قاعدة البيانات أو Supabase Auth)
 let ERROR_MESSAGES = [
+  // من دوال قاعدة البيانات
   ['already subscribed', 'أنت مشترك بالفعل في هذه المادة.'],
   ['not authenticated', 'لازم تسجل الدخول أولًا.'],
   ['course not found', 'المادة غير متاحة حاليًا.'],
   ['course access period ended', 'انتهت فترة الاشتراك في هذه المادة.'],
   ['invalid payment method', 'وسيلة الدفع غير صحيحة.'],
-  ['invalid reference', 'رقم العملية غير صحيح، راجع الرقم وحاول مرة أخرى.'],
+  ['invalid reference', 'رقم العملية غير صحيح (4 خانات على الأقل)، راجع الرقم وحاول مرة أخرى.'],
   ['order not found or already processed', 'الطلب غير موجود أو تمت معالجته بالفعل.'],
+  ['order not found', 'الطلب غير موجود.'],  ['order not found or already processed', 'الطلب غير موجود أو تمت معالجته بالفعل.'],
   ['no free amount', 'الضغط عالي حاليًا، حاول بعد دقائق.'],
   ['forbidden', 'ليس لديك صلاحية لتنفيذ هذا الإجراء.'],
-  ['orders_tx_reference_key', 'رقم العملية هذا مستخدم من قبل. راجع الرقم أو تواصل معنا.'],
-  ['failed to fetch', 'مشكلة في الاتصال بالإنترنت، تأكد من الشبكة وحاول مرة أخرى.'],
+  ['invalid name', 'من فضلك اكتب اسمك بشكل صحيح.'],
+  ['invalid phone', 'رقم الموبايل غير صحيح (لازم يكون رقم مصري 11 خانة).'],
+  ['profile not found', 'تعذر العثور على بياناتك، سجّل خروج وادخل تاني.'],
+  ['orders_tx_reference', 'رقم العملية هذا مستخدم من قبل. راجع الرقم أو تواصل معنا.'],
+
+  // من Supabase Auth
   ['invalid login credentials', 'بيانات الدخول غير صحيحة، اتأكد من الإيميل وكلمة المرور.'],
   ['invalid_credentials', 'بيانات الدخول غير صحيحة، اتأكد من الإيميل وكلمة المرور.'],
+  ['email not confirmed', 'البريد الإلكتروني لم يتم تأكيده بعد.'],
   ['user already registered', 'البريد الإلكتروني ده مسجل بالفعل، تقدر تسجل دخول بيه على طول.'],
   ['user_already_exists', 'البريد الإلكتروني ده مسجل بالفعل، تقدر تسجل دخول بيه.'],
   ['password should be at least', 'كلمة المرور لازم تكون 8 حروف أو أرقام على الأقل.'],
   ['signup requires a valid password', 'من فضلك اكتب كلمة مرور صالحة لا تقل عن 8 خانات.'],
-  ['email rate limit exceeded', 'طلبت كود كتير في وقت قصير، استنى دقيقة وجرب تاني.'],
-  ['over_email_send_rate_limit', 'طلبت كود كتير في وقت قصير، استنى شوية وجرب تاني.'],
-  ['invalid phone number', 'رقم الموبايل غير صحيح (لازم يكون رقم مصري 11 خانة).'],
-  ['invalid phone', 'رقم الموبايل غير صحيح (لازم يكون رقم مصري 11 خانة).'],
-  ['invalid name', 'الاسم يجب ألا يقل عن 3 أحرف.'],
-  ['profile incomplete', 'لازم تكمل بيانات حسابك (الاسم ورقم الموبايل) من لوحة التحكم قبل إتمام الشراء.'],
-  ['profile not found', 'الملف الشخصي غير موجود، سجل خروج ودخول مرة تانية.'],
-  ['network request failed', 'مشكلة في الاتصال بالإنترنت، اتأكد من الشبكة وجرب تاني.'],
-  ['already registered and paid', 'أنت مسجل بالفعل في هذه المادة وتم تأكيد اشتراكك مسبقاً!'],
-  ['course not found', 'المراجعة المختارة غير متاحة حالياً.'],
-  ['course access period ended', 'انتهت فترة التسجيل المتاحة لهذه المادة.'],
-  ['invalid payment method', 'وسيلة الدفع المختارة غير صحيحة.'],
-  ['invalid email', 'يرجى كتابة بريد إلكتروني صحيح.'],
-  ['invalid branch', 'يرجى اختيار الفرع الجامعي التابع له.']
+  ['email rate limit exceeded', 'محاولات كتير في وقت قصير، استنى دقيقة وجرب تاني.'],
+  ['over_email_send_rate_limit', 'محاولات كتير في وقت قصير، استنى شوية وجرب تاني.'],
+
+  // الشبكة
+  ['failed to fetch', 'مشكلة في الاتصال بالإنترنت، تأكد من الشبكة وحاول مرة أخرى.'],
+  ['network request failed', 'مشكلة في الاتصال بالإنترنت، اتأكد من الشبكة وجرب تاني.']
 ];
 
 export function getErrorMessage(error) {
@@ -310,30 +309,11 @@ export function getErrorMessage(error) {
     }
   }
 
+  // رسائل عربية جاهزة مرمية من الكود نفسه (التحقق، رفع الملفات)
+  if (/[\u0600-\u06FF]/.test(raw)) {
+    return raw;
+  }
+
   console.error('Unmapped error:', error);
   return 'حصل خطأ غير متوقع، حاول مرة أخرى.';
 }
-
-
-// تشغيل تأثير تتبع الماوس والإضاءة التفاعلية لكروت Spotlight Glow Cards
-export function initSpotlightCards() {
-  if (typeof document === 'undefined') return;
-  let selector = '.spotlight-card, .glow-card, .prem-revision-card, .method-radio-card, .account-box, .detail-card, .sidebar-card, .stat-card, .flip-card-front, .flip-card-back, .rev-pick-card';
-  let cards = document.querySelectorAll(selector);
-  cards.forEach(function (card) {
-    if (card._hasSpotlight) return;
-    card._hasSpotlight = true;
-    card.addEventListener('mousemove', function (e) {
-      let rect = card.getBoundingClientRect();
-      card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
-      card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
-    });
-  });
-}
-
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', function () {
-    initSpotlightCards();
-  });
-}
-
