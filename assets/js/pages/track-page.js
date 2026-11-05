@@ -11,7 +11,6 @@ import {
   escapeHtml,
   setButtonLoading,
   getQueryParam,
-  initSpotlightCards
 } from '../core/utils.js';
 
 function byId(id) {
@@ -90,7 +89,6 @@ async function handleTrack(code, phoneSuffix) {
 
     resultBox.hidden = false;
     resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    initSpotlightCards();
 
   } catch (err) {
     console.error('Tracking failed:', err);
@@ -137,7 +135,6 @@ async function initTrackPage() {
     });
   }
 
-  initSpotlightCards();
 }
 
 document.addEventListener('DOMContentLoaded', initTrackPage);
