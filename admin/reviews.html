@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>إدارة آراء وتقييمات الطلاب | أحمد مصطفى تك</title>
+  <link rel="icon" href="data:,">
+
+  <!-- الخطوط الرسمية -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+
+<body class="admin-body">
+
+  <div class="admin-app">
+
+    <!-- القائمة الجانبية -->
+    <aside class="admin-sidebar">
+      <div id="admin-3d-bg" class="admin-3d-canvas-wrap" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;"></div>
+      <div class="admin-brand" style="position:relative;z-index:1;">
+        <div class="admin-brand-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <div style="font-weight:900; font-size:16px; color:#ffffff;">أحمد مصطفى تك</div>
+          <div style="font-size:11px; color:#9cbdfc; font-weight:600;">لوحة القيادة المتقدمة</div>
+        </div>
+      </div>
+
+      <nav class="admin-nav" style="position:relative;z-index:1;">
+        <a href="index.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-chart-line" style="color:#72a2ff;"></i>
+            <span>لوحة الإحصائيات</span>
+          </div>
+        </a>
+
+        <a href="registrations.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-user-check" style="color:#22c55e;"></i>
+            <span>إدارة التسجيلات</span>
+          </div>
+        </a>
+
+        <a href="revisions.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-book-bookmark" style="color:#ffd154;"></i>
+            <span>إدارة المراجعات</span>
+          </div>
+        </a>
+
+        <a href="discounts.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-tags" style="color:#ec4899;"></i>
+            <span>أكواد الخصم</span>
+          </div>
+        </a>
+
+        <a href="reviews.html" class="admin-nav-link active">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-star" style="color:#f59e0b;"></i>
+            <span>آراء الطلاب</span>
+          </div>
+        </a>
+
+        <a href="reports.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-file-csv" style="color:#38bdf8;"></i>
+            <span>التقارير وتصدير CSV</span>
+          </div>
+        </a>
+
+        <div style="height:1px; background:rgba(255,255,255,0.08); margin:12px 0;"></div>
+
+        <a href="../index.html" target="_blank" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="color:rgba(255,255,255,0.4);"></i>
+            <span>عرض الموقع الرئيسي</span>
+          </div>
+        </a>
+      </nav>
+
+      <div style="padding:16px; border-top:1px solid rgba(255,255,255,0.08); position:relative; z-index:1;">
+        <button type="button" id="admin-signout-btn" class="btn btn--secondary btn--block btn--sm"
+          style="color:#ef4444; border-color:rgba(239,68,68,0.3); font-size:12px; border-radius:10px;">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>تسجيل الخروج</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="admin-main">
+
+      <!-- الشريط العلوي -->
+      <header class="admin-topbar">
+        <div>
+          <h1 class="admin-page-title" style="margin:0; font-size:18px; font-weight:800; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-star" style="color:#f59e0b;"></i>
+            إدارة آراء وتجارب الطلاب
+          </h1>
+          <p class="admin-page-desc" style="margin:4px 0 0; font-size:12px; color:var(--admin-text-muted);">مراجعة التقييمات المرسلة من الطلاب، قبولها، رفضها، أو إضافة رأي يدوياً</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" id="open-add-review-modal" class="btn btn--primary"
+            style="border-radius:12px; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-plus"></i>
+            <span>إضافة رأي يدوياً</span>
+          </button>
+        </div>
+      </header>
+
+      <div style="padding:28px 32px; overflow-y:auto; flex:1;">
+
+        <!-- بطاقات إحصائيات سريعة للآراء -->
+        <div class="stat-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:24px;">
+          <div class="stat-card spotlight-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:20px;">
+            <div style="font-size:13px; font-weight:700; color:var(--admin-text-muted);">إجمالي الآراء</div>
+            <div id="stat-total-reviews" style="font-size:28px; font-weight:900; color:var(--admin-text-main); margin:6px 0;">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">جميع الآراء المسجلة</div>
+          </div>
+
+          <div class="stat-card spotlight-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:20px;">
+            <div style="font-size:13px; font-weight:700; color:var(--admin-text-muted);">الآراء المعتمدة (معروضة)</div>
+            <div id="stat-approved-reviews" style="font-size:28px; font-weight:900; color:#16a34a; margin:6px 0;">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">تظهر حالياً في الصفحة الرئيسية</div>
+          </div>
+
+          <div class="stat-card spotlight-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:18px; padding:20px;">
+            <div style="font-size:13px; font-weight:700; color:var(--admin-text-muted);">بانتظار الموافقة</div>
+            <div id="stat-pending-reviews" style="font-size:28px; font-weight:900; color:#d97706; margin:6px 0;">0</div>
+            <div style="font-size:12px; color:var(--admin-text-muted);">تحتاج مراجعة وقرار</div>
+          </div>
+        </div>
+
+        <!-- تنبيهات الصفحة -->
+        <div id="reviews-alert" class="alert alert--error" hidden style="margin-bottom:20px;"></div>
+
+        <!-- قائمة كروت الآراء -->
+        <div class="spotlight-card" style="border-radius:24px; padding:24px; background:#ffffff; border:1px solid #e2e8f0; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+            <div>
+              <h2 style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0;">قائمة آراء وتقييمات الطلاب</h2>
+              <p style="font-size:12px; color:var(--admin-text-muted); margin:4px 0 0;">يمكنك قبول الرأي لنشره في الهوم بيدج أو رفضه أو حذفه</p>
+            </div>
+            <button type="button" id="refresh-reviews-btn" class="btn btn--secondary btn--sm" style="border-radius:10px; font-weight:700;">
+              <i class="fa-solid fa-rotate-right"></i> تحديث
+            </button>
+          </div>
+
+          <div id="reviews-cards-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
+            <div style="grid-column:1/-1; text-align:center; padding:60px 20px; color:#94a3b8;">
+              <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+              <p style="margin-top:12px; font-size:14px; font-weight:700;">جاري تحميل الآراء والتقييمات...</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- مودال إضافة رأي يدوياً بواسطة الأدمن -->
+  <div id="add-review-modal" class="modal-backdrop" hidden style="position:fixed; inset:0; background:rgba(7,16,34,0.7); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div class="modal-card" style="max-width:520px; width:100%; border-radius:22px; background:#ffffff; padding:24px; border:1px solid #e2e8f0; box-shadow:0 20px 50px rgba(0,0,0,0.2);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid #e2e8f0; padding-bottom:14px;">
+        <h3 style="margin:0; font-size:18px; color:var(--admin-text-main); display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-comment-dots" style="color:#2563eb;"></i>
+          <span>إضافة تجربة طالب جديدة يدوياً</span>
+        </h3>
+        <button type="button" id="modal-close-review-btn" class="btn btn--secondary btn--sm" style="border-radius:50%; width:32px; height:32px; padding:0;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="add-review-form">
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">اسم الطالب (اختياري)</label>
+          <input type="text" id="admin-review-name" class="form-input" placeholder="مثال: محمد سعيد (أو اتركه فارغاً)" style="width:100%; border-radius:10px;">
+        </div>
+
+        <div style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="admin-review-anon" style="width:18px; height:18px; accent-color:#2563eb;">
+          <label for="admin-review-anon" style="font-size:13px; font-weight:700; color:#475569; cursor:pointer;">
+            إخفاء الاسم وعرضه كـ (اسم مخفي للخصوصية)
+          </label>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">الفرع أو المحافظة *</label>
+          <input type="text" id="admin-review-branch" class="form-input" placeholder="مثال: القاهرة / الإسكندرية" required style="width:100%; border-radius:10px;">
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">نص الرأي / الريفيو *</label>
+          <textarea id="admin-review-text" class="form-input" rows="4" placeholder="اكتب نص تقييم الطالب..." required style="width:100%; border-radius:10px; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" id="modal-cancel-review-btn" class="btn btn--secondary btn--sm" style="border-radius:10px;">إلغاء</button>
+          <button type="submit" id="modal-submit-review-btn" class="btn btn--primary btn--sm" style="font-weight:700; border-radius:10px; padding:0 20px;">
+            <i class="fa-solid fa-check"></i> حفظ ونشر فوراً
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../assets/js/components/admin-nav.js"></script>
+  <script src="../assets/js/components/admin-3d-bg.js"></script>
+  <script type="module" src="../assets/js/pages/admin/admin-reviews-page.js"></script>
+
+</body>
+
+</html>
