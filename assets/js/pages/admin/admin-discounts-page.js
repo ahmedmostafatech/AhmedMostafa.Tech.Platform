@@ -128,10 +128,15 @@ async function loadCoupons() {
     let totalUses = couponsList.reduce((sum, c) => sum + (c.used_count || 0), 0);
     let activeCount = couponsList.filter(c => c.is_active && (!c.expires_at || new Date(c.expires_at) >= new Date())).length;
 
+        let inactiveCount = couponsList.length - activeCount;
+    let activePct = couponsList.length ? Math.round((activeCount / couponsList.length) * 100) : 0;
+
     if (byId('stat-total-coupons')) byId('stat-total-coupons').textContent = couponsList.length;
     if (byId('stat-active-coupons')) byId('stat-active-coupons').textContent = activeCount;
     if (byId('stat-total-uses')) byId('stat-total-uses').textContent = totalUses;
-
+    if (byId('stat-inactive-coupons')) byId('stat-inactive-coupons').textContent = inactiveCount;
+    if (byId('stat-active-bar')) byId('stat-active-bar').style.width = activePct + '%';
+    
     if (!container) return;
 
     if (couponsList.length === 0) {

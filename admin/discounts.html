@@ -126,26 +126,71 @@
       </header>
 
       <!-- بطاقات إحصائيات سريعة للأكواد -->
-      <div class="stat-grid" style="margin-bottom:24px;">
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">إجمالي الأكواد</div>
-          <div class="stat-val" id="stat-total-coupons">0</div>
-          <div class="stat-sub">جميع الأكواد المسجلة</div>
-        </div>
+<div class="dashboard-stats-grid" style="margin-bottom:24px;">
 
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">الأكواد المفعّلة</div>
-          <div class="stat-val" id="stat-active-coupons" style="color:#16a34a;">0</div>
-          <div class="stat-sub">جاهزة للاستخدام حالياً</div>
-        </div>
-
-        <div class="stat-card spotlight-card">
-          <div class="stat-label">إجمالي مرات الاستخدام</div>
-          <div class="stat-val" id="stat-total-uses" style="color:#3b82f6;">0</div>
-          <div class="stat-sub">طالب استفاد من الخصومات</div>
-        </div>
+  <div class="dash-stat-card dash-stat-card--rich spotlight-card" style="--accent:#ec4899;">
+    <span class="dash-stat-bar"></span>
+    <i class="fa-solid fa-tags dash-stat-bg-icon"></i>
+    <div class="dash-stat-header">
+      <span style="font-size:13px; font-weight:700;">إجمالي الأكواد</span>
+      <div class="dash-stat-icon-wrap" style="background:#fdf2f8; color:#ec4899;">
+        <i class="fa-solid fa-tags"></i>
       </div>
+    </div>
+    <div id="stat-total-coupons" class="dash-stat-value">0</div>
+    <div class="dash-stat-foot">
+      <i class="fa-solid fa-layer-group" style="color:#ec4899;"></i>
+      <span>جميع الأكواد المسجلة</span>
+    </div>
+  </div>
 
+  <div class="dash-stat-card dash-stat-card--rich spotlight-card" style="--accent:#16a34a;">
+    <span class="dash-stat-bar"></span>
+    <i class="fa-solid fa-circle-check dash-stat-bg-icon"></i>
+    <div class="dash-stat-header">
+      <span style="font-size:13px; font-weight:700;">الأكواد المفعّلة</span>
+      <div class="dash-stat-icon-wrap" style="background:#f0fdf4; color:#16a34a;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+    </div>
+    <div id="stat-active-coupons" class="dash-stat-value" style="color:#16a34a !important;">0</div>
+    <div class="dash-stat-progress"><span id="stat-active-bar"></span></div>
+  </div>
+
+  <div class="dash-stat-card dash-stat-card--rich spotlight-card" style="--accent:#3b82f6;">
+    <span class="dash-stat-bar"></span>
+    <i class="fa-solid fa-user-check dash-stat-bg-icon"></i>
+    <div class="dash-stat-header">
+      <span style="font-size:13px; font-weight:700;">مرات الاستخدام</span>
+      <div class="dash-stat-icon-wrap" style="background:#eff6ff; color:#3b82f6;">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+    </div>
+    <div id="stat-total-uses" class="dash-stat-value" style="color:#2563eb !important;">0</div>
+    <div class="dash-stat-foot">
+      <i class="fa-solid fa-arrow-trend-up" style="color:#3b82f6;"></i>
+      <span>طالب استفاد من الخصومات</span>
+    </div>
+  </div>
+
+  <div class="dash-stat-card dash-stat-card--rich spotlight-card" style="--accent:#d97706;">
+    <span class="dash-stat-bar"></span>
+    <i class="fa-solid fa-pause dash-stat-bg-icon"></i>
+    <div class="dash-stat-header">
+      <span style="font-size:13px; font-weight:700;">متوقفة / منتهية</span>
+      <div class="dash-stat-icon-wrap" style="background:#fffbeb; color:#d97706;">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+    </div>
+    <div id="stat-inactive-coupons" class="dash-stat-value" style="color:#d97706 !important;">0</div>
+    <div class="dash-stat-foot">
+      <i class="fa-solid fa-hourglass-half" style="color:#d97706;"></i>
+      <span>غير متاحة للطلاب حالياً</span>
+    </div>
+  </div>
+
+</div>
+      
       <!-- تنبيهات الصفحة -->
       <div id="discounts-alert" class="alert alert--error" hidden style="margin-bottom:20px;"></div>
 
