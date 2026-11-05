@@ -130,8 +130,14 @@ export async function getRegistrationSummary(regId) {
     if (fallback.data) {
       return {
         id: fallback.data.id,
+        // field names matching what payment-page.js expects:
+        registration_code: fallback.data.registration_code,
         code: fallback.data.registration_code,
+        full_name: fallback.data.full_name,
         student_name: fallback.data.full_name,
+        email: fallback.data.email,
+        phone: fallback.data.phone,
+        branch: fallback.data.branch,
         course_title: fallback.data.courses ? fallback.data.courses.title : 'مراجعة دراسية',
         amount: fallback.data.amount,
         payment_method: fallback.data.payment_method,

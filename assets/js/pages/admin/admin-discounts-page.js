@@ -230,10 +230,10 @@ function setupModalActions() {
 }
 
 function setupTableActions() {
-  let tbody = byId('coupons-tbody');
-  if (!tbody) return;
+  let container = byId('coupons-cards-container') || byId('coupons-tbody');
+  if (!container) return;
 
-  tbody.addEventListener('click', async function (e) {
+  container.addEventListener('click', async function (e) {
     // تبديل الحالة
     let toggleBtn = e.target.closest('.btn-toggle-coupon');
     if (toggleBtn) {
