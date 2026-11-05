@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -446,7 +446,7 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      min-height: 540px;
+      min-height: auto;
       background: #040914;
       z-index: 1;
       display: flex;
@@ -539,7 +539,7 @@
       position: relative;
       z-index: 3;
       text-align: center;
-      padding: 60px var(--space-4) var(--space-6);
+      padding: 36px var(--space-4) 20px;
     }
 
     .f-giant {
@@ -600,7 +600,39 @@
       flex-wrap: wrap;
       gap: var(--space-4);
     }
-  </style>
+  
+    /* cin-footer-responsive-patch */
+    @media (max-width: 768px) {
+      .cin-footer {
+        position: relative !important;
+        z-index: 10 !important;
+      }
+      .main-curtain-wrapper {
+        margin-bottom: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      .f-cta-area {
+        padding: 30px 16px 16px !important;
+      }
+      .f-cta-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 8px !important;
+      }
+      .f-cta-sub {
+        font-size: 0.95rem !important;
+        margin-bottom: 16px !important;
+      }
+      .f-diagonal-strip {
+        display: none !important;
+      }
+      .f-giant {
+        display: none !important;
+      }
+    }
+    
+    </style>
 
   <!-- Microsoft Clarity -->
   <script type="text/javascript">
@@ -746,9 +778,11 @@
     function syncCurtainFooter() {
       var curtain = document.getElementById('main-curtain');
       var footer = document.getElementById('cin-footer');
-      if (curtain && footer) {
-        var fHeight = footer.offsetHeight;
-        curtain.style.marginBottom = fHeight + 'px';
+      if (!curtain || !footer) return;
+      if (window.innerWidth <= 768) {
+        curtain.style.marginBottom = '0px';
+      } else {
+        curtain.style.marginBottom = footer.offsetHeight + 'px';
       }
     }
     window.addEventListener('load', syncCurtainFooter);
