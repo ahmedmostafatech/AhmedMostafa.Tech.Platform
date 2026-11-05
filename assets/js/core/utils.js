@@ -317,3 +317,15 @@ export function getErrorMessage(error) {
   console.error('Unmapped error:', error);
   return 'حصل خطأ غير متوقع، حاول مرة أخرى.';
 }
+
+export function initSpotlightCards() {
+  document.querySelectorAll('.spotlight-card').forEach(function (card) {
+    if (card.dataset.spotlightInit) return;
+    card.dataset.spotlightInit = '1';
+    card.addEventListener('mousemove', function (e) {
+      var r = card.getBoundingClientRect();
+      card.style.setProperty('--mouse-x', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--mouse-y', (e.clientY - r.top) + 'px');
+    });
+  });
+}
