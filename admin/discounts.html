@@ -71,6 +71,12 @@
             <span>أكواد الخصم</span>
           </div>
         </a>
+        <a href="reviews.html" class="admin-nav-link">
+          <div class="admin-nav-item-inner">
+            <i class="fa-solid fa-star" style="color:#f59e0b;"></i>
+            <span>آراء الطلاب</span>
+          </div>
+        </a>
 
         <a href="reports.html" class="admin-nav-link">
           <div class="admin-nav-item-inner">
@@ -144,18 +150,24 @@
       <div id="discounts-alert" class="alert alert--error" hidden style="margin-bottom:20px;"></div>
 
       <!-- حاوية كروت أكواد الخصم العصرية -->
-      <div class="spotlight-card" style="border-radius:24px; padding:24px; background:#ffffff; border:1px solid #e2e8f0; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+      <div class="spotlight-card"
+        style="border-radius:24px; padding:24px; background:#ffffff; border:1px solid #e2e8f0; box-shadow:0 10px 30px rgba(0,0,0,0.04);">
+        <div
+          style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
           <div>
-            <h2 style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0;">أكواد الخصم النشطة والسابقة</h2>
-            <p style="font-size:12px; color:var(--admin-text-muted); margin:4px 0 0;">يمكنك تفعيل أو إيقاف أي كود أو مسحه بضغطة واحدة</p>
+            <h2 style="font-size:16px; font-weight:800; color:var(--admin-text-main); margin:0;">أكواد الخصم النشطة
+              والسابقة</h2>
+            <p style="font-size:12px; color:var(--admin-text-muted); margin:4px 0 0;">يمكنك تفعيل أو إيقاف أي كود أو
+              مسحه بضغطة واحدة</p>
           </div>
-          <button type="button" id="refresh-coupons-btn" class="btn btn--secondary btn--sm" style="border-radius:10px; font-weight:700;">
+          <button type="button" id="refresh-coupons-btn" class="btn btn--secondary btn--sm"
+            style="border-radius:10px; font-weight:700;">
             <i class="fa-solid fa-rotate-right"></i> تحديث القائمة
           </button>
         </div>
 
-        <div id="coupons-cards-container" class="coupons-grid-cards" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:20px;">
+        <div id="coupons-cards-container" class="coupons-grid-cards"
+          style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:20px;">
           <div style="grid-column:1/-1; text-align:center; padding:60px 20px; color:#94a3b8;">
             <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
             <p style="margin-top:12px; font-size:14px; font-weight:700;">جاري تحميل أكواد الخصم...</p>
