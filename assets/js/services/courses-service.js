@@ -5,31 +5,45 @@
 
 import { supabase } from '../core/supabase-client.js';
 
-// جلب المادة الأولى المنشورة مع أول وحدة وأول درسين
+// الأعمدة المشتركة في استعلام المادة (price_egp مش price، ومفيش duration_sec)
+let COURSE_SELECT = `
+  id,
+  title,
+  description,
+  price_egp,
+  access_until,
+  modules (
+    id,
+    title,
+    sort_order,
+    videos (
+      id,
+      title,
+      is_free,
+      sort_order,
+      video_sources ( youtube_id )
+    )
+  )
+`;
+
+// ترتيب الوحدات والفيديوهات
+function sortCourseTree(course) {
+  if (course && course.modules) {
+    course.modules.sort(function (a, b) { return a.sort_order - b.sort_order; });
+    course.modules.forEach(function (m) {
+      if (m.videos) {
+        m.videos.sort(function (a, b) { return a.sort_order - b.sort_order; });
+      }
+    });
+  }
+  return course;
+}
+
+// جلب المادة الأحدث المنشورة
 export async function getPublishedCourse() {
   let { data, error } = await supabase
     .from('courses')
-    .select(`
-      id,
-      title,
-      description,
-      price_egp,
-      access_until,
-      modules (
-        id,
-        title,
-        sort_order,
-        videos (
-          id,
-          course_id,
-          module_id,
-          title,
-          is_free,
-          sort_order,
-          video_sources ( youtube_id )
-        )
-      )
-    `)
+    .select(COURSE_SELECT)
     .eq('is_published', true)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -40,34 +54,16 @@ export async function getPublishedCourse() {
     return null;
   }
 
-  // ترتيب الوحدات والفيديوهات
-  if (data && data.modules) {
-    data.modules.sort(function (a, b) { return a.sort_order - b.sort_order; });
-    data.modules.forEach(function (m) {
-      if (m.videos) {
-        m.videos.sort(function (a, b) { return a.sort_order - b.sort_order; });
-      }
-    });
-  }
-
-  return data;
+  return sortCourseTree(data);
 }
 
-// جلب الفيديو المجاني الأول في المادة
+// جلب أول فيديو مجاني في المادة
 export async function getFreeVideo(courseId) {
-  if (!courseId) {
-    return null;
-  }
-
   let { data, error } = await supabase
     .from('videos')
     .select(`
       id,
-      course_id,
-      module_id,
       title,
-      is_free,
-      sort_order,
       video_sources ( youtube_id )
     `)
     .eq('course_id', courseId)
@@ -86,10 +82,6 @@ export async function getFreeVideo(courseId) {
 
 // عدد الفيديوهات الإجمالي في المادة
 export async function getVideosCount(courseId) {
-  if (!courseId) {
-    return 0;
-  }
-
   let { count, error } = await supabase
     .from('videos')
     .select('id', { count: 'exact', head: true })
@@ -102,7 +94,7 @@ export async function getVideosCount(courseId) {
   return count || 0;
 }
 
-// جلب مادة معينة بالـ ID (أو الأولى المنشورة إذا لم يُحدد ID)
+// جلب مادة معينة بالـ ID (أو الأحدث المنشورة لو مفيش ID)
 export async function getCourseById(courseId) {
   if (!courseId) {
     return await getPublishedCourse();
@@ -110,27 +102,7 @@ export async function getCourseById(courseId) {
 
   let { data, error } = await supabase
     .from('courses')
-    .select(`
-      id,
-      title,
-      description,
-      price_egp,
-      access_until,
-      modules (
-        id,
-        title,
-        sort_order,
-        videos (
-          id,
-          course_id,
-          module_id,
-          title,
-          is_free,
-          sort_order,
-          video_sources ( youtube_id )
-        )
-      )
-    `)
+    .select(COURSE_SELECT)
     .eq('id', courseId)
     .eq('is_published', true)
     .maybeSingle();
@@ -140,14 +112,5 @@ export async function getCourseById(courseId) {
     return null;
   }
 
-  if (data && data.modules) {
-    data.modules.sort(function (a, b) { return a.sort_order - b.sort_order; });
-    data.modules.forEach(function (m) {
-      if (m.videos) {
-        m.videos.sort(function (a, b) { return a.sort_order - b.sort_order; });
-      }
-    });
-  }
-
-  return data;
+  return sortCourseTree(data);
 }
