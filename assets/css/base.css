@@ -244,3 +244,34 @@ html.guard-pending body {
 }
 
 [hidden] { display: none !important; }
+
+
+/* ── Scrollbar بثيم الموقع ── */
+html {
+  scrollbar-width: thin;                         /* Firefox */
+  scrollbar-color: #365aa2 #040914;
+}
+
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+
+::-webkit-scrollbar-track {
+  background: #040914;
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4a72bf, #365aa2);
+  border-radius: 99px;
+  border: 2px solid #040914;                     /* بيدي إحساس إنه عايم */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ffd154, #e0b23a);
+}
+
+::-webkit-scrollbar-corner {
+  background: #040914;
+}
