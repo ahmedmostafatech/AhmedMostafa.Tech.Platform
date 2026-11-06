@@ -12,7 +12,7 @@
   <!-- الخطوط الرسمية -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;800&display=swap"
     rel="stylesheet">
 
   <!-- مكتبة الأيقونات الرسمية Font Awesome 6 -->
@@ -524,10 +524,52 @@
             </div>
           </div>
 
-          <!-- مؤشر التحميل -->
-          <div id="revisions-loading" class="text-center" style="padding:var(--space-8) 0;">
-            <div class="loading-spinner" style="margin:0 auto var(--space-3) auto;"></div>
-            <p style="color:var(--color-text-muted); font-size:var(--text-sm);">جاري جلب أحدث المراجعات...</p>
+          <!-- مؤشر التحميل عبر Skeleton Cards -->
+          <div id="revisions-loading" style="padding:var(--space-6) 0;">
+            <div class="skeleton-grid">
+              <div class="skeleton-card">
+                <div class="skeleton-card-top">
+                  <div class="skeleton-shimmer skeleton-pill"></div>
+                  <div class="skeleton-shimmer" style="width:70px; height:20px; border-radius:12px;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-title"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-meta-row">
+                  <div class="skeleton-shimmer" style="width:90px; height:20px;"></div>
+                  <div class="skeleton-shimmer" style="width:80px; height:20px; margin-right:auto;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-btn"></div>
+              </div>
+              <div class="skeleton-card">
+                <div class="skeleton-card-top">
+                  <div class="skeleton-shimmer skeleton-pill"></div>
+                  <div class="skeleton-shimmer" style="width:70px; height:20px; border-radius:12px;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-title"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-meta-row">
+                  <div class="skeleton-shimmer" style="width:90px; height:20px;"></div>
+                  <div class="skeleton-shimmer" style="width:80px; height:20px; margin-right:auto;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-btn"></div>
+              </div>
+              <div class="skeleton-card">
+                <div class="skeleton-card-top">
+                  <div class="skeleton-shimmer skeleton-pill"></div>
+                  <div class="skeleton-shimmer" style="width:70px; height:20px; border-radius:12px;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-title"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-shimmer skeleton-desc-line"></div>
+                <div class="skeleton-meta-row">
+                  <div class="skeleton-shimmer" style="width:90px; height:20px;"></div>
+                  <div class="skeleton-shimmer" style="width:80px; height:20px; margin-right:auto;"></div>
+                </div>
+                <div class="skeleton-shimmer skeleton-btn"></div>
+              </div>
+            </div>
           </div>
 
           <!-- شبكة المراجعات البريميوم -->

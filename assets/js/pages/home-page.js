@@ -245,28 +245,32 @@ function renderRevisionsGrid(revisions) {
 
 async function initHomePage() {
   // 1. تشغيل شريط الملاحة
-  await initNavbar({ activePage: 'home' });
+  const navbarPromise = initNavbar({ activePage: 'home' });
 
-  // 2. جلب المراجعات المنشورة
-  try {
-    let revisions = await getPublishedRevisions();
-    renderRevisionsGrid(revisions);
-  } catch (err) {
-    console.error('Failed to load revisions on home page:', err);
-    let loadingEl = document.getElementById('featured-revisions-loading');
-    let emptyEl = document.getElementById('revisions-empty');
-    if (loadingEl) loadingEl.hidden = true;
-    if (emptyEl) {
-      emptyEl.textContent = 'تعذر تحميل المراجعات حالياً. برجاء التأكد من اتصال الإنترنت ثم إعادة المحاولة.';
-      emptyEl.hidden = false;
-    }
-  }
-
-  // 3. تفعيل نافذة إضافة رأي الطالب
+  // 2. تفعيل نافذة إضافة رأي الطالب
   setupReviewModal();
 
-  // 4. تحميل الآراء المعتمدة من Supabase ديناميكياً
-  loadDynamicReviews();
+  // 3. جلب المراجعات المنشورة والآراء المعتمدة بالتوازي (Parallel Requests)
+  const revisionsPromise = (async () => {
+    try {
+      let revisions = await getPublishedRevisions();
+      renderRevisionsGrid(revisions);
+    } catch (err) {
+      console.error('Failed to load revisions on home page:', err);
+      let loadingEl = document.getElementById('featured-revisions-loading');
+      let emptyEl = document.getElementById('revisions-empty');
+      if (loadingEl) loadingEl.hidden = true;
+      if (emptyEl) {
+        emptyEl.textContent = 'تعذر تحميل المراجعات حالياً. برجاء التأكد من اتصال الإنترنت ثم إعادة المحاولة.';
+        emptyEl.hidden = false;
+      }
+    }
+  })();
+
+  const reviewsPromise = loadDynamicReviews();
+
+  // تنفيذ الجميع بالتوازي
+  await Promise.allSettled([navbarPromise, revisionsPromise, reviewsPromise]);
 }
 
 document.addEventListener('DOMContentLoaded', initHomePage);

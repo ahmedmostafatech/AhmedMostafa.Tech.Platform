@@ -85,6 +85,10 @@ let currentRegistrations = [];
 let selectedReg = null;
 let loadCounter = 0;
 
+// متغيرات التقسيم للصفحات (Pagination)
+let currentPage = 1;
+let pageSize = 15;
+
 function byId(id) {
   return document.getElementById(id);
 }
@@ -161,6 +165,102 @@ function renderRegistrationRow(r) {
     '</tr>';
 }
 
+// -------------------------------------------------------
+// عرض صفحة محددة وتحديث شريط الصفحات (Pagination)
+// -------------------------------------------------------
+function renderCurrentPage() {
+  let tbody = byId('registrations-tbody');
+  let countLabel = byId('regs-count-label');
+  let paginationWrap = byId('pagination-controls');
+  let pageInfoLabel = byId('page-info-label');
+  let prevBtn = byId('prev-page-btn');
+  let nextBtn = byId('next-page-btn');
+  let pageNumbersWrap = byId('page-numbers-wrap');
+
+  let totalItems = currentRegistrations.length;
+  let totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+  if (currentPage > totalPages) {
+    currentPage = totalPages;
+  }
+  if (currentPage < 1) {
+    currentPage = 1;
+  }
+
+  if (countLabel) {
+    countLabel.textContent = 'إجمالي التسجيلات المطابقة: ' + totalItems;
+  }
+
+  if (!tbody) return;
+
+  if (totalItems === 0) {
+    tbody.innerHTML =
+      '<tr><td colspan="10" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">' +
+      'لا توجد نتائج مطابقة لشروط البحث والفلترة.' +
+      '</td></tr>';
+    if (paginationWrap) paginationWrap.hidden = true;
+    return;
+  }
+
+  let startIndex = (currentPage - 1) * pageSize;
+  let endIndex = Math.min(startIndex + pageSize, totalItems);
+  let pageItems = currentRegistrations.slice(startIndex, endIndex);
+
+  tbody.innerHTML = pageItems.map(renderRegistrationRow).join('');
+  initSpotlightCards();
+
+  if (paginationWrap) {
+    paginationWrap.hidden = false;
+  }
+
+  if (pageInfoLabel) {
+    pageInfoLabel.textContent = 'عرض ' + (startIndex + 1) + ' إلى ' + endIndex + ' من أصل ' + totalItems;
+  }
+
+  if (prevBtn) {
+    prevBtn.disabled = currentPage <= 1;
+  }
+  if (nextBtn) {
+    nextBtn.disabled = currentPage >= totalPages;
+  }
+
+  if (pageNumbersWrap) {
+    pageNumbersWrap.innerHTML = '';
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let p = startPage; p <= endPage; p++) {
+      let pBtn = document.createElement('button');
+      pBtn.type = 'button';
+      pBtn.textContent = p;
+      pBtn.style.minWidth = '32px';
+      pBtn.style.height = '32px';
+      pBtn.style.padding = '0 6px';
+      pBtn.style.borderRadius = '6px';
+      pBtn.style.fontSize = '12px';
+      pBtn.style.fontWeight = '700';
+      pBtn.style.cursor = 'pointer';
+      pBtn.style.border = '1px solid rgba(255,255,255,0.15)';
+
+      if (p === currentPage) {
+        pBtn.style.background = '#2563eb';
+        pBtn.style.color = '#ffffff';
+        pBtn.style.borderColor = '#2563eb';
+      } else {
+        pBtn.style.background = 'rgba(255,255,255,0.05)';
+        pBtn.style.color = '#cbd5e1';
+      }
+
+      pBtn.addEventListener('click', function () {
+        currentPage = p;
+        renderCurrentPage();
+      });
+
+      pageNumbersWrap.appendChild(pBtn);
+    }
+  }
+}
+
 async function loadRegistrations() {
   loadCounter = loadCounter + 1;
   let requestId = loadCounter;
@@ -187,25 +287,8 @@ async function loadRegistrations() {
     }
 
     currentRegistrations = results;
-
-    if (countLabel) {
-      countLabel.textContent = 'عرض ' + currentRegistrations.length + ' تسجيل';
-    }
-
-    if (!tbody) {
-      return;
-    }
-
-    if (currentRegistrations.length === 0) {
-      tbody.innerHTML =
-        '<tr><td colspan="10" class="text-center" style="padding:32px; color:rgba(255,255,255,0.4);">' +
-        'لا توجد نتائج مطابقة لشروط البحث والفلترة.' +
-        '</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = currentRegistrations.map(renderRegistrationRow).join('');
-    initSpotlightCards();
+    currentPage = 1;
+    renderCurrentPage();
   } catch (err) {
     console.error('Failed to load registrations:', err);
     if (alertEl) {
@@ -785,6 +868,37 @@ async function initAdminRegistrationsPage() {
   let tbody = byId('registrations-tbody');
   if (tbody) {
     tbody.addEventListener('click', handleTableClick);
+  }
+
+  // أحداث التنقل بين الصفحات وتغيير عدد العناصر
+  let pageSizeSelect = byId('page-size-select');
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener('change', function () {
+      pageSize = parseInt(pageSizeSelect.value, 10) || 15;
+      currentPage = 1;
+      renderCurrentPage();
+    });
+  }
+
+  let prevBtn = byId('prev-page-btn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function () {
+      if (currentPage > 1) {
+        currentPage--;
+        renderCurrentPage();
+      }
+    });
+  }
+
+  let nextBtn = byId('next-page-btn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function () {
+      let totalPages = Math.ceil(currentRegistrations.length / pageSize) || 1;
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderCurrentPage();
+      }
+    });
   }
 
   setupModalActions();
