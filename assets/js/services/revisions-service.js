@@ -4,6 +4,7 @@
 // ============================================================
 
 import { supabase } from '../core/supabase-client.js';
+import { SUPABASE_URL, SUPABASE_PUBLIC_KEY } from '../core/config.js';
 
 // جلب كل المراجعات المنشورة المتاحة للزوار
 export async function getPublishedRevisions() {
@@ -195,3 +196,51 @@ export async function submitStudentReview({ studentName, isAnonymous, branch, re
 }
 
 
+// تسجيل الطالب عن طريق الـ Edge Function بعد التحقق من Turnstile على السيرفر
+export async function registerStudentSecure({ courseIds, fullName, branch, phone, email, paymentMethod, discountCode = null, turnstileToken }) {
+  let url = SUPABASE_URL.replace(/\/+$/, '') + '/functions/v1/register-with-turnstile';
+  let response;
+
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_PUBLIC_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_PUBLIC_KEY
+      },
+      body: JSON.stringify({
+        courseIds: courseIds,
+        fullName: fullName,
+        branch: branch,
+        phone: phone,
+        email: email,
+        paymentMethod: paymentMethod,
+        discountCode: discountCode,
+        turnstileToken: turnstileToken
+      })
+    });
+  } catch (networkError) {
+    console.error('register-with-turnstile network error:', String(networkError));
+    let netErr = new Error('network_error');
+    netErr.code = 'network_error';
+    throw netErr;
+  }
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (parseError) {
+    data = null;
+  }
+
+  if (!response.ok) {
+    let code = data && data.error ? String(data.error) : 'request_failed';
+    console.error('register-with-turnstile failed:', response.status, code);
+    let err = new Error(code);
+    err.code = code;
+    throw err;
+  }
+
+  return (data && data.results) ? data.results : [];
+}

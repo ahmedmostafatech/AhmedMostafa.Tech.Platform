@@ -4,7 +4,7 @@
 // ============================================================
 
 import { initNavbar } from '../components/navbar.js';
-import { getPublishedRevisions, registerStudent, validateCoupon } from '../services/revisions-service.js';
+import { getPublishedRevisions, registerStudentSecure, validateCoupon } from '../services/revisions-service.js';
 import {
   getQueryParam,
   formatPrice,
@@ -139,6 +139,21 @@ function renderRevisionsPicker() {
   });
 
   updateSummaryPill();
+}
+
+// رسائل الأخطاء الجديدة الخاصة بالتحقق الأمني، وأي خطأ تاني بيروح للدالة القديمة
+function getRegisterErrorMessage(err) {
+  let messages = {
+    turnstile_failed: 'فشل التحقق الأمني. حدّث الصفحة وحاول تاني.',
+    turnstile_missing: 'برجاء تأكيد التحقق الأمني للمتابعة.',
+    rate_limited: 'محاولات كتير في وقت قصير. استنى شوية وحاول تاني.',
+    network_error: 'مشكلة في الاتصال. اتأكد من الإنترنت وحاول تاني.',
+    forbidden_origin: 'الطلب جاي من مصدر غير مسموح.'
+  };
+  if (err && err.code && messages[err.code]) {
+    return messages[err.code];
+  }
+  return getErrorMessage(err);
 }
 
 async function initRegisterPage() {
@@ -338,24 +353,25 @@ async function initRegisterPage() {
 
       try {
         let registrationIds = [];
-        let selectedArray = Array.from(selectedCourseIds);
+let selectedArray = Array.from(selectedCourseIds);
 
-        for (let i = 0; i < selectedArray.length; i++) {
-          let cid = selectedArray[i];
-          let result = await registerStudent({
-            courseId: cid,
-            fullName: nameVal,
-            branch: branchVal,
-            phone: phoneCheck.normalized,
-            email: emailCheck.normalized,
-            paymentMethod: selectedPaymentMethod,
-            discountCode: appliedCouponData ? appliedCouponData.code : null
-          });
+// طلب واحد لكل المراجعات، لأن الـ token بيتستعمل مرة واحدة بس
+let results = await registerStudentSecure({
+  courseIds: selectedArray,
+  fullName: nameVal,
+  branch: branchVal,
+  phone: phoneCheck.normalized,
+  email: emailCheck.normalized,
+  paymentMethod: selectedPaymentMethod,
+  discountCode: appliedCouponData ? appliedCouponData.code : null,
+  turnstileToken: turnstileToken
+});
 
-          if (result && result.registration_id) {
-            registrationIds.push(result.registration_id);
-          }
-        }
+for (let i = 0; i < results.length; i++) {
+  if (results[i] && results[i].registration_id) {
+    registrationIds.push(results[i].registration_id);
+  }
+}
 
         if (registrationIds.length > 0) {
           window.location.href = `payment.html?id=${encodeURIComponent(registrationIds.join(','))}`;
@@ -370,7 +386,7 @@ async function initRegisterPage() {
         }
         setButtonLoading(submitBtn, false);
         if (errorEl) {
-          errorEl.textContent = getErrorMessage(err);
+          errorEl.textContent = getRegisterErrorMessage(err);
           errorEl.hidden = false;
           errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
