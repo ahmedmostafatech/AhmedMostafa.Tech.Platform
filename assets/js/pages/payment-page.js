@@ -29,7 +29,7 @@ async function initPaymentPage() {
   if (!regId) {
     if (loadingEl) loadingEl.hidden = true;
     if (errorEl) {
-      errorEl.textContent = 'رابط غير صالح، ينقص معرف التسجيل.';
+      errorEl.textContent = 'الرابط ده ناقصه معرّف التسجيل.';
       errorEl.hidden = false;
     }
     return;
@@ -53,7 +53,7 @@ async function initPaymentPage() {
 
     if (summaries.length === 0) {
       if (errorEl) {
-        errorEl.textContent = 'لم يتم العثور على بيانات هذا التسجيل، يرجى التأكد من الرابط.';
+        errorEl.textContent = 'مش لاقي بيانات التسجيل ده. راجع الرابط وجرّب تاني.';
         errorEl.hidden = false;
       }
       return;
@@ -78,17 +78,17 @@ async function initPaymentPage() {
     let whatsappBtn = document.getElementById('whatsapp-send-btn');
     if (whatsappBtn) {
       let methodLabel = first.payment_method === 'instapay' ? 'إنستاباي (InstaPay)' : 'فودافون كاش';
-      let waText = `السلام عليكم، أنا سجلت في مراجعة: ${combinedCourses}.
+      let waText = `السلام عليكم يا هندسة، أنا سجّلت في مراجعة: ${combinedCourses}.
 
-بيانات التسجيل:
+بياناتي:
 الاسم: ${first.full_name}
 كود التسجيل: ${combinedCodes}
 الفرع: ${first.branch}
-رقم الهاتف: ${first.phone}
+رقم الموبايل: ${first.phone}
 طريقة الدفع: ${methodLabel}
 المبلغ الإجمالي: ${totalAmount} EGP
 
-مرفق لحضرتك صورة إيصال التحويل، برجاء مراجعة الدفع وتأكيد الاشتراك.`;
+بعتلك صورة إيصال التحويل. ممكن تراجع الدفع وتفعّل اشتراكي؟ شكراً ليك.`;
 
       let waUrl = `https://wa.me/${APP_CONFIG.WHATSAPP_INTL}?text=${encodeURIComponent(waText)}`;
       whatsappBtn.href = waUrl;
@@ -99,9 +99,9 @@ async function initPaymentPage() {
     if (copyCodeBtn) {
       copyCodeBtn.addEventListener('click', async function () {
         let ok = await copyToClipboard(combinedCodes);
-        copyCodeBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
+        copyCodeBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> اتنسخ' : 'معرفتش أنسخ، جرّب تاني';
         setTimeout(function () {
-          copyCodeBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ كود التسجيل';
+          copyCodeBtn.innerHTML = '<i class="fa-solid fa-copy"></i> انسخ كود التسجيل';
         }, 2000);
       });
     }
@@ -111,8 +111,8 @@ async function initPaymentPage() {
       copyVodafoneBtn.addEventListener('click', async function () {
         let num = document.getElementById('vodafone-num').textContent.trim();
         let ok = await copyToClipboard(num);
-        copyVodafoneBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
-        setTimeout(function () { copyVodafoneBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ الرقم'; }, 2000);
+        copyVodafoneBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> اتنسخ' : 'معرفتش أنسخ، جرّب تاني';
+        setTimeout(function () { copyVodafoneBtn.innerHTML = '<i class="fa-solid fa-copy"></i> انسخ الرقم'; }, 2000);
       });
     }
 
@@ -121,8 +121,8 @@ async function initPaymentPage() {
       copyInstapayBtn.addEventListener('click', async function () {
         let idVal = document.getElementById('instapay-id').textContent.trim();
         let ok = await copyToClipboard(idVal);
-        copyInstapayBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> تم النسخ' : 'فشل النسخ';
-        setTimeout(function () { copyInstapayBtn.innerHTML = '<i class="fa-solid fa-copy"></i> نسخ المعرف'; }, 2000);
+        copyInstapayBtn.innerHTML = ok ? '<i class="fa-solid fa-check"></i> اتنسخ' : 'معرفتش أنسخ، جرّب تاني';
+        setTimeout(function () { copyInstapayBtn.innerHTML = '<i class="fa-solid fa-copy"></i> انسخ المعرّف'; }, 2000);
       });
     }
 
@@ -170,11 +170,11 @@ async function initPaymentPage() {
 
     function handleSelectedFile(file) {
       if (!file.type.startsWith('image/')) {
-        showAlert('يرجى اختيار ملف صورة صالح (JPG أو PNG أو WEBP).', 'danger');
+        showAlert('اختار صورة بصيغة JPG أو PNG أو WEBP.', 'danger');
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
-        showAlert('حجم الصورة كبير جداً، الحد الأقصى 10 ميجابايت.', 'danger');
+        showAlert('الصورة كبيرة، الحد الأقصى 10 ميجا.', 'danger');
         return;
       }
       selectedFile = file;
@@ -207,11 +207,11 @@ async function initPaymentPage() {
     if (uploadBtn) {
       uploadBtn.addEventListener('click', async function () {
         if (!selectedFile) {
-          showAlert('من فضلك اختر صورة الإيصال أولاً.', 'warning');
+          showAlert('اختار صورة الإيصال الأول.', 'warning');
           return;
         }
 
-        setButtonLoading(uploadBtn, true, 'جاري رفع الإيصال...');
+        setButtonLoading(uploadBtn, true, 'برفع الإيصال...');
 
         try {
           // 1. رفع الصورة إلى Supabase Storage
@@ -227,7 +227,7 @@ async function initPaymentPage() {
 
           if (uploadErr) {
             console.error('Storage upload error:', uploadErr);
-            throw new Error('فشل رفع ملف الصورة، يمكنك إرسالها عبر واتساب مباشرة.');
+            throw new Error('معرفتش أرفع الصورة. ممكن تبعتها لي واتساب مباشرة.');
           }
 
           // رابط الصورة العلني
@@ -275,7 +275,7 @@ async function initPaymentPage() {
             console.warn('Telegram receipt notify warning:', tgErr);
           }
 
-          showAlert('تم رفع إيصالك بنجاح! جاري مراجعته الآن وتفعيل المادة وإرسال الرابط لإيميلك.', 'success');
+          showAlert('وصلني إيصالك. هراجعه دلوقتي وأفعّل المادة، والرابط هيوصلك على إيميلك.', 'success');
           uploadBtn.hidden = true;
           cancelBtn.hidden = true;
 
@@ -284,8 +284,8 @@ async function initPaymentPage() {
             printer.setStatus({
               text: 'تحت المراجعة',
               tone: 'review',
-              label: 'وصلنا الإيصال',
-              note: 'وصلنا إيصالك وبنراجعه، والرابط هيوصلك على الإيميل أول ما نتأكد.'
+              label: 'وصلني الإيصال',
+              note: 'الإيصال وصلني وبراجعه، والرابط هيوصلك على الإيميل أول ما أتأكد.'
             });
             printer.replay();
             let mountEl = document.getElementById('receipt-printer-mount');
@@ -294,7 +294,7 @@ async function initPaymentPage() {
 
         } catch (err) {
           console.error('Receipt submission failed:', err);
-          showAlert(err.message || 'حدث خطأ أثناء رفع الإيصال.', 'danger');
+          showAlert(err.message || 'حصلت مشكلة وأنا برفع الإيصال. جرّب تاني أو ابعته واتساب.', 'danger');
         } finally {
           setButtonLoading(uploadBtn, false);
         }
@@ -306,10 +306,10 @@ async function initPaymentPage() {
 
     let st = first.payment_status;
     let status = st === 'paid'
-      ? { text: 'تم التأكيد', tone: 'ok' }
+      ? { text: 'اتأكّد', tone: 'ok' }
       : st === 'under_review'
         ? { text: 'تحت المراجعة', tone: 'review' }
-        : { text: 'بانتظار التحويل', tone: 'wait' };
+        : { text: 'مستني التحويل', tone: 'wait' };
 
     let methodText = first.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
 
@@ -318,7 +318,7 @@ async function initPaymentPage() {
       subtitle: 'إيصال تسجيل مبدئي',
       amountText: formatPrice(totalAmount),
       homeHref: 'track.html',
-      homeLabel: 'متابعة الطلب',
+      homeLabel: 'طلبي وصل فين؟',
       homeIcon: 'fa-magnifying-glass',
       receipt: {
         heading: 'إيصال تسجيل',
@@ -336,7 +336,7 @@ async function initPaymentPage() {
         status: status,
         note: status.tone === 'wait'
           ? 'حوّل المبلغ وارفع صورة الإيصال هنا أو ابعتها واتساب مع كود التسجيل.'
-          : 'وصلنا إيصالك وبنراجعه، والرابط هيوصلك على الإيميل أول ما نتأكد.'
+          : 'الإيصال وصلني وبراجعه، والرابط هيوصلك على الإيميل أول ما أتأكد.'
       }
     });
 
@@ -344,7 +344,7 @@ async function initPaymentPage() {
     console.error('Failed to load payment summary:', err);
     if (loadingEl) loadingEl.hidden = true;
     if (errorEl) {
-      errorEl.textContent = 'تعذر تحميل بيانات التسجيل، يرجى المحاولة ثانية.';
+      errorEl.textContent = 'معرفتش أحمّل بيانات تسجيلك، جرّب تاني.';
       errorEl.hidden = false;
     }
   }

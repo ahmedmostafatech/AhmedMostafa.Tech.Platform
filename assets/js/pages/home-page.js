@@ -47,7 +47,7 @@ function setupReviewModal() {
       if (!branch || !reviewText) {
         if (alertEl) {
           alertEl.className = 'alert alert--error';
-          alertEl.textContent = 'يرجى كتابة الفرع ونص الرأي.';
+          alertEl.textContent = 'اكتب فرعك ورأيك الأول.';
           alertEl.hidden = false;
         }
         return;
@@ -55,14 +55,14 @@ function setupReviewModal() {
 
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> بابعت...';
       }
 
       try {
         await submitStudentReview({ studentName, isAnonymous, branch, reviewText });
         if (alertEl) {
           alertEl.className = 'alert alert--success';
-          alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> شكراً جزيلاً لك! تم استلام رأيك بنجاح وسيظهر في الموقع فور اعتماده من الإدارة.';
+          alertEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> شكراً ليك، رأيك وصلني وهيظهر في الموقع أول ما أراجعه.';
           alertEl.hidden = false;
         }
         form.reset();
@@ -73,13 +73,13 @@ function setupReviewModal() {
         console.error('Review submit failed:', err);
         if (alertEl) {
           alertEl.className = 'alert alert--error';
-          alertEl.textContent = 'حصل خطأ أثناء إرسال رأيك: ' + (err.message || 'حاول مرة أخرى');
+          alertEl.textContent = 'حصلت مشكلة وأنا باستلم رأيك: ' + (err.message || 'جرّب تاني') + '.';
           alertEl.hidden = false;
         }
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرأي';
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> ابعت رأيي';
         }
       }
     });
@@ -98,15 +98,15 @@ function reviewColumnCount() {
 function buildReviewCard(item) {
   return '<div class="t-card-3d">' +
     '<div class="t-user-row">' +
-      '<div class="t-avatar">' + item.av + '</div>' +
-      '<div class="t-meta">' +
-        '<div class="t-name">' + escapeHtml(item.n) + '</div>' +
-        '<div class="t-handle">' + escapeHtml(item.h) + '</div>' +
-      '</div>' +
-      '<div class="t-country">' + escapeHtml(item.c) + '</div>' +
+    '<div class="t-avatar">' + item.av + '</div>' +
+    '<div class="t-meta">' +
+    '<div class="t-name">' + escapeHtml(item.n) + '</div>' +
+    '<div class="t-handle">' + escapeHtml(item.h) + '</div>' +
+    '</div>' +
+    '<div class="t-country">' + escapeHtml(item.c) + '</div>' +
     '</div>' +
     '<p class="t-text">"' + escapeHtml(item.q) + '"</p>' +
-  '</div>';
+    '</div>';
 }
 
 function renderReviewColumns() {
@@ -152,13 +152,13 @@ async function loadDynamicReviews() {
 
     allReviewCards = liveReviews.slice(0, 40).map(function (r) {
       const hidden = r.is_anonymous || !r.student_name;
-      const name = hidden ? 'طالب (اسم مخفي للخصوصية)' : r.student_name;
+      const name = hidden ? 'طالب مجهول' : r.student_name;
       return {
         q: r.review_text,
         n: name,
-        h: '@' + (hidden ? 'verified_student' : 'student'),
+        h: '@' + (hidden ? 'student' : 'student'),
         c: r.branch || 'جامعة EELU',
-        av: hidden ? '<i class="fa-solid fa-lock"></i>' : escapeHtml(name.substring(0, 2))
+        av: hidden ? '<i class="fa-solid fa-user-secret"></i>' : escapeHtml(name.substring(0, 2))
       };
     });
 
@@ -192,7 +192,7 @@ function renderRevisionsGrid(revisions) {
 
   if (gridEl) {
     gridEl.innerHTML = revisions.map(function (rev) {
-      let desc = rev.short_description || rev.description || 'مراجعة مكثفة وشاملة لجميع محاور المنهج واجتياز الامتحان العملي والنظري بنجاح.';
+      let desc = rev.short_description || rev.description || 'مراجعة مركّزة على كل محاور المنهج، عشان تدخل الامتحان وانت فاهم.';
       let priceText = formatPrice(rev.price_egp || 120);
 
       return `
@@ -202,7 +202,7 @@ function renderRevisionsGrid(revisions) {
           <div class="prem-card-header">
             <div class="prem-live-pill">
               <span class="live-dot"></span>
-              <span>متاح للحجز الفوري</span>
+              <span>متاح للحجز دلوقتي</span>
             </div>
             <span class="prem-faculty-badge">
               <i class="fa-solid fa-code"></i> EELU • CS
@@ -214,14 +214,14 @@ function renderRevisionsGrid(revisions) {
 
           <!-- ميزات المراجعة الحصرية -->
           <ul class="prem-card-perks">
-            <li><i class="fa-solid fa-circle-check"></i> شروحات Full HD مركزة ومباشرة على الامتحان</li>
-            <li><i class="fa-solid fa-circle-check"></i> سلايدات الشرح ومذكرات PDF جاهزة للطباعة</li>
-            <li><i class="fa-solid fa-circle-check"></i> حل نماذج الامتحانات السابقة بالتفصيل</li>
+            <li><i class="fa-solid fa-circle-check"></i> شرح Full HD مركّز على اللي هييجي في الامتحان</li>
+            <li><i class="fa-solid fa-circle-check"></i> سلايدات ومذكرات PDF جاهزة للطباعة</li>
+            <li><i class="fa-solid fa-circle-check"></i> حل نماذج امتحانات سابقة بالتفصيل</li>
           </ul>
 
           <div class="prem-card-footer">
             <div class="prem-price-box">
-              <span class="prem-price-lbl">سعر الاشتراك الكامل</span>
+              <span class="prem-price-lbl">سعر الاشتراك كامل</span>
               <span class="prem-price-val">${escapeHtml(priceText)}</span>
             </div>
             
@@ -229,8 +229,8 @@ function renderRevisionsGrid(revisions) {
               <a href="revision.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-sub">
                 <i class="fa-solid fa-circle-info"></i> التفاصيل
               </a>
-              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-main">
-                <span>احجز الآن</span>
+              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-main" aria-label="احجز مكانك في مراجعة ${escapeHtml(rev.title)}">
+                <span>احجز مكانك</span>
                 <i class="fa-solid fa-arrow-left"></i>
               </a>
             </div>

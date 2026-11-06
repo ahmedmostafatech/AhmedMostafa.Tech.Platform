@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -394,15 +393,10 @@
         <i class="fa-solid fa-bolt"></i> خطوة واحدة فقط للتسجيل
       </div>
       <h1 class="reg-main-title">
-        سجّل بياناتك <br>
-        <span class="hl-yellow">واضمن مكانك في المراجعة
-          <svg class="svg-underline" viewBox="0 0 240 14" preserveAspectRatio="none">
-            <path d="M 4 10 Q 60 3 120 9 Q 180 14 236 6" />
-          </svg>
-        </span>
+        سجّل بياناتك
       </h1>
       <p class="reg-main-sub">
-        اختر مراجعتك وسجل بياناتك في أقل من دقيقة، وسيتم توجيهك فوراً لبيانات التحويل ورابط الواتساب.
+        دقيقة واحدة وتخلّص. بعدها هطلعلك كود تسجيل وتروح تحوّل.
       </p>
     </div>
   </section>
@@ -461,27 +455,27 @@
           <div class="field-group">
             <label class="clean-label" for="reg-name">
               <span class="label-title-row">
-                <span>الاسم بالكامل</span>
+                <span>اسمك بالكامل</span>
                 <span class="req-star">*</span>
               </span>
-              <span class="label-sub-hint">اكتب اسمك ثلاثي أو رباعي باللغة العربية</span>
+              <span class="label-sub-hint">زي ما عايزه يظهر عندي</span>
             </label>
             <input type="text" id="reg-name" name="name" class="form-input" placeholder="مثال: أحمد مصطفى إبراهيم"
               required minlength="3">
-            <span class="form-field-error" id="name-error">من فضلك اكتب اسمك بالكامل</span>
+            <span class="form-field-error" id="name-error">اكتب اسمك بالكامل</span>
           </div>
 
           <!-- 2. الفرع والكلية -->
           <div class="field-group">
             <label class="clean-label" for="reg-branch">
               <span class="label-title-row">
-                <span>الفرع الجامعي</span>
+                <span>الفرع أو المحافظة</span>
                 <span class="req-star">*</span>
               </span>
-              <span class="label-sub-hint">اختر فرعك من القائمة أو اكتب اسم الفرع التابع له</span>
+              <span class="label-sub-hint">اختار فرعك من القايمة أو اكتب اسم الفرع التابع له</span>
             </label>
             <input list="branches-list" id="reg-branch" name="branch" class="form-input"
-              placeholder="ابحث أو اختر الفرع (مثال: القاهرة، المنوفية، طنطا...)" required>
+              placeholder="اختار الفرع (مثال: القاهرة، المنوفية، طنطا...)" required>
             <datalist id="branches-list">
               <option value="فرع القاهرة">
               <option value="فرع الإسكندرية">
@@ -509,53 +503,53 @@
               <option value="فرع شرم الشيخ">
               <option value="فرع آخر">
             </datalist>
-            <span class="form-field-error" id="branch-error">من فضلك حدد الفرع التابع له</span>
+            <span class="form-field-error" id="branch-error">الخانة دي مطلوبة</span>
           </div>
 
           <!-- 3. رقم الهاتف المصري -->
           <div class="field-group">
             <label class="clean-label" for="reg-phone">
               <span class="label-title-row">
-                <span>رقم الموبايل المصري</span>
+                <span>رقم الموبايل (واتساب لو أمكن)</span>
                 <span class="req-star">*</span>
               </span>
-              <span class="label-sub-hint">رقم الواتساب الخاص بك الذي سترسل منه صورة إيصال التحويل</span>
+              <span class="label-sub-hint">01xxxxxxxxx</span>
             </label>
             <input type="tel" id="reg-phone" name="phone" class="form-input" placeholder="01xxxxxxxxx" required
               dir="ltr" style="text-align:right;">
-            <span class="form-field-error" id="phone-error">رقم موبايل مصري غير صحيح (11 رقم يبدأ بـ 01)</span>
+            <span class="form-field-error" id="phone-error">رقم الموبايل لازم يبقى مصري، 11 رقم ويبدأ بـ 01</span>
           </div>
 
           <!-- 4. البريد الإلكتروني -->
           <div class="field-group">
             <label class="clean-label" for="reg-email">
               <span class="label-title-row">
-                <span>البريد الإلكتروني (Gmail)</span>
+                <span>الإيميل اللي هبعتلك عليه الرابط</span>
                 <span class="req-star">*</span>
               </span>
-              <span class="label-sub-hint">هام جداً: سيصلك رابط المراجعة وتأكيد الاشتراك وتفعيل الوصول عليه</span>
+              <span class="label-sub-hint">تأكد إنه مكتوب صح، لأن الرابط هيوصلك عليه</span>
             </label>
             <input type="email" id="reg-email" name="email" class="form-input" placeholder="student@gmail.com" required
               dir="ltr" style="text-align:right;">
-            <span class="form-field-error" id="email-error">من فضلك اكتب بريد إلكتروني صحيح</span>
+            <span class="form-field-error" id="email-error">الإيميل ده شكله ناقص حاجة، راجعه</span>
           </div>
 
           <!-- 5. كود الخصم (اختياري) -->
           <div class="field-group">
             <label class="clean-label" for="reg-coupon">
               <span class="label-title-row">
-                <span>كود الخصم (إن وجد)</span>
+                <span>عندك كود خصم؟</span>
                 <span class="badge badge--accent" style="font-size:10px; padding:2px 8px; margin-right:6px;">تخفيض
                   إضافي</span>
               </span>
-              <span class="label-sub-hint">اكتب الكود واضغط تطبيق للحصول على خصم مباشر على إجمالي الفاتورة</span>
+              <span class="label-sub-hint">اكتبه هنا واضغط «طبّق»</span>
             </label>
             <div style="display:flex; gap:10px; align-items:center;">
               <input type="text" id="reg-coupon" name="coupon" class="form-input" placeholder="مثال: OFF20 أو EELU"
                 dir="ltr" style="text-align:right; text-transform:uppercase; font-family:monospace; font-weight:700;">
               <button type="button" id="btn-apply-coupon" class="btn btn--secondary"
                 style="white-space:nowrap; padding:12px 20px; font-weight:700;">
-                <i class="fa-solid fa-tag"></i> تطبيق الكود
+                <i class="fa-solid fa-tag"></i> طبّق
               </button>
             </div>
             <div id="coupon-status-msg" style="font-size:var(--text-xs); margin-top:6px; font-weight:700;" hidden></div>
@@ -565,10 +559,10 @@
           <div class="field-group" style="margin-bottom:var(--space-6);">
             <label class="clean-label">
               <span class="label-title-row">
-                <span>وسيلة التحويل المفضلة</span>
+                <span>هتحوّل منين؟</span>
                 <span class="req-star">*</span>
               </span>
-              <span class="label-sub-hint">اختر الطريقة الأنسب لك لتحويل قيمة الاشتراك</span>
+              <span class="label-sub-hint">اختار الطريقة الأريح ليك لتحويل المبلغ</span>
             </label>
             <div class="payment-methods-grid">
               <label class="method-radio-card glow-vodafone active" id="card-method-vodafone">
@@ -610,10 +604,12 @@
           </div>
 
           <!-- Cloudflare Turnstile CAPTCHA Protection -->
-          <div class="field-group" style="margin-bottom:var(--space-4); display:flex; flex-direction:column; align-items:center;">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAAF2W--A-tUddp22T" data-theme="light" data-action="register" id="reg-turnstile"></div>
+          <div class="field-group"
+            style="margin-bottom:var(--space-4); display:flex; flex-direction:column; align-items:center;">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAF2W--A-tUddp22T" data-theme="light" data-action="register"
+              id="reg-turnstile"></div>
             <span class="form-field-error" id="turnstile-error" style="text-align:center; margin-top:6px;">
-              <i class="fa-solid fa-circle-exclamation"></i> برجاء تأكيد التحقق الأمني (Turnstile) للمتابعة
+              <i class="fa-solid fa-circle-exclamation"></i> كمّل اختبار التحقق الصغير اللي فوق عشان أعرف إنك مش روبوت
             </span>
           </div>
 
@@ -621,13 +617,12 @@
           <button type="submit" id="submit-reg-btn" class="btn btn--accent btn--block btn--lg btn-interactive"
             style="font-weight:800; font-size:var(--text-md); border-radius:14px; min-height:54px; display:inline-flex; align-items:center; justify-content:center; gap:12px;">
             <span class="btn-dot"></span>
-            <span>تأكيد التسجيل والانتقال للدفع</span>
+            <span>كمّل للدفع</span>
             <i class="fa-solid fa-arrow-left"></i>
           </button>
 
           <p style="text-align:center; font-size:12px; color:var(--color-text-muted); margin-top:var(--space-4);">
-            <i class="fa-solid fa-shield-halved"></i> بمجرد التأكيد سيتم حجز مقعدك وستظهر لك بيانات التحويل ورابط واتساب
-            لإرسال الإيصال.
+            <i class="fa-solid fa-shield-halved"></i> بياناتك معايا أنا بس، وبستخدمها عشان أبعتلك المراجعة وأتواصل معاك.
           </p>
 
         </form>
@@ -637,8 +632,8 @@
     </div>
   </main>
 
-<footer id="site-footer"></footer>
-<script src="assets/js/components/footer-bar.js"></script>
+  <footer id="site-footer"></footer>
+  <script src="assets/js/components/footer-bar.js"></script>
 
   <script type="module" src="assets/js/pages/register-page.js"></script>
 

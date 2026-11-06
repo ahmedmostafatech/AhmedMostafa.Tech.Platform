@@ -134,9 +134,9 @@ export function mountReceiptPrinter(target, opts) {
   injectStyle();
 
   const labels = Object.assign({
-    processing: 'بنسجّل طلبك...',
-    printing: 'بنطبع إيصال التسجيل...',
-    complete: 'تم تسجيل طلبك'
+    processing: 'بسجّل طلبك...',
+    printing: 'بطبع إيصال التسجيل...',
+    complete: 'اتسجّل طلبك'
   }, opts.labels || {});
 
   const r = opts.receipt || {};
@@ -146,35 +146,35 @@ export function mountReceiptPrinter(target, opts) {
 
   target.innerHTML =
     '<section class="rp" data-stage="processing" aria-label="إيصال التسجيل">' +
-      '<div class="rp-machine">' +
-        '<div class="rp-head">' + LOGO_SVG +
-          (opts.homeHref
-            ? '<a class="rp-home" href="' + esc(opts.homeHref) + '"><i class="fa-solid ' + esc(opts.homeIcon || 'fa-house') + '"></i> ' + esc(opts.homeLabel || 'الرئيسية') + '</a>'
-            : '') +
-        '</div>' +
-        '<div class="rp-screen">' +
-          '<div class="rp-top">' +
-            '<div><p class="rp-title">' + esc(opts.title) + '</p><p class="rp-sub">' + esc(opts.subtitle) + '</p></div>' +
-            '<div class="rp-total"><small>المبلغ</small><strong>' + esc(opts.amountText) + '</strong></div>' +
-          '</div>' +
-          '<div class="rp-status" role="status" aria-live="polite"><span class="rp-ico"></span><span class="rp-label"></span></div>' +
-        '</div>' +
-        '<div class="rp-slot" aria-hidden="true"></div>' +
-      '</div>' +
-      '<div class="rp-out"><div class="rp-feed" aria-hidden="true">' +
-        '<article class="rp-paper" style="clip-path:' + tornEdgeClip() + '">' +
-          '<div class="rp-p-logo">' + LOGO_SVG + '</div>' +
-          '<h3 class="rp-p-head">' + esc(r.heading || 'إيصال تسجيل') + '</h3>' +
-          '<p class="rp-p-sub">AHMED MOSTAFA TECH</p>' +
-          '<hr class="rp-hr">' + rows + '<hr class="rp-hr">' +
-          (r.total ? '<div class="rp-grand"><span>' + esc(r.total.label) + '</span><strong>' + esc(r.total.value) + '</strong></div>' : '') +
-          (r.status ? '<span class="rp-chip" data-tone="' + esc(r.status.tone || 'wait') + '">' + esc(r.status.text) + '</span>' : '') +
-          (r.note ? '<p class="rp-note">' + esc(r.note) + '</p>' : '') +
-          '<hr class="rp-hr">' + barcodeSvg(r.code) +
-          '<div class="rp-code">' + esc(r.code || '') + '</div>' +
-        '</article>' +
-      '</div></div>' +
-      (opts.showReplay ? '<button type="button" class="rp-replay"><i class="fa-solid fa-rotate-right"></i> إعادة الطباعة</button>' : '') +
+    '<div class="rp-machine">' +
+    '<div class="rp-head">' + LOGO_SVG +
+    (opts.homeHref
+      ? '<a class="rp-home" href="' + esc(opts.homeHref) + '"><i class="fa-solid ' + esc(opts.homeIcon || 'fa-house') + '"></i> ' + esc(opts.homeLabel || 'الرئيسية') + '</a>'
+      : '') +
+    '</div>' +
+    '<div class="rp-screen">' +
+    '<div class="rp-top">' +
+    '<div><p class="rp-title">' + esc(opts.title) + '</p><p class="rp-sub">' + esc(opts.subtitle) + '</p></div>' +
+    '<div class="rp-total"><small>المبلغ</small><strong>' + esc(opts.amountText) + '</strong></div>' +
+    '</div>' +
+    '<div class="rp-status" role="status" aria-live="polite"><span class="rp-ico"></span><span class="rp-label"></span></div>' +
+    '</div>' +
+    '<div class="rp-slot" aria-hidden="true"></div>' +
+    '</div>' +
+    '<div class="rp-out"><div class="rp-feed" aria-hidden="true">' +
+    '<article class="rp-paper" style="clip-path:' + tornEdgeClip() + '">' +
+    '<div class="rp-p-logo">' + LOGO_SVG + '</div>' +
+    '<h3 class="rp-p-head">' + esc(r.heading || 'إيصال تسجيل') + '</h3>' +
+    '<p class="rp-p-sub">AHMED MOSTAFA TECH</p>' +
+    '<hr class="rp-hr">' + rows + '<hr class="rp-hr">' +
+    (r.total ? '<div class="rp-grand"><span>' + esc(r.total.label) + '</span><strong>' + esc(r.total.value) + '</strong></div>' : '') +
+    (r.status ? '<span class="rp-chip" data-tone="' + esc(r.status.tone || 'wait') + '">' + esc(r.status.text) + '</span>' : '') +
+    (r.note ? '<p class="rp-note">' + esc(r.note) + '</p>' : '') +
+    '<hr class="rp-hr">' + barcodeSvg(r.code) +
+    '<div class="rp-code">' + esc(r.code || '') + '</div>' +
+    '</article>' +
+    '</div></div>' +
+    (opts.showReplay ? '<button type="button" class="rp-replay"><i class="fa-solid fa-rotate-right"></i> إعادة الطباعة</button>' : '') +
     '</section>';
 
   const root = target.querySelector('.rp');

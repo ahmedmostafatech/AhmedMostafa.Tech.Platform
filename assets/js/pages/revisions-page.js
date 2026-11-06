@@ -28,7 +28,7 @@ function renderRevisions(revisions) {
 
   if (gridEl) {
     gridEl.innerHTML = revisions.map(function (rev) {
-      let desc = rev.short_description || rev.description || 'مراجعة مكثفة وشاملة لجميع محاور المنهج واجتياز الامتحان العملي والنظري بنجاح.';
+      let desc = rev.short_description || rev.description || 'مراجعة مركّزة على كل محاور المنهج، عشان تدخل الامتحان وانت فاهم.';
       let priceText = formatPrice(rev.price_egp || 120);
 
       return `
@@ -38,7 +38,7 @@ function renderRevisions(revisions) {
           <div class="prem-card-header">
             <div class="prem-live-pill">
               <span class="live-dot"></span>
-              <span>متاح للحجز الفوري</span>
+              <span>متاح للحجز دلوقتي</span>
             </div>
             <span class="prem-faculty-badge">
               <i class="fa-solid fa-code"></i> EELU • CS
@@ -50,14 +50,14 @@ function renderRevisions(revisions) {
 
           <!-- ميزات المراجعة -->
           <ul class="prem-card-perks">
-            <li><i class="fa-solid fa-circle-check"></i> شروحات Full HD مركزة ومباشرة على الامتحان</li>
-            <li><i class="fa-solid fa-circle-check"></i> سلايدات الشرح ومذكرات PDF جاهزة للطباعة</li>
-            <li><i class="fa-solid fa-circle-check"></i> حل نماذج الامتحانات السابقة بالتفصيل</li>
+            <li><i class="fa-solid fa-circle-check"></i> شرح Full HD مركّز على اللي هييجي في الامتحان</li>
+            <li><i class="fa-solid fa-circle-check"></i> سلايدات ومذكرات PDF جاهزة للطباعة</li>
+            <li><i class="fa-solid fa-circle-check"></i> حل نماذج امتحانات سابقة بالتفصيل</li>
           </ul>
 
           <div class="prem-card-footer">
             <div class="prem-price-box">
-              <span class="prem-price-lbl">سعر الاشتراك الكامل</span>
+              <span class="prem-price-lbl">سعر الاشتراك كامل</span>
               <span class="prem-price-val">${escapeHtml(priceText)}</span>
             </div>
             
@@ -65,8 +65,8 @@ function renderRevisions(revisions) {
               <a href="revision.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-sub">
                 <i class="fa-solid fa-circle-info"></i> التفاصيل
               </a>
-              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-main">
-                <span>احجز الآن</span>
+              <a href="register.html?id=${encodeURIComponent(rev.id)}" class="btn-prem-main" aria-label="احجز مكانك في مراجعة ${escapeHtml(rev.title)}">
+                <span>احجز مكانك</span>
                 <i class="fa-solid fa-arrow-left"></i>
               </a>
             </div>
@@ -120,9 +120,9 @@ async function initRevisionsPage() {
     if (emptyEl) {
       emptyEl.innerHTML = `
         <div style="font-size:2.8rem; margin-bottom:12px; color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <h3 style="color:var(--color-primary); font-size:var(--text-lg); margin-bottom:8px;">تعذر تحميل المراجعات حالياً</h3>
+        <h3 style="color:var(--color-primary); font-size:var(--text-lg); margin-bottom:8px;">مقدرتش أحمّل المراجعات دلوقتي</h3>
         <p style="color:var(--color-text-muted); font-size:var(--text-sm); max-width:400px; margin:0 auto;">
-          يرجى التحقق من اتصال الإنترنت ثم إعادة تحميل الصفحة.
+          اتأكد من النت وجرّب تاني.
         </p>
       `;
       emptyEl.hidden = false;

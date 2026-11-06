@@ -19,7 +19,7 @@ async function initRevisionDetailPage() {
   if (!revisionId) {
     if (loadingEl) loadingEl.hidden = true;
     if (errorEl) {
-      errorEl.textContent = 'رابط المراجعة غير صحيح أو ينقصه المعرف.';
+      errorEl.textContent = 'الرابط ده مش مظبوط. اتأكد إنك نسخته كامل.';
       errorEl.hidden = false;
     }
     return;
@@ -32,7 +32,7 @@ async function initRevisionDetailPage() {
 
     if (!rev) {
       if (errorEl) {
-        errorEl.textContent = 'عذراً، هذه المراجعة غير متاحة حالياً أو تم إيقاف التسجيل بها.';
+        errorEl.textContent = 'مش لاقي بيانات بالرقم ده. راجعه وجرّب تاني.';
         errorEl.hidden = false;
       }
       return;
@@ -84,7 +84,7 @@ async function initRevisionDetailPage() {
     console.error('Failed to load revision details:', err);
     if (loadingEl) loadingEl.hidden = true;
     if (errorEl) {
-      errorEl.textContent = 'تعذر تحميل بيانات المراجعة، يرجى المحاولة لاحقاً.';
+      errorEl.textContent = 'حصلت مشكلة من ناحيتي. جرّب تاني، ولو اتكررت كلّمني واتساب وأنا أحلها.';
       errorEl.hidden = false;
     }
   }

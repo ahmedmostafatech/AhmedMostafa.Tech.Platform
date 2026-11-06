@@ -25,7 +25,7 @@ async function handleTrack(code, phoneSuffix) {
 
   if (errBox) errBox.hidden = true;
 
-  setButtonLoading(submitBtn, true, 'جاري الاستعلام...');
+  setButtonLoading(submitBtn, true, 'بدوّر على طلبك...');
 
   try {
     let reg = await trackStudentRegistration(code, phoneSuffix);
@@ -38,7 +38,7 @@ async function handleTrack(code, phoneSuffix) {
     byId('res-method').textContent = reg.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
     byId('res-date').textContent = formatDateTime(reg.created_at);
     byId('res-email').textContent = reg.email;
-    byId('res-receipt-status').textContent = reg.has_receipt ? '✅ تم رفع الإيصال بنجاح' : '⚠️ لم يتم رفع إيصال عبر الموقع';
+    byId('res-receipt-status').textContent = reg.has_receipt ? 'الإيصال وصلني' : 'لسه ما بعتش إيصال من الموقع';
 
     // ضبط بانر وشارة الحالة
     let badgeEl = byId('res-status-badge');
@@ -52,10 +52,10 @@ async function handleTrack(code, phoneSuffix) {
     payBox.hidden = true;
 
     if (reg.payment_status === 'paid') {
-      badgeEl.innerHTML = '<span class="badge badge--success">مؤكد ومفعل ✅</span>';
+      badgeEl.innerHTML = '<span class="badge badge--success">مؤكد ومفعّل</span>';
       bannerEl.className = 'status-banner status-banner--paid';
-      titleEl.textContent = '🎉 مبروك! تم تأكيد اشتراكك وصلاحيتك مفعّلة';
-      descEl.textContent = `تم التحقق من استلام التحويل، ويمكنك الآن الدخول لمجلد المراجعة ومشاهدة الفيديوهات حتى ${reg.access_until || 'نهاية الامتحانات'}.`;
+      titleEl.textContent = 'مبروك، اشتراكك اتفعّل';
+      descEl.textContent = `الرابط جاهز وتقدر تبدأ تذاكر. صلاحيتك لحد ${reg.access_until ? formatDateTime(reg.access_until) : 'نهاية الامتحانات'}.`;
 
       if (reg.access_link) {
         byId('res-drive-btn').href = reg.access_link;
@@ -63,25 +63,25 @@ async function handleTrack(code, phoneSuffix) {
       }
 
     } else if (reg.payment_status === 'under_review') {
-      badgeEl.innerHTML = '<span class="badge badge--accent">قيد المراجعة 🔍</span>';
+      badgeEl.innerHTML = '<span class="badge badge--accent">قيد المراجعة</span>';
       bannerEl.className = 'status-banner status-banner--review';
-      titleEl.textContent = '🔍 طلبك قيد الفحص والمراجعة حالياً';
-      descEl.textContent = 'تم استلام بياناتك وإيصالك، وجاري مراجعة التحويل بواسطة المهندس وتفعيل الوصول خلال دقائق بإذن الله.';
+      titleEl.textContent = 'وصلني الإيصال وبراجعه';
+      descEl.textContent = 'خد نفس، دقايق وتتفعّل بإذن الله. أول ما التحويل يتأكد الرابط هيجيلك على الإيميل.';
 
     } else if (reg.payment_status === 'rejected') {
-      badgeEl.innerHTML = '<span class="badge badge--danger">مرفوض ❌</span>';
+      badgeEl.innerHTML = '<span class="badge badge--danger">مرفوض</span>';
       bannerEl.className = 'status-banner status-banner--rejected';
-      titleEl.textContent = '❌ تعذر تأكيد طلب الاشتراك';
+      titleEl.textContent = 'مقدرتش أأكد الطلب';
       descEl.textContent = reg.rejection_reason
-        ? `سبب الرفض: ${reg.rejection_reason} — يرجى التواصل معنا عبر واتساب للمساعدة.`
-        : 'لم نتمكن من مطابقة التحويل مع الإيصال، يرجى التواصل مع الدعم على واتساب.';
+        ? `السبب: ${reg.rejection_reason}. كلّمني واتساب ومعاك كود التسجيل وهنحلها.`
+        : 'مقدرتش أطابق التحويل مع الإيصال. كلّمني واتساب ومعاك كود التسجيل وهنحلها سوا.';
 
     } else {
       // pending_payment
-      badgeEl.innerHTML = '<span class="badge badge--warning">بانتظار التحويل ⏳</span>';
+      badgeEl.innerHTML = '<span class="badge badge--warning">مستني التحويل</span>';
       bannerEl.className = 'status-banner status-banner--pending';
-      titleEl.textContent = '⏳ تم تسجيل بياناتك بنجاح وبانتظار استلام التحويل';
-      descEl.textContent = 'يرجى تحويل الرسوم المحددة ورفع صورة الإيصال أو إرسالها على واتساب ليتم تفعيل حسابك فوراً.';
+      titleEl.textContent = 'بياناتك اتسجّلت، فاضل التحويل';
+      descEl.textContent = 'حوّل المبلغ وارفع صورة الإيصال أو ابعتها واتساب، وأنا أكمّل من عندي.';
 
       // رابط صفحة الدفع
       byId('res-pay-link').href = `payment.html?id=${encodeURIComponent(code)}`;
@@ -96,7 +96,7 @@ async function handleTrack(code, phoneSuffix) {
     console.error('Tracking failed:', err);
     if (resultBox) resultBox.hidden = true;
     if (errBox) {
-      errBox.textContent = err.message || 'لم نتمكن من العثور على حجز بهذه البيانات، تأكد من كود التسجيل ورقم الموبايل.';
+      errBox.textContent = err.message || 'مش لاقي طلب بالبيانات دي. اتأكد من الكود وآخر 4 أرقام من الموبايل.';
       errBox.hidden = false;
     }
   } finally {
@@ -127,7 +127,7 @@ async function initTrackPage() {
       if (!code || !phone) {
         let errBox = byId('track-error');
         if (errBox) {
-          errBox.textContent = 'يرجى إدخال كود التسجيل ورقم الموبايل للمتابعة.';
+          errBox.textContent = 'اكتب كود التسجيل ورقم الموبايل الأول.';
           errBox.hidden = false;
         }
         return;

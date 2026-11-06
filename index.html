@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/layout.css">
   <link rel="stylesheet" href="assets/css/components.css">
-     <link rel="stylesheet" href="assets/css/footer-bar.css">
+  <link rel="stylesheet" href="assets/css/footer-bar.css">
 
   <style>
     /* ============================================================
@@ -965,62 +965,109 @@
       -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%);
     }
 
-.tilted-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 300px);
-  grid-template-rows: 720px;      /* جديد: ارتفاع ثابت بدل ارتفاع الأعمدة الطويل */
-  align-items: start;             /* جديد: الأعمدة تبدأ من فوق وتطلع بره الشبكة عادي */
-  gap: 22px;
-  justify-content: center;
-  transform: rotateX(24deg) rotateZ(-14deg) skewX(5deg) scale(0.95);
-  transform-style: preserve-3d;
-  width: max-content;
-  margin: -100px auto 0;
-}
+    .tilted-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 300px);
+      grid-template-rows: 720px;
+      /* جديد: ارتفاع ثابت بدل ارتفاع الأعمدة الطويل */
+      align-items: start;
+      /* جديد: الأعمدة تبدأ من فوق وتطلع بره الشبكة عادي */
+      gap: 22px;
+      justify-content: center;
+      transform: rotateX(24deg) rotateZ(-14deg) skewX(5deg) scale(0.95);
+      transform-style: preserve-3d;
+      width: max-content;
+      margin: -100px auto 0;
+    }
 
-.marquee-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0;                       /* بدل gap: عشان اللفة متنطش */
-  will-change: transform;
-}
-.marquee-col:empty { display: none; }
+    .marquee-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      /* بدل gap: عشان اللفة متنطش */
+      will-change: transform;
+    }
 
-@media (hover: hover) {
-  .perspective-stage:hover .marquee-col { animation-play-state: paused !important; }
-}
+    .marquee-col:empty {
+      display: none;
+    }
 
-@media (max-width: 1024px) {
-  .tilted-grid { grid-template-columns: repeat(3, 280px); }
-}
+    @media (hover: hover) {
+      .perspective-stage:hover .marquee-col {
+        animation-play-state: paused !important;
+      }
+    }
 
-@media (max-width: 768px) {
-  .perspective-stage { perspective: none !important; height: 560px; }
+    @media (max-width: 1024px) {
+      .tilted-grid {
+        grid-template-columns: repeat(3, 280px);
+      }
+    }
 
-  .tilted-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%;
-    max-width: 520px;
-    gap: 12px;
-    padding: 0 12px;
-    box-sizing: border-box;
-    transform: none !important;
-    transform-style: flat !important;
-    margin: 0 auto;
+    @media (max-width: 768px) {
+      .perspective-stage {
+        perspective: none !important;
+        height: 560px;
+      }
+
+      .tilted-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        max-width: 520px;
+        gap: 12px;
+        padding: 0 12px;
+        box-sizing: border-box;
+        transform: none !important;
+        transform-style: flat !important;
+        margin: 0 auto;
         grid-template-rows: none;
-  }
+      }
 
-  .marquee-col { min-width: 0; }
-  .t-card-3d { padding: 14px 12px; border-radius: 14px; margin-bottom: 12px !important; }
-  .t-card-3d:hover { transform: none; }
-  .t-handle, .t-country { display: none; }
-  .t-avatar { width: 34px; height: 34px; font-size: 11px; }
-  .t-user-row { margin-bottom: 10px; gap: 8px; }
-  .t-text { font-size: 12.5px; line-height: 1.6; -webkit-line-clamp: 8; }
+      .marquee-col {
+        min-width: 0;
+      }
 
-  .hero-particles { display: none !important; }
-  .aurora { filter: blur(40px) !important; opacity: 0.5 !important; }
-}
+      .t-card-3d {
+        padding: 14px 12px;
+        border-radius: 14px;
+        margin-bottom: 12px !important;
+      }
+
+      .t-card-3d:hover {
+        transform: none;
+      }
+
+      .t-handle,
+      .t-country {
+        display: none;
+      }
+
+      .t-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 11px;
+      }
+
+      .t-user-row {
+        margin-bottom: 10px;
+        gap: 8px;
+      }
+
+      .t-text {
+        font-size: 12.5px;
+        line-height: 1.6;
+        -webkit-line-clamp: 8;
+      }
+
+      .hero-particles {
+        display: none !important;
+      }
+
+      .aurora {
+        filter: blur(40px) !important;
+        opacity: 0.5 !important;
+      }
+    }
 
     .col-up-1 {
       animation: scroll-up 32s linear infinite;
@@ -1132,10 +1179,10 @@
       border-radius: 6px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-        max-width: 90px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+      max-width: 90px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .t-text {
@@ -1144,7 +1191,8 @@
       line-height: 1.68;
       margin: 0;
       font-weight: 500;
-      display: -webkit-box;         /* الأسطر الـ 3 دول جداد: بيقصوا الرأي الطويل */
+      display: -webkit-box;
+      /* الأسطر الـ 3 دول جداد: بيقصوا الرأي الطويل */
       -webkit-line-clamp: 7;
       -webkit-box-orient: vertical;
       overflow: hidden;
@@ -1196,10 +1244,10 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-  .marquee-col { animation: none !important; }
-}
-
-    
+      .marquee-col {
+        animation: none !important;
+      }
+    }
   </style>
 
 
@@ -1257,22 +1305,22 @@
           </h1>
 
           <p class="hero-sub" id="hero-sub">
-            شرح عملي مبسط ومكثف لمتطلبات الامتحان بدون حشو.
-            مفيش حسابات معقدة ولا تعقيد، سجل بياناتك، حوّل، واستلم رابط المراجعة على طول!
+            أنا بشرحلك اللي هييجي في الامتحان بس، من غير لف ودوران.
+            سجّل بياناتك، حوّل، والرابط يوصلك على طول.
           </p>
 
           <div class="hero-actions" id="hero-actions">
             <a href="revisions.html" class="btn-hp btn-hp--solid">
-              <i class="fa-solid fa-book-open"></i> استعرض المراجعات المتاحة
+              <i class="fa-solid fa-book-open"></i> وريني المراجعات
             </a>
             <a href="#how-it-works" class="btn-hp btn-hp--outline">
-              <i class="fa-solid fa-circle-question"></i> إزاي بتشترك؟
+              <i class="fa-solid fa-circle-question"></i> هشترك إزاي؟
             </a>
           </div>
         </div>
 
         <div class="scroll-hint">
-          <span>انزل وشوف بنفسك</span>
+          <span>كمّل، لسه في كلام</span>
           <i class="fa-solid fa-chevron-down"></i>
         </div>
       </section>
@@ -1283,9 +1331,9 @@
       <section class="stats-s">
         <div class="container">
           <div class="stats-header">
-            <div class="s-badge"><i class="fa-solid fa-chart-simple"></i> أرقام وإحصائيات حقيقية</div>
-            <h2 class="s-title">الأرقام بتتكلم عن نفسها</h2>
-            <p class="s-desc" style="margin: 0 auto;">قرّب الماوس أو اضغط واقلب الكارت علشان تعرف السر ورا كل رقم!</p>
+            <div class="s-badge"><i class="fa-solid fa-chart-simple"></i> أرقام حقيقية</div>
+            <h2 class="s-title">الأرقام مش بتكدّب</h2>
+            <p class="s-desc" style="margin: 0 auto;">قرّب الماوس أو اضغط على الكارت وشوف الحكاية ورا كل رقم.</p>
           </div>
 
           <div class="stats-grid" id="stats-grid">
@@ -1301,8 +1349,8 @@
                 </div>
                 <div class="flip-card-back">
                   <i class="fa-brands fa-youtube b-icon"></i>
-                  <div class="b-title">شغف ومتابعة مستمرة</div>
-                  <p class="b-desc">أكثر من 37 ألف مشاهدة من طلاب حاسبات وهندسة بيعتمدوا على شروحاتنا في ليلة الامتحان.
+                  <div class="b-title">الناس مش بتتفرج على الفاضي</div>
+                  <p class="b-desc">أكتر من 37 ألف مشاهدة من طلاب حاسبات وهندسة بيفتحوا الشرح في ليلة الامتحان.
                   </p>
                   <span class="b-badge"><i class="fa-solid fa-check-circle"></i> محتوى مفتوح للجميع</span>
                 </div>
@@ -1320,10 +1368,10 @@
                 </div>
                 <div class="flip-card-back">
                   <i class="fa-solid fa-stopwatch b-icon"></i>
-                  <div class="b-title">تركيز ومذاكرة بجد</div>
-                  <p class="b-desc">3,800 ساعة تركيز للطلاب مش مجرد نقرات عابرة، شرح مركز يختصر ساعات المذاكرة الطويلة.
+                  <div class="b-title">ساعات تركيز مش مجرد كليكات</div>
+                  <p class="b-desc">3,800 ساعة مشاهدة فعلية. يعني شرح مركّز بيختصر عليك ساعات مذاكرة.
                   </p>
-                  <span class="b-badge"><i class="fa-solid fa-bolt"></i> بدون تضييع وقت</span>
+                  <span class="b-badge"><i class="fa-solid fa-bolt"></i> من غير تضييع وقت</span>
                 </div>
               </div>
             </div>
@@ -1339,9 +1387,8 @@
                 </div>
                 <div class="flip-card-back">
                   <i class="fa-solid fa-users b-icon"></i>
-                  <div class="b-title">مجتمع دراسي متفاعل</div>
-                  <p class="b-desc">703 طالب وطالبة في جروب الواتساب بيساعدوا بعض، مع متابعة دورية وإجابة على أي
-                    استفسار.</p>
+                  <div class="b-title">جروب بيرد على بعضه</div>
+                  <p class="b-desc">703 طالب في جروب الواتساب بيساعدوا بعض، وأنا بتابع وبرد على أي سؤال.</p>
                   <span class="b-badge"><i class="fa-solid fa-shield-halved"></i> دعم مباشر</span>
                 </div>
               </div>
@@ -1358,9 +1405,8 @@
                 </div>
                 <div class="flip-card-back">
                   <i class="fa-solid fa-film b-icon"></i>
-                  <div class="b-title">مكتبة علمية منظمة</div>
-                  <p class="b-desc">29 فيديو مسجل بجودة احترافية، مقسمين فصول ومحاور محددة تضمن لك استيعاب المادة
-                    بسهولة.</p>
+                  <div class="b-title">كل فيديو في مكانه</div>
+                  <p class="b-desc">29 فيديو مسجّل بجودة عالية، ومقسّم فصول ومحاور فتلاقي اللي عايزه من غير بحث.</p>
                   <span class="b-badge"><i class="fa-solid fa-award"></i> شرح عملي ونظري</span>
                 </div>
               </div>
@@ -1377,9 +1423,9 @@
         <div class="container">
           <div class="text-center" style="margin-bottom: var(--space-7);">
             <div class="s-badge"><i class="fa-solid fa-graduation-cap"></i> مراجعات الفصل الحالي</div>
-            <h2 class="s-title">المراجعات المتاحة للحجز الآن</h2>
-            <p class="s-desc" style="margin: 0 auto;">اختر مادتك وسجل بياناتك في دقيقة، وسيصلك رابط الوصول وملحقاته فور
-              تأكيد الدفع.</p>
+            <h2 class="s-title">المراجعات المفتوحة دلوقتي</h2>
+            <p class="s-desc" style="margin: 0 auto;">اختار مادتك وسجّل بياناتك في دقيقة، والرابط يوصلك أول ما أتأكد من
+              التحويل.</p>
           </div>
 
           <div id="featured-revisions-loading" style="padding: var(--space-6) 0;">
@@ -1433,13 +1479,13 @@
 
           <div id="revisions-empty" class="text-center" hidden style="padding: var(--space-8) 0;">
             <p style="color: var(--color-text-muted); font-size: var(--text-md);">
-              <i class="fa-solid fa-bell"></i> لا توجد مراجعات معلنة حالياً. ترقبوا الإعلان قريباً!
+              <i class="fa-solid fa-bell"></i> لسه مفيش مراجعات معلنة. خليك قريب، وأنا هعلن أول ما تنزل.
             </p>
           </div>
 
           <div class="text-center" style="margin-top: var(--space-7);">
             <a href="revisions.html" class="btn btn--secondary">
-              <i class="fa-solid fa-layer-group"></i> عرض كل المواد والمراجعات
+              <i class="fa-solid fa-layer-group"></i> شوف كل المراجعات
             </a>
           </div>
         </div>
@@ -1451,9 +1497,9 @@
       <section class="steps-s" id="how-it-works">
         <div class="container">
           <div class="text-center" style="position: relative; z-index: 2;">
-            <div class="s-badge-dark"><i class="fa-solid fa-route"></i> خطوات سهلة ومباشرة</div>
+            <div class="s-badge-dark"><i class="fa-solid fa-route"></i> خطوات سهلة</div>
             <h2 class="s-title-dark">إزاي تشترك وتستلم المراجعة؟</h2>
-            <p class="s-desc-dark">رحلة بسيطة من 4 محطات واضحة بدون إنشاء حسابات ولا تعقيد</p>
+            <p class="s-desc-dark">أربع خطوات واضحة، من غير حسابات ولا تعقيد.</p>
           </div>
 
           <div class="curved-roadmap-container" id="curved-roadmap">
@@ -1464,11 +1510,10 @@
             <div class="roadmap-node-row">
               <div class="node-card">
                 <div class="node-card-head">
-                  <span class="node-step-tag">المحطة 01</span>
-                  <h3 class="node-card-title">اختر المراجعة</h3>
+                  <span class="node-step-tag">الخطوة 01</span>
+                  <h3 class="node-card-title">اختار مادتك</h3>
                 </div>
-                <p class="node-card-desc">تصفح المراجعات المتاحة لمادتك، وتعرف على المحتوى التفصيلي، السعر، وتاريخ
-                  صلاحية الوصول.</p>
+                <p class="node-card-desc">شوف المراجعات المتاحة لمادتك، وتعرّف على المحتوى والسعر ومدة الوصول.</p>
               </div>
               <div class="node-center">
                 <div class="node-circle-glow"><i class="fa-solid fa-magnifying-glass"></i></div>
@@ -1484,11 +1529,10 @@
               </div>
               <div class="node-card">
                 <div class="node-card-head">
-                  <span class="node-step-tag">المحطة 02</span>
-                  <h3 class="node-card-title">سجّل بياناتك</h3>
+                  <span class="node-step-tag">الخطوة 02</span>
+                  <h3 class="node-card-title">اكتب بياناتك</h3>
                 </div>
-                <p class="node-card-desc">اكتب اسمك، كليتك، وفرعك ورقم هاتفك المصري وإيميلك ليتم توليد كود تسجيل خاص بك
-                  فوراً.</p>
+                <p class="node-card-desc">اسمك وكليتك وموبايلك وإيميلك، وبنطلعلك كود تسجيل خاص بيك في ثواني.</p>
               </div>
             </div>
 
@@ -1496,11 +1540,11 @@
             <div class="roadmap-node-row">
               <div class="node-card">
                 <div class="node-card-head">
-                  <span class="node-step-tag">المحطة 03</span>
+                  <span class="node-step-tag">الخطوة 03</span>
                   <h3 class="node-card-title">حوّل وابعت الإيصال</h3>
                 </div>
-                <p class="node-card-desc">حوّل المبلغ عبر فودافون كاش أو إنستاباي، ثم ابعت لقطة شاشة الإيصال على واتساب
-                  مع كود التسجيل.</p>
+                <p class="node-card-desc">حوّل المبلغ فودافون كاش أو إنستاباي، وارفع صورة الإيصال من الموقع أو ابعتها
+                  واتساب مع الكود.</p>
               </div>
               <div class="node-center">
                 <div class="node-circle-glow"><i class="fa-solid fa-money-bill-transfer"></i></div>
@@ -1516,11 +1560,11 @@
               </div>
               <div class="node-card">
                 <div class="node-card-head">
-                  <span class="node-step-tag">المحطة 04</span>
+                  <span class="node-step-tag">الخطوة 04</span>
                   <h3 class="node-card-title">استلم الرابط وابدأ</h3>
                 </div>
-                <p class="node-card-desc">بمجرد مراجعة وتأكيد التحويل، يوصلك إيميل رسمي يحتوي على رابط المراجعة
-                  والمذكرات وتبدأ فوراً.</p>
+                <p class="node-card-desc">أول ما أتأكد من التحويل، الرابط والمذكرات بيوصلوا على إيميلك وتبدأ تذاكر على
+                  طول.</p>
               </div>
             </div>
 
@@ -1534,8 +1578,8 @@
       <section class="testimonials-3d-s">
         <div class="t-header">
           <div class="s-badge"><i class="fa-solid fa-comments"></i> آراء وتجارب حقيقية</div>
-          <h2>مش مقتنع بالأرقام؟<br>تعالى شوف آراء الناس بنفسك!</h2>
-          <p>شوية من رسائل الطلاب اللي اجتازوا امتحاناتهم بامتياز بفضل الله ثم المراجعات</p>
+          <h2>مش مقتنع بالأرقام؟<br>اسمع من زمايلك</h2>
+          <p>رسائل حقيقية من طلاب عدّوا امتحاناتهم بفضل الله ثم المراجعات.</p>
         </div>
 
         <div class="perspective-stage">
@@ -1552,7 +1596,7 @@
           <button type="button" id="open-review-modal-btn" class="btn btn--accent btn--lg"
             style="border-radius:99px; font-weight:800; font-size:1rem; padding:0 36px; box-shadow:0 12px 30px rgba(54,90,162,0.35); display:inline-flex; align-items:center; gap:12px;">
             <i class="fa-solid fa-pen-nib" style="color:#ffd154;"></i>
-            <span>لو استفدت من المراجعة، شاركنا رأيك بكل صدق</span>
+            <span>استفدت؟ قول رأيك بصراحة</span>
           </button>
         </div>
       </section>
@@ -1564,10 +1608,10 @@
         <div class="container">
           <div class="cta-inner">
             <div class="cta-content">
-              <h2>جاهز تبدأ مذاكرتك دلوقتي؟</h2>
-              <p>اختر مادتك وسجل بياناتك في أقل من دقيقة، وابدأ فوراً في استيعاب المنهج وحل نماذج الامتحانات.</p>
+              <h2>جاهز تبدأ؟ ماتأجلش لبكرة</h2>
+              <p>اختار مادتك وسجّل بياناتك في أقل من دقيقة، وابدأ تذاكر وتحل نماذج الامتحانات على طول.</p>
               <a href="revisions.html" class="btn-hp btn-hp--solid" style="padding: 18px 42px;">
-                <i class="fa-solid fa-paper-plane"></i> استعرض المراجعات وسجل الآن
+                <i class="fa-solid fa-paper-plane"></i> وريني المراجعات وأسجّل
               </a>
             </div>
           </div>
@@ -1581,8 +1625,8 @@
   <!-- ══════════════════════════════════════════════
        7. الفوتر السينمائي (Curtain Reveal Footer مع الشريط المائل خلف النص)
   ══════════════════════════════════════════════ -->
-     <footer id="site-footer"></footer>
-   <script src="assets/js/components/footer-bar.js"></script>
+  <footer id="site-footer"></footer>
+  <script src="assets/js/components/footer-bar.js"></script>
 
 
 
@@ -1596,7 +1640,7 @@
         <h3
           style="margin:0; font-size:18px; font-weight:800; color:#0f172a; display:flex; align-items:center; gap:8px;">
           <i class="fa-solid fa-star" style="color:#ffd154;"></i>
-          <span>شاركنا تجربتك في المراجعة</span>
+          <span>قول لي رأيك في المراجعة</span>
         </h3>
         <button type="button" id="close-review-modal-btn" class="btn btn--secondary btn--sm"
           style="border-radius:50%; width:34px; height:34px; padding:0; display:inline-flex; align-items:center; justify-content:center;">
@@ -1611,7 +1655,7 @@
           <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
             الاسم (اختياري)
           </label>
-          <input type="text" id="review-student-name" class="form-input" placeholder="مثال: أحمد مصطفى أو اتركه فارغاً"
+          <input type="text" id="review-student-name" class="form-input" placeholder="مثال: أحمد مصطفى، أو سيبه فاضي"
             style="width:100%; border-radius:12px;">
         </div>
 
@@ -1619,13 +1663,13 @@
           <input type="checkbox" id="review-is-anonymous"
             style="width:18px; height:18px; accent-color:#365aa2; cursor:pointer;">
           <label for="review-is-anonymous" style="font-size:13px; font-weight:700; color:#475569; cursor:pointer;">
-            إخفاء اسمي ونشره كـ (طالب مجهول للخصوصية) 🔒
+            اخفي اسمي واعرض رأيي كـ «طالب مجهول»
           </label>
         </div>
 
         <div style="margin-bottom:14px;">
           <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
-            الفرع الجامعي أو المحافظة <span style="color:#ef4444;">*</span>
+            فرعك أو محافظتك <span style="color:#ef4444;">*</span>
           </label>
           <input type="text" id="review-branch" class="form-input"
             placeholder="مثال: القاهرة / فرع الإسكندرية / المنوفية" required style="width:100%; border-radius:12px;">
@@ -1636,7 +1680,7 @@
             رأيك في الشرح والمراجعة <span style="color:#ef4444;">*</span>
           </label>
           <textarea id="review-text" class="form-input" rows="4"
-            placeholder="اكتب تجربتك بكل صدق وأمانة وكيف ساعدتك المراجعة في التحضير..." required
+            placeholder="اكتب تجربتك بصراحة، وإزاي المراجعة ساعدتك في التحضير..." required
             style="width:100%; border-radius:12px; resize:vertical; font-family:inherit;"></textarea>
         </div>
 
@@ -1648,11 +1692,15 @@
           <button type="submit" id="submit-review-btn" class="btn btn--accent btn--sm"
             style="border-radius:10px; font-weight:800; min-height:42px; padding:0 24px; display:inline-flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-paper-plane"></i>
-            <span>إرسال الرأي</span>
+            <span>ابعت رأيي</span>
           </button>
         </div>
       </form>
+      <span>إرسال الرأي</span>
+      </button>
     </div>
+    </form>
+  </div>
   </div>
 
   <!-- سكربت إدارة المراجعات وNavbar من Supabase -->
@@ -1806,7 +1854,7 @@
       // سيتم ملء الكروت تلقائياً عبر loadDynamicReviews في home-page.js بناءً على لوحة الأدمن فقط
     })();
 
-    
+
   </script>
 </body>
 

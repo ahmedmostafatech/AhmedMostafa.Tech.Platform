@@ -81,23 +81,23 @@
     }
   </style>
 
-<!-- Microsoft Clarity -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", "z8ivvdw2fl");
-</script>
-<!-- Google Analytics 4 (GA4) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XJMTPXPL46"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  </script>
+  <!-- Google Analytics 4 (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XJMTPXPL46"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'G-XJMTPXPL46');
-</script>
+    gtag('config', 'G-XJMTPXPL46');
+  </script>
 </head>
 
 <body>
@@ -124,8 +124,8 @@
           <div class="alert alert--warning"
             style="margin-bottom:var(--space-4); font-size:var(--text-sm); line-height:1.7;">
             <div>
-              <strong>تنبيه هام:</strong> تم استلام تسجيلك بنجاح، لكن الاشتراك <strong>لم يتم تأكيده بعد</strong>. برجاء
-              إتمام التحويل وإرسال صورة الإيصال على واتساب، وسيتم فحص الدفع وإرسال رابط الوصول فوراً لإيميلك.
+              <strong>تنبيه مهم:</strong> بياناتك اتسجّلت، بس اشتراكك لسه ما اتأكدش. حوّل المبلغ وابعتلي صورة الإيصال
+              (من هنا أو واتساب)، وأول ما أتأكد من الدفع الرابط يوصلك على إيميلك.
             </div>
           </div>
 
@@ -135,19 +135,19 @@
           <!-- بطاقة بيانات الحجز -->
           <div class="payment-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-              <span class="badge badge--warning">بانتظار إرسال الإيصال</span>
+              <span class="badge badge--warning">مستني الإيصال</span>
               <span id="reg-date" style="font-size:var(--text-xs); color:var(--color-text-muted);"></span>
             </div>
 
             <div class="reg-code-banner">
               <span
                 style="font-size:var(--text-xs); font-weight:700; color:var(--color-text-muted); display:block; margin-bottom:4px;">
-                كود التسجيل الخاص بك (احتفظ به)
+                كود التسجيل بتاعك (احتفظ بيه)
               </span>
               <div id="reg-code-text" class="reg-code-val">AMT-1000</div>
               <button type="button" id="copy-code-btn" class="btn btn--secondary btn--sm"
                 style="margin-top:8px; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-copy"></i> نسخ كود التسجيل
+                <i class="fa-solid fa-copy"></i> انسخ كود التسجيل
               </button>
             </div>
 
@@ -172,18 +172,18 @@
               <div
                 style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; background:#fff; padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0;">
                 <div>
-                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">رقم المحفظة
-                    المعتمد للاستلام:</span>
+                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">رقم المحفظة اللي
+                    هتحوّل عليها:</span>
                   <span class="account-num-display" id="vodafone-num"
                     style="letter-spacing:1px; color:#e60000;">01558905710</span>
                 </div>
                 <button type="button" id="copy-vodafone-btn" class="btn btn--secondary btn--sm"
                   style="display:inline-flex; align-items:center; gap:6px;">
-                  <i class="fa-solid fa-copy"></i> نسخ الرقم
+                  <i class="fa-solid fa-copy"></i> انسخ الرقم
                 </button>
               </div>
               <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
-                حول المبلغ المحدد من تطبيق أنا فودافون أو كود <code>*9*7*01558905710*المبلغ#</code>
+                حوّل المبلغ من تطبيق أنا فودافون، أو بالكود <code>*9*7*01558905710*المبلغ#</code>
               </p>
             </div>
 
@@ -205,23 +205,23 @@
               <div
                 style="margin:var(--space-3) 0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; background:#fff; padding:12px 16px; border-radius:12px; border:1px solid #e2e8f0;">
                 <div>
-                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">معرف الدفع
+                  <span style="font-size:var(--text-xs); color:var(--color-text-muted); display:block;">معرّف الدفع
                     اللحظي (IPA):</span>
                   <span class="account-num-display" id="instapay-id" style="color:#5c2d91;">ahmedmo57@instapay</span>
                 </div>
                 <div style="display:flex; gap:8px;">
                   <button type="button" id="copy-instapay-btn" class="btn btn--secondary btn--sm"
                     style="display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-copy"></i> نسخ المعرف
+                    <i class="fa-solid fa-copy"></i> انسخ المعرّف
                   </button>
                   <a href="https://ipn.eg/S/ahmedmo57/instapay/3Iiwwf" target="_blank" rel="noopener"
                     class="btn btn--primary btn--sm" style="display:inline-flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح إنستاباي
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> افتح إنستاباي
                   </a>
                 </div>
               </div>
               <p style="font-size:var(--text-xs); color:var(--color-text-muted); margin:0;">
-                يمكنك التحويل إلى المعرف الموضح أعلاه من تطبيق إنستاباي أو الضغط على زر فتح إنستاباي للدفع المباشر.
+                حوّل على المعرّف ده من تطبيق إنستاباي، أو دوس «افتح إنستاباي» وهيفتحلك الدفع على طول.
               </p>
             </div>
 
@@ -229,11 +229,11 @@
             <div style="margin-top:var(--space-6);">
               <h3
                 style="font-size:var(--text-lg); font-weight:800; color:var(--color-primary); margin-bottom:var(--space-2); text-align:center;">
-                <i class="fa-solid fa-receipt"></i> الخطوة الأخيرة: تأكيد التحويل
+                <i class="fa-solid fa-receipt"></i> الخطوة الأخيرة: أكّد التحويل
               </h3>
               <p
                 style="font-size:var(--text-xs); color:var(--color-text-muted); text-align:center; margin-bottom:var(--space-4);">
-                اختر الطريقة الأنسب لك لتأكيد التحويل واستلام رابط المراجعة فوراً:
+                اختار الطريقة الأريح ليك، والرابط يوصلك أول ما أراجع التحويل:
               </p>
 
               <!-- الخيار الأول: رفع صورة الإيصال مباشرة بالموقع -->
@@ -243,15 +243,15 @@
                   style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
                   <strong
                     style="color:var(--color-primary); font-size:var(--text-md); display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-cloud-arrow-up" style="color:var(--color-accent);"></i> الخيار 1: رفع صورة
-                    الإيصال من هنا مباشرة (الأسرع)
+                    <i class="fa-solid fa-cloud-arrow-up" style="color:var(--color-accent);"></i> الخيار 1: ارفع صورة
+                    الإيصال من هنا (الأسرع)
                   </strong>
-                  <span class="badge badge--success" style="font-size:11px;">تأكيد فوري</span>
+                  <span class="badge badge--success" style="font-size:11px;">تأكيد أسرع</span>
                 </div>
                 <p
                   style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.6; margin-bottom:16px;">
-                  التقط سكرين شوت لإشعار التحويل وارفعها هنا مباشرة، وسيصل إشعار فوري للمهندس لمراجعتها وتفعيل حسابك
-                  تلقائياً دون الحاجة لفتح واتساب.
+                  صوّر إشعار التحويل وارفعه هنا، وهيوصلني تنبيه على طول عشان أراجعه وأفعّل اشتراكك من غير ما تفتح
+                  واتساب.
                 </p>
 
                 <div id="receipt-upload-container">
@@ -261,8 +261,8 @@
                     <i class="fa-solid fa-image" style="font-size:32px; color:#94a3b8; margin-bottom:8px;"></i>
                     <div
                       style="font-weight:700; color:var(--color-primary); font-size:var(--text-sm); margin-bottom:4px;">
-                      اضغط هنا لاختيار صورة الإيصال</div>
-                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">أو اسحب الصورة وأفلتها هنا
+                      دوس هنا واختار صورة الإيصال</div>
+                    <div style="font-size:var(--text-xs); color:var(--color-text-muted);">أو اسحب الصورة وسيبها هنا
                       (PNG, JPG, WEBP)</div>
                   </div>
 
@@ -273,11 +273,11 @@
                     <div style="display:flex; justify-content:center; gap:10px;">
                       <button type="button" id="btn-upload-receipt" class="btn btn--primary"
                         style="padding:10px 24px; font-weight:700; display:inline-flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-paper-plane"></i> تأكيد ورفع الإيصال
+                        <i class="fa-solid fa-paper-plane"></i> تمام، ارفع الإيصال
                       </button>
                       <button type="button" id="btn-cancel-receipt" class="btn btn--secondary"
                         style="padding:10px 16px;">
-                        تغيير الصورة
+                        غيّر الصورة
                       </button>
                     </div>
                   </div>
@@ -291,17 +291,17 @@
               <div class="whatsapp-box spotlight-card" style="border-radius:20px; padding:20px;">
                 <h4
                   style="font-size:var(--text-sm); font-weight:800; color:#128c7e; margin:0 0 6px 0; display:flex; align-items:center; justify-content:center; gap:8px;">
-                  <i class="fa-brands fa-whatsapp"></i> الخيار 2: أو إرسال صورة الإيصال عبر واتساب
+                  <i class="fa-brands fa-whatsapp"></i> الخيار 2: ابعت الإيصال على واتساب
                 </h4>
                 <p
                   style="font-size:var(--text-xs); color:var(--color-text-muted); line-height:1.5; margin-bottom:14px;">
-                  إذا كنت تفضل التواصل شات، اضغط بالأسفل لفتح المحادثة وإرفاق الإيصال هناك:
+                  لو بتفضّل الشات، دوس تحت وهيفتحلك المحادثة وتبعت الإيصال هناك:
                 </p>
                 <a id="whatsapp-send-btn" href="#" target="_blank" rel="noopener"
                   class="btn btn--whatsapp btn--block btn-interactive"
                   style="font-size:var(--text-sm); min-height:46px; display:inline-flex; align-items:center; justify-content:center; gap:10px;">
                   <span class="btn-dot"></span>
-                  <span>فتح محادثة واتساب الآن</span>
+                  <span>افتح واتساب</span>
                   <i class="fa-brands fa-whatsapp"></i>
                 </a>
               </div>
@@ -315,8 +315,8 @@
     </div>
   </main>
 
-<footer id="site-footer"></footer>
-<script src="assets/js/components/footer-bar.js"></script>
+  <footer id="site-footer"></footer>
+  <script src="assets/js/components/footer-bar.js"></script>
 
   <script type="module" src="assets/js/pages/payment-page.js"></script>
 

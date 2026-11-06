@@ -176,11 +176,11 @@ function buildNavHTML(opts) {
           <!-- روابط التنقل الأساسية (ديسكتوب) -->
           <div class="navbar__nav" role="list">
             ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
-            ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
-            ${navLink(ROUTES.TRACK, 'متابعة طلبي', 'track')}
-            <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__link">كيفية الاشتراك</a>
+            ${navLink(ROUTES.REVISIONS, 'المراجعات', 'revisions')}
+            ${navLink(ROUTES.TRACK, 'طلبي وصل فين؟', 'track')}
+            <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__link">إزاي أشترك؟</a>
             <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__link" style="color:#25d366; display:inline-flex; align-items:center; gap:6px;">
-              <i class="fa-brands fa-whatsapp"></i> تواصل واتساب
+              <i class="fa-brands fa-whatsapp"></i> كلّمني واتساب
             </a>
           </div>
 
@@ -193,11 +193,11 @@ function buildNavHTML(opts) {
             ` : ''}
 
             <a href="${escapeHtml(sitePath(ROUTES.REVISIONS))}" class="btn btn--accent btn--sm nav-cta-book-btn" style="font-size:0.875rem; min-height:38px; font-weight:700;">
-              احجز مراجعتك
+              احجز مكانك
             </a>
 
             <!-- زر فتح قائمة الموبايل -->
-            <button type="button" class="navbar__mobile-toggle" id="navbar-mobile-toggle" aria-label="فتح القائمة الرئيسية" aria-expanded="false">
+            <button type="button" class="navbar__mobile-toggle" id="navbar-mobile-toggle" aria-label="افتح القايمة" aria-expanded="false">
               <i class="fa-solid fa-bars"></i>
             </button>
           </div>
@@ -209,14 +209,14 @@ function buildNavHTML(opts) {
       <div class="navbar__mobile-drawer" id="navbar-mobile-drawer">
         <div class="navbar__mobile-menu">
           ${navLink(ROUTES.HOME, 'الرئيسية', 'home')}
-          ${navLink(ROUTES.REVISIONS, 'المراجعات المتاحة', 'revisions')}
-          ${navLink(ROUTES.TRACK, 'متابعة طلبي واستلام الوصول', 'track')}
-          <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__mobile-link">كيفية الاشتراك</a>
+          ${navLink(ROUTES.REVISIONS, 'المراجعات', 'revisions')}
+          ${navLink(ROUTES.TRACK, 'طلبي وصل فين؟', 'track')}
+          <a href="${escapeHtml(sitePath(ROUTES.HOME))}#how-it-works" class="navbar__mobile-link">إزاي أشترك؟</a>
           <a href="https://chat.whatsapp.com/BdKGIHxS8hv6cJugkr5HMg" target="_blank" rel="noopener" class="navbar__mobile-link" style="color:#25d366;">
-            <i class="fa-brands fa-whatsapp"></i> جروب واتساب المنصة
+            <i class="fa-brands fa-whatsapp"></i> جروب الطلاب على واتساب
           </a>
           <a href="https://wa.me/${APP_CONFIG.WHATSAPP_INTL}" target="_blank" rel="noopener" class="navbar__mobile-link">
-            <i class="fa-solid fa-headset"></i> تواصل مع الدعم الفني
+            <i class="fa-solid fa-headset"></i> كلّمني لو محتاج مساعدة
           </a>
           ${isAdmin ? `
             <a href="${escapeHtml(sitePath(ROUTES.ADMIN_HOME))}" class="navbar__mobile-link" style="color:#fcd34d;">
