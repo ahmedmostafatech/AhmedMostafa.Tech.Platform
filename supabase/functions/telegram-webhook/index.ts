@@ -78,6 +78,13 @@ async function callSendEmail(regId: string, force: boolean): Promise<{ ok: boole
   }
 }
 
+// فحص إن المرسل هو الأدمن (من خلال TELEGRAM_CHAT_ID)
+function isAdminSender(fromId: unknown, chatId: unknown): boolean {
+  let adminId = Deno.env.get("TELEGRAM_CHAT_ID") || "";
+  if (!adminId) return false;
+  return String(fromId) === adminId || String(chatId) === adminId;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
@@ -96,17 +103,17 @@ Deno.serve(async (req: Request) => {
       return jsonResp({ ok: false, error: "TELEGRAM_BOT_TOKEN not configured" }, 500);
     }
 
-    const webhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET") || "";
-    if (webhookSecret) {
-      const incomingSecret =
-        req.headers.get("x-telegram-bot-api-secret-token") ||
-        req.headers.get("X-Telegram-Bot-Api-Secret-Token") ||
-        "";
-      if (incomingSecret && incomingSecret !== webhookSecret) {
-        console.warn("Webhook secret mismatch");
-        return jsonResp({ ok: false, error: "unauthorized" }, 403);
-      }
-    }
+    // فحص الـ secret: لازم الهيدر يكون موجود ويطابق بالظبط (يرفض لو في أي شك)
+let webhookSecret = Deno.env.get("TELEGRAM_WEBHOOK_SECRET") || "";
+if (!webhookSecret) {
+  console.error("TELEGRAM_WEBHOOK_SECRET is not set");
+  return jsonResp({ ok: false, error: "server_misconfigured" }, 500);
+}
+let incomingSecret = req.headers.get("x-telegram-bot-api-secret-token") || "";
+if (incomingSecret !== webhookSecret) {
+  console.warn("Webhook secret missing or mismatch");
+  return jsonResp({ ok: false, error: "unauthorized" }, 403);
+}
 
     const payload = await req.json();
     const admin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
@@ -283,6 +290,10 @@ Deno.serve(async (req: Request) => {
     // 2. معالجة الرسائل والأوامر النصية
     if (payload.message && payload.message.text) {
       const msg = payload.message;
+      if (!isAdminSender(msg.from?.id, msg.chat?.id)) {
+  console.warn("Blocked message from non-admin:", msg.from?.id);
+  return jsonResp({ ok: true });
+}
       const text = msg.text.trim();
       const chatId = msg.chat.id;
 
