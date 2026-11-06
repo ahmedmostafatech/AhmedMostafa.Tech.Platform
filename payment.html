@@ -129,6 +129,9 @@
             </div>
           </div>
 
+          <!-- إيصال التسجيل (ماكينة الطباعة) -->
+          <div id="receipt-printer-mount" style="margin:var(--space-5) 0;"></div>
+
           <!-- بطاقة بيانات الحجز -->
           <div class="payment-card">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
@@ -146,18 +149,6 @@
                 style="margin-top:8px; font-size:var(--text-xs); display:inline-flex; align-items:center; gap:6px;">
                 <i class="fa-solid fa-copy"></i> نسخ كود التسجيل
               </button>
-            </div>
-
-            <!-- ملخص الحجز للطالب -->
-            <div
-              style="background:var(--color-surface); border-radius:var(--radius-md); padding:var(--space-4); margin-bottom:var(--space-4); font-size:var(--text-sm); line-height:1.8;">
-              <div>المادة: <strong id="summary-course-title" style="color:var(--color-primary);">-</strong></div>
-              <div>اسم الطالب: <strong id="summary-student-name">-</strong></div>
-              <div>الفرع: <span id="summary-student-branch">-</span></div>
-              <div>المبلغ المطلوب تحويله: <strong id="summary-amount"
-                  style="color:var(--color-accent); font-size:var(--text-md);">-</strong></div>
-              <div>الإيميل المسجل لاستلام الرابط: <span id="summary-email" dir="ltr" style="font-weight:600;">-</span>
-              </div>
             </div>
 
             <!-- تفاصيل وسيلة التحويل -->

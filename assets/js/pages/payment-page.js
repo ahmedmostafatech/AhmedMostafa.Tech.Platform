@@ -4,6 +4,7 @@
 // ============================================================
 
 import { initNavbar } from '../components/navbar.js';
+import { mountReceiptPrinter } from '../components/receipt-printer.js';
 import { getRegistrationSummary } from '../services/revisions-service.js';
 import { supabase } from '../core/supabase-client.js';
 import {
@@ -63,21 +64,14 @@ async function initPaymentPage() {
     let combinedCodes = summaries.map(function (item) { return item.registration_code; }).join(' • ');
     let combinedCourses = summaries.map(function (item) { return item.course_title; }).join(' + ');
 
-    // عرض بيانات الحجز
+    // ماكينة الإيصال (بتتركّب في آخر الدالة بعد ما الصفحة تظهر)
+    let printer = null;
+
+    // عرض بيانات الحجز (باقي البيانات بقت على ورقة الإيصال)
     let codeEl = document.getElementById('reg-code-text');
-    let titleEl = document.getElementById('summary-course-title');
-    let nameEl = document.getElementById('summary-student-name');
-    let branchEl = document.getElementById('summary-student-branch');
-    let amountEl = document.getElementById('summary-amount');
-    let emailEl = document.getElementById('summary-email');
     let dateEl = document.getElementById('reg-date');
 
     if (codeEl) codeEl.textContent = combinedCodes;
-    if (titleEl) titleEl.textContent = combinedCourses;
-    if (nameEl) nameEl.textContent = first.full_name;
-    if (branchEl) branchEl.textContent = first.branch;
-    if (amountEl) amountEl.textContent = formatPrice(totalAmount);
-    if (emailEl) emailEl.textContent = first.email;
     if (dateEl && first.created_at) dateEl.textContent = formatDateTime(first.created_at);
 
     // تجهيز رابط الواتساب المجهز مسبقاً
@@ -285,6 +279,19 @@ async function initPaymentPage() {
           uploadBtn.hidden = true;
           cancelBtn.hidden = true;
 
+          // تحديث ماكينة الإيصال: تطبع تاني بحالة "تحت المراجعة"
+          if (printer) {
+            printer.setStatus({
+              text: 'تحت المراجعة',
+              tone: 'review',
+              label: 'وصلنا الإيصال',
+              note: 'وصلنا إيصالك وبنراجعه، والرابط هيوصلك على الإيميل أول ما نتأكد.'
+            });
+            printer.replay();
+            let mountEl = document.getElementById('receipt-printer-mount');
+            if (mountEl) mountEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+
         } catch (err) {
           console.error('Receipt submission failed:', err);
           showAlert(err.message || 'حدث خطأ أثناء رفع الإيصال.', 'danger');
@@ -294,7 +301,44 @@ async function initPaymentPage() {
       });
     }
 
+    // إظهار الصفحة الأول، وبعدها نركّب الماكينة (عشان الارتفاع يتحسب صح)
     if (contentEl) contentEl.hidden = false;
+
+    let st = first.payment_status;
+    let status = st === 'paid'
+      ? { text: 'تم التأكيد', tone: 'ok' }
+      : st === 'under_review'
+        ? { text: 'تحت المراجعة', tone: 'review' }
+        : { text: 'بانتظار التحويل', tone: 'wait' };
+
+    let methodText = first.payment_method === 'instapay' ? 'إنستاباي' : 'فودافون كاش';
+
+    printer = mountReceiptPrinter(document.getElementById('receipt-printer-mount'), {
+      title: combinedCourses,
+      subtitle: 'إيصال تسجيل مبدئي',
+      amountText: formatPrice(totalAmount),
+      homeHref: 'track.html',
+      homeLabel: 'متابعة الطلب',
+      homeIcon: 'fa-magnifying-glass',
+      receipt: {
+        heading: 'إيصال تسجيل',
+        code: first.registration_code,
+        rows: [
+          { label: 'كود التسجيل', value: combinedCodes, ltr: true },
+          { label: 'الاسم', value: first.full_name },
+          { label: 'الفرع', value: first.branch },
+          { label: 'المادة', value: combinedCourses },
+          { label: 'وسيلة التحويل', value: methodText },
+          { label: 'الإيميل', value: first.email, ltr: true },
+          { label: 'التاريخ', value: first.created_at ? formatDateTime(first.created_at) : '-' }
+        ],
+        total: { label: 'المطلوب تحويله', value: formatPrice(totalAmount) },
+        status: status,
+        note: status.tone === 'wait'
+          ? 'حوّل المبلغ وارفع صورة الإيصال هنا أو ابعتها واتساب مع كود التسجيل.'
+          : 'وصلنا إيصالك وبنراجعه، والرابط هيوصلك على الإيميل أول ما نتأكد.'
+      }
+    });
 
   } catch (err) {
     console.error('Failed to load payment summary:', err);
@@ -307,4 +351,3 @@ async function initPaymentPage() {
 }
 
 document.addEventListener('DOMContentLoaded', initPaymentPage);
-
