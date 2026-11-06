@@ -66,7 +66,7 @@ function updateSummaryPill() {
       priceEl.textContent = formatPrice(totalAmount);
     }
   }
-  
+
 
   if (titlesEl) {
     if (selectedList.length === 0) {
@@ -176,7 +176,7 @@ async function initRegisterPage() {
         appliedCouponData = res;
         if (couponStatusEl) {
           let discVal = res.discount_type === 'percentage' ? (res.discount_value + '%') : (res.discount_amount + ' ج.م');
-          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم تطبيق الكود (${res.code}) بنجاح! خصم ${discVal}`;
+          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم تطبيق الكود (${escapeHtml(res.code)}) بنجاح! خصم ${escapeHtml(String(discVal))}`;
           couponStatusEl.style.color = '#16a34a';
           couponStatusEl.hidden = false;
         }
@@ -184,7 +184,7 @@ async function initRegisterPage() {
       } catch (err) {
         appliedCouponData = null;
         if (couponStatusEl) {
-          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${err.message || 'كود الخصم غير صحيح أو منتهي'}`;
+          couponStatusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${escapeHtml(getErrorMessage(err) || 'كود الخصم غير صحيح أو منتهي')}`;
           couponStatusEl.style.color = '#ef4444';
           couponStatusEl.hidden = false;
         }
@@ -315,6 +315,20 @@ async function initRegisterPage() {
         if (emailInput) emailInput.classList.remove('form-input--error');
       }
 
+      // تحقق الـ Turnstile
+      let turnstileToken = '';
+      let turnstileInput = form.querySelector('[name="cf-turnstile-response"]');
+      if (turnstileInput) {
+        turnstileToken = turnstileInput.value;
+      }
+      let turnstileErrEl = document.getElementById('turnstile-error');
+      if (window.turnstile && !turnstileToken) {
+        if (turnstileErrEl) turnstileErrEl.classList.add('show');
+        hasError = true;
+      } else {
+        if (turnstileErrEl) turnstileErrEl.classList.remove('show');
+      }
+
       if (hasError) {
         return;
       }
@@ -351,6 +365,9 @@ async function initRegisterPage() {
 
       } catch (err) {
         console.error('Registration failed:', err);
+        if (window.turnstile) {
+          try { window.turnstile.reset(); } catch (e) { }
+        }
         setButtonLoading(submitBtn, false);
         if (errorEl) {
           errorEl.textContent = getErrorMessage(err);

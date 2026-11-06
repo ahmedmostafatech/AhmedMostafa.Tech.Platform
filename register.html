@@ -18,6 +18,9 @@
   <!-- مكتبة الأيقونات الرسمية Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
   <!-- ملفات الـ CSS -->
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/layout.css">
@@ -604,6 +607,14 @@
                 </div>
               </label>
             </div>
+          </div>
+
+          <!-- Cloudflare Turnstile CAPTCHA Protection -->
+          <div class="field-group" style="margin-bottom:var(--space-4); display:flex; flex-direction:column; align-items:center;">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAF2W--A-tUddp22T" data-theme="light" data-action="register" id="reg-turnstile"></div>
+            <span class="form-field-error" id="turnstile-error" style="text-align:center; margin-top:6px;">
+              <i class="fa-solid fa-circle-exclamation"></i> برجاء تأكيد التحقق الأمني (Turnstile) للمتابعة
+            </span>
           </div>
 
           <!-- زر التأكيد والمتابعة التفاعلي (Interactive Hover Button) -->
