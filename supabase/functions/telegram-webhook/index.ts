@@ -121,6 +121,11 @@ if (incomingSecret !== webhookSecret) {
     // 1. التعامل مع ضغطات الأزرار (Callback Queries)
     if (payload.callback_query) {
       const query = payload.callback_query;
+      // فحص إن اللي ضغط الزرار هو الأدمن
+if (!isAdminSender(query.from?.id, query.message?.chat?.id)) {
+  console.warn("Blocked callback from non-admin:", query.from?.id);
+  return jsonResp({ ok: true });
+}
       const callbackId = query.id;
       const chatId = query.message.chat.id;
       const messageId = query.message.message_id;
