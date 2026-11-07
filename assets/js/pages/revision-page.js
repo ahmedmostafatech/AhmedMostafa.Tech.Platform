@@ -6,6 +6,7 @@
 import { initNavbar } from '../components/navbar.js';
 import { getRevisionById } from '../services/revisions-service.js';
 import { getQueryParam, formatPrice, formatDate, initSpotlightCards } from '../core/utils.js';
+import { escapeHtml } from '../core/utils.js';
 
 async function initRevisionDetailPage() {
   await initNavbar({ activePage: 'revisions' });
@@ -50,7 +51,7 @@ async function initRevisionDetailPage() {
     if (titleEl) {
       // الحفاظ على خط الـ SVG المائل المعرج تحت العنوان
       titleEl.innerHTML = `
-        ${rev.title}
+        ${escapeHtml(rev.title)}
         <svg viewBox="0 0 100 12" preserveAspectRatio="none">
           <path d="M0,7 Q25,0 50,7 T100,7" fill="none" stroke="#ffd154" stroke-width="3" stroke-linecap="round"/>
         </svg>
