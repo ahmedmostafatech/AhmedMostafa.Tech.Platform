@@ -1,9 +1,10 @@
 // ============================================================
 // supabase/functions/notify-telegram/index.ts
 // تنبيه تليجرام للأدمن: داخلية فقط، والبيانات من الداتابيز مش من الطلب
+// kind = "registered" (تسجيل جديد) أو "receipt" (وصل إيصال، هو الافتراضي)
 // ============================================================
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 let supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -12,6 +13,7 @@ let supabase = createClient(
 );
 
 let UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+let COLUMNS = "id, registration_code, full_name, email, phone, amount, payment_method, proof_path, courses(title)";
 
 function esc(text: string | null | undefined): string {
   if (!text) return "";
@@ -43,6 +45,9 @@ async function handler(req: Request): Promise<Response> {
     return jsonResp({ ok: false, error: "not_configured" }, 500);
   }
 
+  let claimedIds: string[] = [];
+  let marker = "tg_notified_at";
+
   try {
     let body = await req.json();
     let ids: string[] = Array.isArray(body.registration_ids)
@@ -52,14 +57,22 @@ async function handler(req: Request): Promise<Response> {
       return jsonResp({ ok: false, error: "invalid_ids" }, 400);
     }
 
-    // حجز ذري: كل تسجيل ينبّه مرة واحدة بس
+    // نوع التنبيه: تسجيل جديد أو وصول إيصال
+    let isRegistered = body.kind === "registered";
+    marker = isRegistered ? "tg_registered_at" : "tg_notified_at";
+    let neededStatus = isRegistered ? "pending_payment" : "under_review";
+
+    // حجز ذري: كل تسجيل ينبّه مرة واحدة بس لكل نوع
+    let patch: Record<string, string | null> = {};
+    patch[marker] = new Date().toISOString();
+
     let { data: claimed, error: claimErr } = await supabase
       .from("registrations")
-      .update({ tg_notified_at: new Date().toISOString() })
+      .update(patch)
       .in("id", ids)
-      .is("tg_notified_at", null)
-      .eq("payment_status", "under_review")
-      .select("id, registration_code, full_name, email, phone, amount, payment_method, proof_path, courses(title)");
+      .is(marker, null)
+      .eq("payment_status", neededStatus)
+      .select(COLUMNS);
     if (claimErr) {
       console.error("claim failed:", claimErr.message);
       return jsonResp({ ok: false, error: "claim_failed" }, 500);
@@ -74,6 +87,7 @@ async function handler(req: Request): Promise<Response> {
     let titles: string[] = [];
     for (let i = 0; i < claimed.length; i++) {
       let r: any = claimed[i];
+      claimedIds.push(String(r.id));
       total += Number(r.amount || 0);
       codes.push(String(r.registration_code));
       titles.push(r.courses && r.courses.title ? String(r.courses.title) : "مادة دراسية");
@@ -84,7 +98,7 @@ async function handler(req: Request): Promise<Response> {
 
     // رابط مؤقت لصورة الإيصال (10 دقايق) من المسار المخزّن في الداتابيز
     let photoUrl: string | null = null;
-    if (first.proof_path) {
+    if (!isRegistered && first.proof_path) {
       let { data: signed, error: signErr } = await supabase.storage
         .from("receipts")
         .createSignedUrl(first.proof_path, 600);
@@ -92,8 +106,10 @@ async function handler(req: Request): Promise<Response> {
       if (signed && signed.signedUrl) photoUrl = signed.signedUrl;
     }
 
-    let message = [
-      "🔔 <b>طلب اشتراك جديد في أحمد مصطفى تك!</b>",
+    let lines: string[] = [
+      isRegistered
+        ? "📝 <b>تسجيل جديد في أحمد مصطفى تك</b>"
+        : "🔔 <b>وصل إيصال دفع جديد!</b>",
       "",
       "👤 <b>الطالب:</b> " + esc(first.full_name),
       "📧 <b>الإيميل:</b> <code>" + esc(first.email) + "</code>",
@@ -102,8 +118,13 @@ async function handler(req: Request): Promise<Response> {
       "💳 <b>طريقة الدفع:</b> " + payMethod,
       "💰 <b>المبلغ:</b> <code>" + total.toFixed(2) + " ج.م</code>",
       "🆔 <b>كود الطلب:</b> <code>" + esc(codes.join(" + ")) + "</code>",
-      photoUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>" : "",
-    ].join("\n").trim();
+    ];
+    if (isRegistered) {
+      lines.push("", "⏳ <b>الحالة:</b> في انتظار تحويل الطالب وإرسال الإيصال");
+    } else if (photoUrl) {
+      lines.push("", "📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>");
+    }
+    let message = lines.join("\n");
 
     // صف أزرار لكل تسجيل (عشان قبول مادتين مايبقاش لأول واحدة بس)
     let keyboard: any[][] = [];
@@ -144,17 +165,27 @@ async function handler(req: Request): Promise<Response> {
     let tgData = await tgRes.json();
 
     if (!tgData.ok) {
-      // التنبيه فشل: نفك الحجز عشان تتعمل محاولة تانية
+      // التنبيه فشل: نفك الحجز للتسجيلات اللي حجزناها بس
       console.error("telegram send failed:", JSON.stringify(tgData));
-      await supabase.from("registrations").update({ tg_notified_at: null }).in("id", ids);
+      await undoClaim(claimedIds, marker);
       return jsonResp({ ok: false, error: "telegram_failed" }, 502);
     }
 
     return jsonResp({ ok: true });
   } catch (err) {
     console.error("notify-telegram crashed:", String(err));
+    await undoClaim(claimedIds, marker);
     return jsonResp({ ok: false, error: "internal_error" }, 500);
   }
+}
+
+// فك الحجز عشان تتعمل محاولة تانية
+async function undoClaim(ids: string[], marker: string): Promise<void> {
+  if (ids.length === 0) return;
+  let undo: Record<string, string | null> = {};
+  undo[marker] = null;
+  let { error } = await supabase.from("registrations").update(undo).in("id", ids);
+  if (error) console.error("undo claim failed:", error.message);
 }
 
 Deno.serve(handler);

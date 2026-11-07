@@ -4,6 +4,7 @@
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+declare const EdgeRuntime: any;
 
 let ALLOWED_ORIGINS = ["https://ahmedmostafatechplatform.vercel.app"];
 let MAX_REGS = 10;
@@ -213,10 +214,15 @@ async function handler(req: Request): Promise<Response> {
       return jsonResp({ error: "already_submitted" }, 409, origin);
     }
 
-    // التنبيه فشله مايبوظش الرفع: الإيصال محفوظ والأدمن هيلاقيه في اللوحة
-    let notified = await notifyTelegram(ids);
-    console.log("receipt saved for", ids.length, "registration(s), notified:", notified);
-    return jsonResp({ ok: true, notified: notified }, 200, origin);
+// التنبيه بيتبعت في الخلفية: فشله مايبوظش الرفع، والإيصال محفوظ
+let task = notifyTelegram(ids);
+if (typeof EdgeRuntime !== "undefined") {
+  EdgeRuntime.waitUntil(task);
+} else {
+  await task;
+}
+console.log("receipt saved for", ids.length, "registration(s)");
+return jsonResp({ ok: true }, 200, origin);
   }
 
   return jsonResp({ error: "unknown_action" }, 400, origin);

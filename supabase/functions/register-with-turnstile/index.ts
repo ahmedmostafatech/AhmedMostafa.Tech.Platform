@@ -1,17 +1,19 @@
 // ============================================================
 // supabase/functions/register-with-turnstile/index.ts
 // تسجيل الطالب بعد التحقق من Turnstile على السيرفر + rate limit
+// التنبيه بيتبعت في الخلفية عشان الطالب مايستناش تليجرام
 // ============================================================
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
-// الدومينات المسموحة (لو هتجرب لوكال ضيف http://localhost:PORT هنا)
+declare const EdgeRuntime: any;
+
 let ALLOWED_ORIGINS = ["https://ahmedmostafatechplatform.vercel.app"];
 let ALLOWED_HOSTNAMES = ["ahmedmostafatechplatform.vercel.app"];
 let MAX_COURSES = 10;
 let UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// عميل بصلاحية service_role (المتغيرات دي بتتحط تلقائي في Supabase)
+// عميل بصلاحية service_role
 let supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -50,7 +52,14 @@ function str(value: unknown, max: number): string {
   return String(value ?? "").trim().slice(0, max);
 }
 
-// فحص rate limit (لو الفحص نفسه فشل بنسمح ونسجّل الخطأ، لأن Turnstile لسه شغال)
+// تسجيل زمن المرحلة في اللوج (بيرجّع الوقت الحالي للمرحلة اللي بعدها)
+function lap(label: string, since: number): number {
+  let now = performance.now();
+  console.log("timing", label, Math.round(now - since), "ms");
+  return now;
+}
+
+// فحص rate limit (لو الفحص نفسه فشل بنسمح ونسجّل الخطأ)
 async function allow(key: string, max: number, seconds: number): Promise<boolean> {
   let { data, error } = await supabase.rpc("check_rate_limit", {
     p_key: key,
@@ -89,7 +98,6 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
       console.warn("turnstile rejected:", JSON.stringify(data["error-codes"]));
       return false;
     }
-    // نتأكد إن التحقق اتعمل من صفحتنا ولنفس الـ action
     if (data.action && data.action !== "register") {
       console.warn("turnstile action mismatch:", data.action);
       return false;
@@ -105,6 +113,30 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   }
 }
 
+// تنبيه تليجرام "تسجيل جديد" عن طريق notify-telegram الداخلية
+async function notifyRegistered(ids: string[]): Promise<void> {
+  let internal = Deno.env.get("INTERNAL_FUNCTION_SECRET") || "";
+  if (!internal) {
+    console.error("INTERNAL_FUNCTION_SECRET is not set");
+    return;
+  }
+  try {
+    let res = await fetch(Deno.env.get("SUPABASE_URL") + "/functions/v1/notify-telegram", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
+        "x-internal-secret": internal,
+      },
+      body: JSON.stringify({ registration_ids: ids, kind: "registered" }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) console.error("notify-telegram returned", res.status);
+  } catch (e) {
+    console.error("notify-telegram call failed:", String(e));
+  }
+}
+
 async function handler(req: Request): Promise<Response> {
   let origin = req.headers.get("origin");
 
@@ -117,6 +149,8 @@ async function handler(req: Request): Promise<Response> {
   if (origin && !ALLOWED_ORIGINS.includes(origin)) {
     return jsonResp({ error: "forbidden_origin" }, 403, origin);
   }
+
+  let t = performance.now();
 
   let body: any;
   try {
@@ -149,26 +183,26 @@ async function handler(req: Request): Promise<Response> {
 
   let ip = getClientIp(req);
 
-  // 1) rate limit على الـ IP قبل ما نكلم Cloudflare
-  if (!(await allow("reg:ip:" + ip, 10, 600))) {
-    return jsonResp({ error: "rate_limited" }, 429, origin);
-  }
+  // 1) فحص حد الـ IP والتحقق من Turnstile بالتوازي
+  let checks = await Promise.all([
+    allow("reg:ip:" + ip, 10, 600),
+    verifyTurnstile(token, ip),
+  ]);
+  t = lap("ip-limit+turnstile", t);
 
-  // 2) التحقق من Turnstile
-  if (!(await verifyTurnstile(token, ip))) {
-    return jsonResp({ error: "turnstile_failed" }, 403, origin);
-  }
+  if (!checks[0]) return jsonResp({ error: "rate_limited" }, 429, origin);
+  if (!checks[1]) return jsonResp({ error: "turnstile_failed" }, 403, origin);
 
-  // 3) rate limit على الإيميل
+  // 2) حد الإيميل (بعد Turnstile عشان محدش يستهلك حد إيميل غيره)
   if (!(await allow("reg:email:" + email, 5, 3600))) {
     return jsonResp({ error: "rate_limited" }, 429, origin);
   }
+  t = lap("email-limit", t);
 
-  // 4) تسجيل كل مراجعة
-  let results: unknown[] = [];
-  for (let i = 0; i < courseIds.length; i++) {
-    let { data, error } = await supabase.rpc("register_student_with_coupon", {
-      p_course_id: courseIds[i],
+  // 3) تسجيل كل المواد بالتوازي
+  let settled = await Promise.all(courseIds.map(function (cid) {
+    return supabase.rpc("register_student_with_coupon", {
+      p_course_id: cid,
       p_full_name: fullName,
       p_branch: branch,
       p_phone: phone,
@@ -176,12 +210,36 @@ async function handler(req: Request): Promise<Response> {
       p_payment_method: paymentMethod,
       p_discount_code: discountCode,
     });
-    if (error) {
-      console.error("registration failed:", error.message);
-      // رسالة Postgres زي 'invalid phone' بترجع زي ما هي عشان getErrorMessage يترجمها
-      return jsonResp({ error: error.message, results }, 400, origin);
+  }));
+  t = lap("register-rpcs", t);
+
+  let results: any[] = [];
+  let firstError: string | null = null;
+  for (let i = 0; i < settled.length; i++) {
+    if (settled[i].error) {
+      if (!firstError) firstError = String(settled[i].error!.message);
+    } else {
+      results.push(settled[i].data);
     }
-    results.push(data);
+  }
+  if (firstError) {
+    // رسالة Postgres زي 'invalid phone' بترجع زي ما هي عشان getErrorMessage يترجمها
+    console.error("registration failed:", firstError);
+    return jsonResp({ error: firstError, results }, 400, origin);
+  }
+
+  // 4) تنبيه تليجرام في الخلفية
+  let regIds: string[] = [];
+  for (let i = 0; i < results.length; i++) {
+    if (results[i] && results[i].registration_id) regIds.push(String(results[i].registration_id));
+  }
+  if (regIds.length > 0) {
+    let task = notifyRegistered(regIds);
+    if (typeof EdgeRuntime !== "undefined") {
+      EdgeRuntime.waitUntil(task);
+    } else {
+      await task;
+    }
   }
 
   console.log("registered", results.length, "course(s)");
