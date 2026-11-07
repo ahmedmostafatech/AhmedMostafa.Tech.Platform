@@ -7,6 +7,7 @@ import { initNavbar } from '../components/navbar.js';
 import { mountReceiptPrinter } from '../components/receipt-printer.js';
 import { getRegistrationSummary } from '../services/revisions-service.js';
 import { supabase } from '../core/supabase-client.js';
+import { uploadReceiptSecure, getReceiptErrorMessage } from '../services/receipts-service.js';
 import {
   getQueryParam,
   formatPrice,
@@ -88,7 +89,7 @@ async function initPaymentPage() {
 طريقة الدفع: ${methodLabel}
 المبلغ الإجمالي: ${totalAmount} EGP
 
-بعتلك صورة إيصال التحويل. ممكن تراجع الدفع وتفعّل اشتراكي؟ شكراً ليك.`;
+بعتلك صورة إيصال التحويل. ممكن تراجع الدفع وتفعل اشتراكي؟ .`;
 
       let waUrl = `https://wa.me/${APP_CONFIG.WHATSAPP_INTL}?text=${encodeURIComponent(waText)}`;
       whatsappBtn.href = waUrl;
@@ -215,65 +216,13 @@ async function initPaymentPage() {
 
         try {
           // 1. رفع الصورة إلى Supabase Storage
-          let ext = selectedFile.name.split('.').pop() || 'jpg';
-          let fileName = `receipt_${first.registration_code}_${Date.now()}.${ext}`;
-
-          let { data: uploadData, error: uploadErr } = await supabase.storage
-            .from('receipts')
-            .upload(fileName, selectedFile, {
-              cacheControl: '3600',
-              upsert: true
-            });
-
-          if (uploadErr) {
-            console.error('Storage upload error:', uploadErr);
-            throw new Error('معرفتش أرفع الصورة. ممكن تبعتها لي واتساب مباشرة.');
-          }
-
-          // رابط الصورة العلني
-          let { data: publicUrlData } = supabase.storage
-            .from('receipts')
-            .getPublicUrl(fileName);
-
-          let receiptUrl = publicUrlData ? publicUrlData.publicUrl : '';
-
-          // 2. ربط رابط الإيصال بجميع التسجيلات التابعة لهذا الطلب
-          for (let i = 0; i < regIds.length; i++) {
-            try {
-              await supabase.rpc('submit_registration_receipt', {
-                p_reg_id: regIds[i],
-                p_receipt_url: receiptUrl
-              });
-            } catch (rpcErr) {
-              // fallback مباشر لحفظ proof_path و receipt_url
-              await supabase.from('registrations').update({
-                receipt_url: receiptUrl,
-                proof_path: fileName,
-                payment_status: 'under_review',
-                updated_at: new Date().toISOString()
-              }).eq('id', regIds[i]);
-            }
-          }
-
-          // 3. إرسال إشعار فوري لتليجرام بالصورة لتمكين الأدمن من القبول بنقرة واحدة
-          try {
-            await supabase.functions.invoke('notify-telegram', {
-              body: {
-                registration_id: first.id,
-                registration_code: combinedCodes,
-                student_name: first.full_name,
-                student_email: first.email,
-                student_phone: first.phone,
-                course_title: combinedCourses,
-                amount: totalAmount,
-                payment_method: first.payment_method,
-                receipt_url: receiptUrl,
-                proof_path: fileName
-              }
-            });
-          } catch (tgErr) {
-            console.warn('Telegram receipt notify warning:', tgErr);
-          }
+// الرفع والتأكيد وتنبيه تليجرام كلها بتحصل عن طريق السيرفر
+try {
+  await uploadReceiptSecure({ registrationIds: regIds, file: selectedFile });
+} catch (uploadErr) {
+  console.error('Receipt upload failed:', uploadErr);
+  throw new Error(getReceiptErrorMessage(uploadErr));
+}
 
           showAlert('وصلني إيصالك. هراجعه دلوقتي وأفعّل المادة، والرابط هيوصلك على إيميلك.', 'success');
           uploadBtn.hidden = true;

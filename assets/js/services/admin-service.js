@@ -41,6 +41,7 @@ export async function getAllRegistrations(filters = {}) {
       revoke_reason,
       access_error,
       receipt_url,
+proof_path,
       created_at,
       courses ( id, title, access_link )
     `)

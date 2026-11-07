@@ -405,7 +405,7 @@ function updateModalButtons(reg) {
   }
 }
 
-function openReviewModal(regId) {
+ async function openReviewModal(regId) {
   let reg = currentRegistrations.find(function (r) {
     return r.id === regId;
   });
@@ -466,19 +466,24 @@ function openReviewModal(regId) {
   // عرض كارت معاينة صورة إيصال التحويل المرفوع
   let receiptBox = byId('modal-receipt-container');
   if (receiptBox) {
-    let finalReceiptUrl = reg.receipt_url || null;
-    let proofPath = reg.proof_path || null;
+    // رابط مؤقت لصورة الإيصال من المسار المخزّن (الأدمن بس يقدر يعمله)
+let finalReceiptUrl = null;
+let proofPath = reg.proof_path || null;
 
-    if (!finalReceiptUrl && proofPath) {
-      try {
-        let { data: pubData } = supabase.storage.from('receipts').getPublicUrl(proofPath);
-        if (pubData && pubData.publicUrl) {
-          finalReceiptUrl = pubData.publicUrl;
-        }
-      } catch (err) {
-        console.warn('Error fetching public url for receipt:', err);
-      }
+if (proofPath) {
+  try {
+    let { data: signed, error: signErr } = await supabase.storage
+      .from('receipts')
+      .createSignedUrl(proofPath, 600);
+    if (signErr) {
+      console.warn('receipt signed url failed:', signErr.message);
+    } else if (signed && signed.signedUrl) {
+      finalReceiptUrl = signed.signedUrl;
     }
+  } catch (err) {
+    console.warn('Error creating signed url for receipt:', err);
+  }
+}
 
     if (finalReceiptUrl) {
       receiptBox.innerHTML = `

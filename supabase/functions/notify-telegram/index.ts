@@ -1,15 +1,17 @@
 // ============================================================
 // supabase/functions/notify-telegram/index.ts
-// إرسال إشعار فوري للأدمن على تليجرام عند تقديم طلب دفع جديد
-// مع أزرار Inline وصورة الإيصال (sendPhoto) إن وجدت
+// تنبيه تليجرام للأدمن: داخلية فقط، والبيانات من الداتابيز مش من الطلب
 // ============================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+let supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  { auth: { persistSession: false } },
+);
+
+let UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function esc(text: string | null | undefined): string {
   if (!text) return "";
@@ -18,126 +20,141 @@ function esc(text: string | null | undefined): string {
 
 function jsonResp(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
-    headers: { ...CORS, "Content-Type": "application/json" },
     status,
+    headers: { "Content-Type": "application/json" },
   });
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+async function handler(req: Request): Promise<Response> {
+  if (req.method !== "POST") return jsonResp({ ok: false, error: "method_not_allowed" }, 405);
+
+  // الدالة داخلية: لازم السر الداخلي
+  let internal = Deno.env.get("INTERNAL_FUNCTION_SECRET") || "";
+  let incoming = req.headers.get("x-internal-secret") || "";
+  if (!internal || incoming !== internal) {
+    console.warn("notify-telegram: unauthorized call");
+    return jsonResp({ ok: false, error: "unauthorized" }, 401);
+  }
+
+  let botToken = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
+  let chatId = Deno.env.get("TELEGRAM_CHAT_ID") || "";
+  if (!botToken || !chatId) {
+    console.error("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID");
+    return jsonResp({ ok: false, error: "not_configured" }, 500);
+  }
 
   try {
-    const payload = await req.json();
-    const record = payload.record || payload;
-
-    const studentName = esc(record.student_name || record.full_name || "طالب جديد");
-    const studentEmail = esc(record.student_email || record.email || "—");
-    const studentPhone = String(record.student_phone || record.phone || "—").replace(/\D/g, "");
-    const courseTitle = esc(record.course_title || record.title || "مادة دراسية");
-    const amount = record.amount ? `${Number(record.amount).toFixed(2)} ج.م` : "—";
-    const payMethod = record.payment_method === "vodafone_cash" ? "🔴 فودافون كاش" : "🟣 إنستاباي";
-    const txRef = esc(record.tx_reference || "—");
-    const regId = String(record.registration_id || record.id || "");
-    const regCode = esc(record.registration_code || record.code || "—");
-
-    const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
-    const chatId = Deno.env.get("TELEGRAM_CHAT_ID");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-
-    if (!botToken || !chatId) {
-      console.warn("Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID");
-      return jsonResp({ success: false, simulated: true, message: "Telegram not configured." });
+    let body = await req.json();
+    let ids: string[] = Array.isArray(body.registration_ids)
+      ? body.registration_ids.map(function (v: unknown) { return String(v); }).filter(function (v: string) { return UUID_RE.test(v); })
+      : [];
+    if (ids.length === 0 || ids.length > 10) {
+      return jsonResp({ ok: false, error: "invalid_ids" }, 400);
     }
 
-    let receiptUrl: string | null = record.receipt_url || null;
-    const proofPath: string | null = record.proof_path || null;
+    // حجز ذري: كل تسجيل ينبّه مرة واحدة بس
+    let { data: claimed, error: claimErr } = await supabase
+      .from("registrations")
+      .update({ tg_notified_at: new Date().toISOString() })
+      .in("id", ids)
+      .is("tg_notified_at", null)
+      .eq("payment_status", "under_review")
+      .select("id, registration_code, full_name, email, phone, amount, payment_method, proof_path, courses(title)");
+    if (claimErr) {
+      console.error("claim failed:", claimErr.message);
+      return jsonResp({ ok: false, error: "claim_failed" }, 500);
+    }
+    if (!claimed || claimed.length === 0) {
+      return jsonResp({ ok: true, skipped: true });
+    }
 
-    if (!receiptUrl && proofPath && supabaseUrl && serviceKey) {
-      try {
-        const supabase = createClient(supabaseUrl, serviceKey);
-        const { data: signedData } = await supabase.storage
-          .from("receipts")
-          .createSignedUrl(proofPath, 60 * 60 * 24 * 7);
+    let first: any = claimed[0];
+    let total = 0;
+    let codes: string[] = [];
+    let titles: string[] = [];
+    for (let i = 0; i < claimed.length; i++) {
+      let r: any = claimed[i];
+      total += Number(r.amount || 0);
+      codes.push(String(r.registration_code));
+      titles.push(r.courses && r.courses.title ? String(r.courses.title) : "مادة دراسية");
+    }
 
-        if (signedData?.signedUrl) {
-          receiptUrl = signedData.signedUrl;
-        } else {
-          const { data: pubData } = supabase.storage
-            .from("receipts")
-            .getPublicUrl(proofPath);
-          if (pubData?.publicUrl) receiptUrl = pubData.publicUrl;
-        }
-      } catch (err) {
-        console.warn("Could not generate signed url for proof_path:", err);
+    let payMethod = first.payment_method === "vodafone_cash" ? "🔴 فودافون كاش" : "🟣 إنستاباي";
+    let phoneDigits = String(first.phone || "").replace(/\D/g, "");
+
+    // رابط مؤقت لصورة الإيصال (10 دقايق) من المسار المخزّن في الداتابيز
+    let photoUrl: string | null = null;
+    if (first.proof_path) {
+      let { data: signed, error: signErr } = await supabase.storage
+        .from("receipts")
+        .createSignedUrl(first.proof_path, 600);
+      if (signErr) console.warn("signed url failed:", signErr.message);
+      if (signed && signed.signedUrl) photoUrl = signed.signedUrl;
+    }
+
+    let message = [
+      "🔔 <b>طلب اشتراك جديد في أحمد مصطفى تك!</b>",
+      "",
+      "👤 <b>الطالب:</b> " + esc(first.full_name),
+      "📧 <b>الإيميل:</b> <code>" + esc(first.email) + "</code>",
+      "📱 <b>الموبايل:</b> <code>" + esc(phoneDigits) + "</code>",
+      "📚 <b>المادة:</b> " + esc(titles.join(" + ")),
+      "💳 <b>طريقة الدفع:</b> " + payMethod,
+      "💰 <b>المبلغ:</b> <code>" + total.toFixed(2) + " ج.م</code>",
+      "🆔 <b>كود الطلب:</b> <code>" + esc(codes.join(" + ")) + "</code>",
+      photoUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>" : "",
+    ].join("\n").trim();
+
+    // صف أزرار لكل تسجيل (عشان قبول مادتين مايبقاش لأول واحدة بس)
+    let keyboard: any[][] = [];
+    for (let i = 0; i < claimed.length; i++) {
+      let r: any = claimed[i];
+      let single = claimed.length === 1;
+      keyboard.push([
+        { text: single ? "✅ قبول وتأكيد الدفع" : "✅ قبول " + r.registration_code, callback_data: "approve_" + r.id },
+        { text: single ? "❌ رفض الطلب" : "❌ رفض " + r.registration_code, callback_data: "reject_" + r.id },
+      ]);
+      if (single) {
+        keyboard.push([{ text: "🔍 وضع قيد الفحص", callback_data: "review_" + r.id }]);
       }
     }
-
-    const message = `
-🔔 <b>طلب اشتراك جديد في أحمد مصطفى تك!</b>
-
-👤 <b>الطالب:</b> ${studentName}
-📧 <b>الإيميل:</b> <code>${studentEmail}</code>
-📱 <b>الموبايل:</b> <code>${studentPhone}</code>
-📚 <b>المادة:</b> ${courseTitle}
-💳 <b>طريقة الدفع:</b> ${payMethod}
-💰 <b>المبلغ:</b> <code>${amount}</code>
-🔢 <b>رقم العملية:</b> <code>${txRef}</code>
-🆔 <b>كود الطلب:</b> <code>${regCode}</code>
-${receiptUrl ? "\n📎 <b>تم إرفاق صورة إيصال التحويل أعلاه ☝️</b>" : ""}
-`.trim();
-
-    const inlineKeyboard: any = {
-      inline_keyboard: []
-    };
-
-    if (regId) {
-      inlineKeyboard.inline_keyboard.push([
-        { text: "✅ قبول وتأكيد الدفع", callback_data: `approve_${regId}` },
-        { text: "❌ رفض الطلب", callback_data: `reject_${regId}` },
-      ]);
-      inlineKeyboard.inline_keyboard.push([
-        { text: "🔍 وضع قيد الفحص", callback_data: `review_${regId}` },
-      ]);
+    if (phoneDigits.length >= 10) {
+      keyboard.push([{ text: "💬 فتح واتساب الطالب", url: "https://wa.me/" + phoneDigits.replace(/^0/, "20") }]);
     }
 
-    if (studentPhone && studentPhone.length >= 10) {
-      const waPhone = studentPhone.startsWith("2") ? studentPhone : "2" + studentPhone.replace(/^0/, "");
-      inlineKeyboard.inline_keyboard.push([
-        { text: "💬 فتح واتساب الطالب", url: `https://wa.me/${waPhone}` },
-      ]);
-    }
-
-    let endpoint = "sendMessage";
-    let bodyData: any = {
+    let endpoint = photoUrl ? "sendPhoto" : "sendMessage";
+    let tgBody: any = {
       chat_id: chatId,
       parse_mode: "HTML",
-      reply_markup: inlineKeyboard,
+      reply_markup: { inline_keyboard: keyboard },
     };
-
-    if (receiptUrl) {
-      endpoint = "sendPhoto";
-      bodyData.photo = receiptUrl;
-      bodyData.caption = message;
+    if (photoUrl) {
+      tgBody.photo = photoUrl;
+      tgBody.caption = message;
     } else {
-      bodyData.text = message;
-      bodyData.disable_web_page_preview = true;
+      tgBody.text = message;
+      tgBody.disable_web_page_preview = true;
     }
 
-    const telegramRes = await fetch(
-      `https://api.telegram.org/bot${botToken}/${endpoint}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bodyData),
-      }
-    );
+    let tgRes = await fetch("https://api.telegram.org/bot" + botToken + "/" + endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(tgBody),
+    });
+    let tgData = await tgRes.json();
 
-    const tgData = await telegramRes.json();
-    return jsonResp({ success: tgData.ok, result: tgData });
+    if (!tgData.ok) {
+      // التنبيه فشل: نفك الحجز عشان تتعمل محاولة تانية
+      console.error("telegram send failed:", JSON.stringify(tgData));
+      await supabase.from("registrations").update({ tg_notified_at: null }).in("id", ids);
+      return jsonResp({ ok: false, error: "telegram_failed" }, 502);
+    }
 
+    return jsonResp({ ok: true });
   } catch (err) {
-    console.error("notify-telegram error:", err);
-    return jsonResp({ success: false, error: (err as Error).message }, 500);
+    console.error("notify-telegram crashed:", String(err));
+    return jsonResp({ ok: false, error: "internal_error" }, 500);
   }
-});
+}
+
+Deno.serve(handler);
